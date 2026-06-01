@@ -153,239 +153,27 @@
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; 
         }
         @media (max-width: 1200px) { .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (min-width: 1400px) {
-            .container { max-width: 1400px; padding: 0 28px 28px; }
-            .overview-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-            .workspace-grid { gap: 32px; }
-            .slide-page { padding: 32px; }
-            .card { padding: 20px 24px; }
-            .card-info p { font-size: 26px; }
-            .target-card-container { padding: 18px; }
-            .input-form-box, .calendar-box { padding: 20px; }
-        }
-        @media (min-width: 1920px) {
-            .container { max-width: 1600px; padding: 0 32px 32px; }
-            .overview-grid { gap: 18px; }
-            .workspace-grid { gap: 36px; }
-            .slide-page { padding: 36px; }
-            .slide-header h1 { font-size: 30px; }
-            .card { padding: 22px 28px; }
-            .card-info p { font-size: 28px; }
-            .target-card-container { padding: 20px; }
-            .mock-chart-graphics { height: 340px; }
-        }
-        @media (max-width: 1024px) {
-            .workspace-grid { grid-template-columns: 1fr; }
-            .overview-grid { grid-template-columns: 1fr; }
-            .top-control-bar { flex-direction: column; align-items: stretch; padding: 14px 18px; gap: 12px; }
-            .time-filters { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-            .time-filters select { width: 48%; }
-            .slide-btn { flex: 1 1 100%; justify-content: center; }
-            .page-banner, .slide-page, .target-card-container, .chart-mock-container, .input-form-box, .calendar-box, .table-responsive { border-radius: 18px; }
-        }
+        @media (max-width: 768px) { .overview-grid { grid-template-columns: 1fr; } }
 
-        @media (max-width: 768px) {
-            /* Container & Padding */
-            .container { padding: 0 14px 14px; }
-            
-            /* Top Control Bar */
-            .top-control-bar { padding: 10px 12px; gap: 10px; }
-            .ppt-navigation { display: flex; gap: 8px; flex-wrap: wrap; }
-            .slide-btn { padding: 10px 12px; font-size: 12px; gap: 6px; }
-            .time-filters { width: 100%; gap: 8px; flex-wrap: wrap; }
-            .time-filters select { width: 48%; padding: 8px 10px; font-size: 12px; }
-            
-            /* Banner & Page */
-            .page-banner { padding: 20px 16px; margin-bottom: 16px; border-radius: 16px; }
-            .page-banner h1 { font-size: 22px; }
-            .page-banner p { font-size: 13px; }
-            .slide-page { padding: 18px; border-radius: 16px; }
-            .slide-header h1 { font-size: 20px; }
-            .slide-header p { font-size: 12px; }
-            
-            /* Overview Grid */
-            .overview-grid { grid-template-columns: 1fr; gap: 12px; }
-            .card { padding: 14px 16px; flex-direction: row; }
-            .card-info h3 { font-size: 11px; }
-            .card-info p { font-size: 20px; margin-top: 6px; }
-            .card-icon { padding: 12px; font-size: 22px; }
-            
-            /* Forms */
-            .form-row-inner { grid-template-columns: 1fr; gap: 8px; }
-            .form-group { margin-bottom: 10px; }
-            .form-group label { font-size: 11px; margin-bottom: 4px; }
-            .input-ctrl { padding: 8px 10px; font-size: 12px; }
-            .amount-preview { font-size: 10px; margin-top: 4px; }
-            .btn-submit-tx { padding: 11px; font-size: 12px; gap: 8px; }
-            .form-toggle { margin-bottom: 10px; }
-            .toggle-btn { padding: 8px; font-size: 12px; }
-            
-            /* Input Form Box */
-            .input-form-box { padding: 12px; border-radius: 14px; }
-            
-            /* Calendar */
-            .calendar-box { padding: 12px; border-radius: 14px; }
-            .calendar-header-nav { margin-bottom: 8px; }
-            .calendar-nav-btn { padding: 6px 10px; font-size: 11px; }
-            .calendar-title { font-size: 11px; }
-            .calendar-grid { gap: 3px; }
-            .calendar-day { padding: 6px 2px; min-height: 44px; border-radius: 10px; }
-            .calendar-day .solar { font-size: 11px; }
-            .calendar-day .lunar { font-size: 8px; }
-            .calendar-note-popup { min-width: 180px; max-width: 220px; padding: 10px; }
-            .calendar-note-input { min-height: 80px; padding: 8px 10px; font-size: 12px; }
-            
-            /* Chart */
-            .chart-mock-container { padding: 14px; border-radius: 14px; gap: 10px; }
-            .mock-chart-graphics { height: 180px; padding: 16px 10px 0 10px; gap: 8px; margin-left: 16px; }
-            .chart-bar-group { flex: 0 0 40px; }
-            .bar-pill { width: 14px; }
-            .chart-label { font-size: 9px; margin-top: 4px; }
-            
-            /* Target Card */
-            .target-card-container { padding: 12px; border-radius: 14px; }
-            .target-section-title { font-size: 12px; margin-bottom: 8px; }
-            .target-table-wrapper { border-radius: 12px; }
-            .target-table { font-size: 12px; }
-            .target-table th, .target-table td { padding: 8px 6px; }
-            .target-table .label-cell { width: 80px; min-width: 80px; }
-            
-            /* Table Responsive */
-            .table-responsive { max-height: 400px; border-radius: 14px; }
-            table { font-size: 11px; }
-            thead tr th { padding: 8px 5px; font-size: 11px; }
-            thead tr:nth-child(2) th { top: 34px; }
-            td { padding: 7px 8px; font-size: 11px; }
-            .col-date { width: 55px; }
-            
-            /* Lunar Calendar */
-            .lunar-calendar-wrapper { border-radius: 14px; max-height: 500px; }
-            .lunar-calendar-table thead tr:last-child th { padding: 8px 6px; }
-            .lunar-calendar-table tbody td { padding: 10px 6px; font-size: 12px; }
-            .lunar-date { font-size: 12px; }
-            .lunar-festival, .lunar-holiday { font-size: 10px; padding: 1px 6px; }
+        .card { 
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,250,255,0.96));
+            padding: 18px 20px; border-radius: 18px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            border: 1px solid rgba(203, 213, 225, 0.9); box-shadow: 0 18px 32px rgba(31, 41, 55, 0.06);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 24px 50px rgba(31, 41, 55, 0.09); }
+        .card-info h3 { margin: 0; font-size: 12px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-info p { margin: 8px 0 0 0; font-size: 24px; font-weight: 800; color: var(--dark); }
+        .card-icon { padding: 16px; border-radius: 16px; display: flex; font-size: 26px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.65); }
+        .card.income .card-icon { background: rgba(34, 197, 94, 0.12); color: var(--success); }
+        .card.expense .card-icon { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+        .card.balance .card-icon { background: rgba(59, 130, 246, 0.12); color: var(--primary); }
 
-        @media (max-width: 600px) {
-            /* Extra Compact for small phones */
-            .container { padding: 0 10px 10px; }
-            
-            /* Header */
-            .page-banner { padding: 16px 12px; }
-            .page-banner h1 { font-size: 18px; }
-            .page-banner p { font-size: 12px; }
-            
-            /* Control Bar */
-            .top-control-bar { flex-direction: column; padding: 8px 10px; gap: 8px; }
-            .ppt-navigation { gap: 6px; }
-            .slide-btn { padding: 8px 10px; font-size: 11px; }
-            .time-filters { gap: 6px; }
-            .time-filters select { width: 100%; padding: 7px 8px; font-size: 11px; }
-            
-            /* Grid Layouts */
-            .overview-grid { grid-template-columns: 1fr; gap: 10px; }
-            .card { padding: 12px 14px; }
-            .card-info p { font-size: 18px; }
-            .card-icon { padding: 10px; font-size: 20px; }
-            
-            /* Forms Compact */
-            .form-group { margin-bottom: 8px; }
-            .form-group label { font-size: 10px; margin-bottom: 3px; }
-            .input-ctrl { padding: 7px 8px; font-size: 11px; }
-            .toggle-btn { padding: 6px; font-size: 11px; }
-            .btn-submit-tx { padding: 9px; font-size: 11px; }
-            
-            /* Boxes */
-            .input-form-box, .calendar-box, .target-card-container, .chart-mock-container { padding: 10px; border-radius: 12px; }
-            
-            /* Calendar Ultra Compact */
-            .calendar-grid { gap: 2px; }
-            .calendar-day { padding: 4px 2px; min-height: 40px; }
-            .calendar-day .solar { font-size: 10px; }
-            .calendar-day .lunar { font-size: 7px; }
-            
-            /* Chart Ultra Compact */
-            .mock-chart-graphics { height: 140px; padding: 12px 8px 0 12px; gap: 6px; margin-left: 12px; }
-            .chart-bar-group { flex: 0 0 35px; }
-            .bar-pill { width: 12px; }
-            .chart-label { font-size: 8px; margin-top: 2px; }
-            
-            /* Table Ultra Compact */
-            table { font-size: 10px; }
-            thead tr th { padding: 6px 4px; font-size: 10px; }
-            td { padding: 6px 6px; font-size: 10px; }
-            .target-table th, .target-table td { padding: 7px 5px; font-size: 10px; }
-            .target-table .label-cell { width: 70px; min-width: 70px; }
-        }
-
-        @media (max-width: 480px) {
-            .container { padding: 0 8px 8px; }
-            .slide-page { padding: 14px; }
-            
-            .page-banner { padding: 12px 10px; margin-bottom: 12px; }
-            .page-banner h1 { font-size: 16px; }
-            .page-banner p { font-size: 11px; }
-            
-            .top-control-bar { padding: 6px 8px; gap: 6px; }
-            .slide-btn { padding: 6px 8px; font-size: 10px; }
-            .time-filters { gap: 4px; }
-            .time-filters select { font-size: 10px; padding: 6px; }
-            
-            .overview-grid { gap: 8px; }
-            .card { padding: 10px 12px; flex-direction: column; align-items: flex-start; }
-            .card-info p { font-size: 16px; margin-top: 4px; }
-            .card-icon { padding: 8px; font-size: 18px; align-self: flex-end; margin-top: -34px; }
-            
-            .input-form-box, .calendar-box, .target-card-container, .chart-mock-container { padding: 8px; border-radius: 10px; }
-            
-            .form-row-inner { gap: 6px; }
-            .form-group { margin-bottom: 6px; }
-            .form-group label { font-size: 9px; margin-bottom: 2px; }
-            .input-ctrl { padding: 6px 7px; font-size: 10px; }
-            .toggle-btn { padding: 5px; font-size: 10px; }
-            .btn-submit-tx { padding: 8px; font-size: 10px; }
-            
-            .calendar-grid { gap: 2px; }
-            .calendar-day { padding: 3px 2px; min-height: 36px; }
-            .calendar-day .solar { font-size: 9px; }
-            .calendar-day .lunar { font-size: 6px; }
-            
-            .mock-chart-graphics { height: 120px; padding: 10px 6px 0 10px; gap: 5px; margin-left: 10px; }
-            .chart-bar-group { flex: 0 0 32px; }
-            .bar-pill { width: 11px; }
-            .chart-label { font-size: 7px; }
-            
-            table { font-size: 9px; }
-            thead tr th { padding: 5px 3px; font-size: 9px; }
-            td { padding: 5px 5px; }
-            .target-table th, .target-table td { padding: 6px 4px; font-size: 9px; }
-            .target-table .label-cell { width: 60px; min-width: 60px; }
-            
-            .lunar-calendar-table thead tr:last-child th { padding: 6px 4px; }
-            .lunar-calendar-table tbody td { padding: 8px 4px; font-size: 10px; }
-            .lunar-date { font-size: 10px; }
-        }
-
-        @media (max-width: 380px) {
-            .page-banner h1 { font-size: 14px; }
-            .slide-btn { font-size: 9px; padding: 5px 6px; }
-            .time-filters select { font-size: 9px; padding: 5px; }
-            .card-info p { font-size: 14px; }
-            .input-ctrl { font-size: 9px; padding: 5px 6px; }
-            table { font-size: 8px; }
-            td { padding: 4px 4px; }
-        }
-
-        @media (max-width: 320px) {
-            .container { padding: 0 6px 6px; }
-            .page-banner { padding: 10px 8px; }
-            .page-banner h1 { font-size: 13px; }
-            .page-banner p { font-size: 10px; }
-            .slide-btn { font-size: 8px; padding: 4px 5px; }
-            .overview-grid { gap: 6px; }
-            .card { padding: 8px 10px; }
-            .card-info p { font-size: 13px; }
-        }
+        /* WORKSPACE GRID 65% - 35% */
+        .workspace-grid { display: grid; grid-template-columns: 1.85fr 1fr; gap: 28px; align-items: start; }
+        @media (max-width: 1200px) { .workspace-grid { grid-template-columns: 1.3fr 1fr; } }
+        @media (max-width: 1024px) { .workspace-grid { grid-template-columns: 1fr; } }
 
         .left-analytics-column { display: flex; flex-direction: column; gap: 24px; }
         
@@ -597,6 +385,73 @@
         .has-value { color: #b91c1c; font-weight: 500; }
         .divider-col { border-right: 3px solid #ef4444 !important; }
         .row-summary td { background-color: #f8fafc; font-weight: bold; border-top: 2px solid var(--border); color: var(--dark); border-bottom: 2px solid var(--border); }
+
+        @media (max-width: 1024px) {
+            .top-control-bar { flex-direction: column; align-items: stretch; padding: 14px 18px; gap: 12px; }
+            .time-filters { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .time-filters select { width: 48%; }
+            .slide-btn { flex: 1 1 100%; justify-content: center; }
+            .slide-btn.active { width: auto; }
+            .page-banner, .slide-page, .target-card-container, .chart-mock-container, .input-form-box, .calendar-box, .table-responsive { border-radius: 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .top-control-bar { padding: 12px 14px; }
+            .time-filters select { width: 100%; }
+            .slide-btn { width: 100%; }
+            .slide-header h1 { font-size: 24px; }
+            .slide-header p { font-size: 13px; }
+            .overview-grid { gap: 16px; }
+            .card { padding: 18px 20px; }
+            .workspace-grid { gap: 20px; }
+            .slide-page { padding: 24px; }
+            .form-row-inner { grid-template-columns: 1fr; }
+            .form-group { margin-bottom: 14px; }
+            .calendar-box { padding: 16px; }
+            .calendar-grid { gap: 6px; }
+            .calendar-day { padding: 10px 4px; }
+            .table-responsive { max-height: none; }
+            table { font-size: 12px; }
+            .target-table th, .target-table td { padding: 10px 6px; }
+            .target-table .label-cell { min-width: 80px; }
+        }
+
+        @media (max-width: 580px) {
+            .container { padding: 0 16px 16px; }
+            .slide-header h1 { font-size: 22px; line-height: 1.25; }
+            .overview-grid { grid-template-columns: 1fr; }
+            .card-info p { font-size: 20px; }
+            .form-row-inner { gap: 8px; grid-template-columns: 1fr; }
+            .input-ctrl { font-size: 12px; padding: 10px 10px; }
+            .btn-submit-tx { padding: 12px; font-size: 13px; }
+            .time-filters { gap: 8px; width: 100%; flex-wrap: wrap; }
+            .time-filters select { width: 100%; }
+            .slide-btn { width: 100%; padding: 14px 16px; font-size: 13px; }
+            .ppt-navigation { width: 100%; }
+            .calendar-header-nav { flex-wrap: wrap; gap: 6px; }
+            .calendar-title { font-size: 12px; }
+            .calendar-grid { gap: 4px; }
+            .calendar-day { padding: 8px 4px; min-height: 52px; }
+            .calendar-day .solar { font-size: 11px; }
+            .calendar-day .lunar { font-size: 9px; }
+            .table-responsive { max-height: none; }
+            table { font-size: 12px; }
+            .target-table { font-size: 11px; }
+            .target-table th, .target-table td { padding: 8px 6px; }
+            .target-table .label-cell { min-width: 70px; width: auto; }
+            .mock-chart-graphics { padding: 16px 10px 0 10px; }
+            .input-form-box, .calendar-box { padding: 14px; }
+            .form-toggle { flex-direction: column; }
+            .toggle-btn { width: 100%; }
+        }
+        @media (max-width: 420px) {
+            .slide-header h1 { font-size: 20px; }
+            .page-banner h1, .slide-header p { font-size: 14px; }
+            .btn-submit-tx { font-size: 12px; padding: 10px; }
+            .target-section-title { font-size: 13px; }
+            .calendar-title { font-size: 11px; }
+            .card-info p { font-size: 18px; }
+        }
     </style>
 </head>
 <body>
@@ -710,7 +565,7 @@
                             <div class="form-row-inner">
                                 <div>
                                     <label for="tx-day">Ngày</label>
-                                    <input type="number" id="tx-day" class="input-ctrl" min="1" max="31" value="" oninput="highlightCalendarDay()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); document.getElementById('tx-amount').focus(); }">
+                                    <input type="number" id="tx-day" class="input-ctrl" min="1" max="31" value="" oninput="highlightCalendarDay()">
                                 </div>
                                 <div>
                                     <label for="tx-category">Danh mục</label>
@@ -720,7 +575,7 @@
                         </div>
                         <div class="form-group">
                             <label for="tx-amount">Số tiền nhập tắt (hàng nghìn đ)</label>
-                            <input type="number" id="tx-amount" class="input-ctrl" placeholder="Nhập 50 ứng với 50.000 đ" min="0" oninput="updateAmountPreview()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); addTransaction(); }">
+                            <input type="number" id="tx-amount" class="input-ctrl" placeholder="Nhập 50 ứng với 50.000 đ" min="0" oninput="updateAmountPreview()">
                             <span id="amount-preview" class="amount-preview"></span>
                         </div>
                         <button class="btn-submit-tx" onclick="addTransaction()">
@@ -1162,12 +1017,7 @@
         highlightCalendarDay();
     }
 
-      function selectCalendarDay(day) { 
-        document.getElementById('tx-day').value = day; 
-        highlightCalendarDay(); 
-        // Tự động chuyển focus sang ô nhập số tiền sau khi chọn ngày trên lịch
-        document.getElementById('tx-amount').focus();
-    }
+    function selectCalendarDay(day) { document.getElementById('tx-day').value = day; highlightCalendarDay(); }
     function highlightCalendarDay() {
         let inputDay = parseInt(document.getElementById('tx-day').value);
         const month = parseInt(document.getElementById('select-month').value);
