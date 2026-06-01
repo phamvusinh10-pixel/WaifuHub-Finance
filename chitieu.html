@@ -418,15 +418,39 @@
 
         @media (max-width: 580px) {
             .container { padding: 0 16px 16px; }
-            .slide-header h1 { font-size: 22px; }
+            .slide-header h1 { font-size: 22px; line-height: 1.25; }
             .overview-grid { grid-template-columns: 1fr; }
-            .card-info p { font-size: 22px; }
-            .form-row-inner { gap: 8px; }
+            .card-info p { font-size: 20px; }
+            .form-row-inner { gap: 8px; grid-template-columns: 1fr; }
             .input-ctrl { font-size: 12px; padding: 10px 10px; }
             .btn-submit-tx { padding: 12px; font-size: 13px; }
-            .time-filters { gap: 8px; }
-            .target-table { font-size: 12px; }
+            .time-filters { gap: 8px; width: 100%; flex-wrap: wrap; }
+            .time-filters select { width: 100%; }
+            .slide-btn { width: 100%; padding: 14px 16px; font-size: 13px; }
+            .ppt-navigation { width: 100%; }
+            .calendar-header-nav { flex-wrap: wrap; gap: 6px; }
+            .calendar-title { font-size: 12px; }
+            .calendar-grid { gap: 4px; }
+            .calendar-day { padding: 8px 4px; min-height: 52px; }
+            .calendar-day .solar { font-size: 11px; }
+            .calendar-day .lunar { font-size: 9px; }
+            .table-responsive { max-height: none; }
+            table { font-size: 12px; }
+            .target-table { font-size: 11px; }
+            .target-table th, .target-table td { padding: 8px 6px; }
+            .target-table .label-cell { min-width: 70px; width: auto; }
             .mock-chart-graphics { padding: 16px 10px 0 10px; }
+            .input-form-box, .calendar-box { padding: 14px; }
+            .form-toggle { flex-direction: column; }
+            .toggle-btn { width: 100%; }
+        }
+        @media (max-width: 420px) {
+            .slide-header h1 { font-size: 20px; }
+            .page-banner h1, .slide-header p { font-size: 14px; }
+            .btn-submit-tx { font-size: 12px; padding: 10px; }
+            .target-section-title { font-size: 13px; }
+            .calendar-title { font-size: 11px; }
+            .card-info p { font-size: 18px; }
         }
     </style>
 </head>
