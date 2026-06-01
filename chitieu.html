@@ -3,86 +3,1394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Tài Chính Cá Nhân</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Tài Chính - 12 Tháng </title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
     <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        :root {
+            --primary: #3f83f8;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+            --dark: #1f2937;
+            --bg: #e9eff8;
+            --surface: #ffffff;
+            --surface-soft: #f4f8ff;
+            --text-main: #1f2937;
+            --text-sub: #5b6b7b;
+            --border: #d2dce8;
+            --shadow-soft: rgba(15, 23, 42, 0.08);
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(140deg, #eef4fb 0%, #f6fbff 40%, #f6f3ff 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.75), transparent 12%),
+                        radial-gradient(circle at 82% 20%, rgba(120, 178, 255, 0.18), transparent 18%),
+                        radial-gradient(circle at 50% 88%, rgba(154, 121, 255, 0.16), transparent 20%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px 24px;
+            box-sizing: border-box;
+        }
+
+        .page-banner {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            background: linear-gradient(140deg, rgba(63, 131, 248, 0.12), rgba(255,255,255,0.75));
+            border: 1px solid rgba(255,255,255,0.75);
+            box-shadow: 0 18px 50px rgba(63, 131, 248, 0.08);
+            padding: 28px 32px;
+            margin-bottom: 20px;
+        }
+
+        .page-banner::after {
+            content: '';
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.18), transparent 60%);
+            top: -40px;
+            right: -80px;
+            pointer-events: none;
+        }
+
+        #sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--dark);
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .page-banner h1 {
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: -0.02em;
+            color: var(--dark);
+        }
+
+        .page-banner p {
+            margin: 10px 0 0;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
+        
+        /* CONTROL BAR */
+        .top-control-bar { 
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(255, 255, 255, 0.9); padding: 12px 18px; 
+            box-shadow: 0 18px 40px rgba(31, 41, 55, 0.08); gap: 12px; flex-wrap: wrap;
+            backdrop-filter: blur(18px); border-bottom: 1px solid rgba(203, 213, 225, 0.65);
+        }
+        .ppt-navigation { display: flex; gap: 12px; flex-wrap: wrap; }
+        .slide-btn { 
+            background: rgba(243, 244, 246, 0.95); border: 1px solid rgba(148, 163, 184, 0.28); padding: 12px 24px; font-weight: 700; font-size: 14px;
+            color: var(--text-sub); border-radius: 14px; cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .slide-btn:hover { background: rgba(255, 255, 255, 0.95); color: var(--dark); transform: translateY(-1px); box-shadow: 0 8px 18px rgba(31, 41, 55, 0.08); }
+        .slide-btn.active { background: linear-gradient(135deg, #3f83f8, #5c85ff); color: #ffffff; border-color: transparent; box-shadow: 0 12px 24px rgba(63, 131, 248, 0.2); }
+
+        .time-filters { display: flex; align-items: center; gap: 10px; }
+        .time-filters select { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); font-family: inherit; font-weight: 500; color: var(--dark); background: #f8fafc; cursor: pointer; }
+
+        /* SLIDE PAGE ARCHITECTURE */
+        .slide-page { 
+            background: var(--surface); border-radius: 22px; padding: 24px; 
+            box-shadow: 0 18px 48px rgba(31, 41, 55, 0.08); 
+            margin: 18px 0 28px 0;
+            min-height: auto;
+            box-sizing: border-box;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .slide-header { position: relative; padding-bottom: 20px; margin-bottom: 28px; }
+        .slide-header::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 56px;
+            height: 4px;
+            background: linear-gradient(90deg, #3f83f8 0%, #9f7aea 100%);
+            border-radius: 999px;
+        }
+        .slide-header h1 { margin: 0; font-size: 26px; color: var(--dark); display: flex; align-items: center; gap: 10px; }
+        .slide-header p { margin: 8px 0 0 0; font-size: 13px; color: var(--text-sub); }
+
+        /* KPI CARDS THÀNH BANNER NGANG */
+        .overview-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; 
+        }
+        @media (max-width: 1200px) { .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 768px) { .overview-grid { grid-template-columns: 1fr; } }
+
+        .card { 
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,250,255,0.96));
+            padding: 18px 20px; border-radius: 18px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            border: 1px solid rgba(203, 213, 225, 0.9); box-shadow: 0 18px 32px rgba(31, 41, 55, 0.06);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 24px 50px rgba(31, 41, 55, 0.09); }
+        .card-info h3 { margin: 0; font-size: 12px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-info p { margin: 8px 0 0 0; font-size: 24px; font-weight: 800; color: var(--dark); }
+        .card-icon { padding: 16px; border-radius: 16px; display: flex; font-size: 26px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.65); }
+        .card.income .card-icon { background: rgba(34, 197, 94, 0.12); color: var(--success); }
+        .card.expense .card-icon { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+        .card.balance .card-icon { background: rgba(59, 130, 246, 0.12); color: var(--primary); }
+
+        /* WORKSPACE GRID 65% - 35% */
+        .workspace-grid { display: grid; grid-template-columns: 1.85fr 1fr; gap: 28px; align-items: start; }
+        @media (max-width: 1200px) { .workspace-grid { grid-template-columns: 1.3fr 1fr; } }
+        @media (max-width: 1024px) { .workspace-grid { grid-template-columns: 1fr; } }
+
+        .left-analytics-column { display: flex; flex-direction: column; gap: 24px; }
+        
+        .target-card-container {
+            background: linear-gradient(180deg, rgba(248, 250, 255, 0.98), rgba(232, 240, 255, 0.96));
+            border: 1px solid rgba(203, 213, 225, 0.85);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 18px 40px rgba(31, 41, 55, 0.06);
+            overflow: hidden;
+        }
+        .target-section-title { font-size: 14px; font-weight: bold; color: var(--dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+        .target-table-wrapper {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid rgba(203, 213, 225, 0.8);
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(235, 243, 255, 0.9));
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+        }
+        .target-table { border-collapse: collapse; font-size: 13px; width: 100%; table-layout: fixed; background: transparent; }
+        .target-table th, .target-table td { padding: 10px 10px; text-align: right; border-bottom: 1px solid rgba(226, 232, 240, 0.95); border-right: 1px solid rgba(226, 232, 240, 0.95); box-sizing: border-box; }
+        .target-table th:last-child, .target-table td:last-child { border-right: none; }
+        .target-table .label-cell {
+            background: rgba(248, 250, 252, 0.95) !important;
+            text-align: center; font-weight: 700;
+            color: var(--dark); width: 100px; min-width: 100px; white-space: nowrap;
+        }
+        .target-table thead tr { background: linear-gradient(90deg, rgba(242, 245, 255, 0.98), rgba(225, 233, 255, 0.98)); }
+        .target-table thead th { text-align: center; font-weight: 700; color: var(--text-main); font-size: 12px; }
+        .target-table tbody tr:first-child td:not(.label-cell) { background-color: rgba(255, 251, 235, 0.95); font-weight: 600; color: #b45309; }
+        .target-table tbody tr:nth-child(even) td { background: rgba(248, 250, 255, 0.55); }
+        .target-table tbody tr:hover td { background: rgba(233, 241, 255, 0.92); }
+        /* NÂNG CẤP: KHUNG BIỂU ĐỒ 12 THÁNG TỰ ĐỘNG THEO NĂM */
+        .chart-mock-container {
+            background: var(--surface);
+            border: 1px solid rgba(203, 213, 225, 0.8);
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 18px 42px rgba(31, 41, 55, 0.06);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .mock-chart-graphics {
+            height: 240px; display: flex; align-items: flex-end; justify-content: space-between;
+            padding: 24px 14px 0 14px; border-bottom: 2px solid rgba(203, 213, 225, 0.7); border-left: 2px solid rgba(203, 213, 225, 0.7);
+            position: relative; margin-left: 20px; gap: 10px; overflow: visible;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.04), transparent 40%);
+            border-radius: 20px;
+        }
+        .chart-bar-group { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 0 0 46px; gap: 8px; position: relative; min-width: 46px; }
+        .bar-pair { display: flex; align-items: flex-end; justify-content: center; gap: 4px; width: 100%; }
+        .bar-pill { width: 16px; border-radius: 3px 3px 0 0; min-height: 2px; }
+        .bar-pill.inc { background: var(--success); }
+        .bar-pill.exp { background: var(--primary); }
+        .chart-label { font-size: 10px; color: var(--text-sub); margin-top: 6px; font-weight: bold; text-align: center; white-space: nowrap; }
+        
+        /* Tooltip khi di chuột vào cột biểu đồ */
+        .chart-bar-group:hover .chart-tooltip { display: block; }
+        .chart-tooltip {
+            display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: var(--dark); color: white; padding: 6px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: normal; z-index: 10; width: 140px; text-align: left;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); pointer-events: none; margin-bottom: 5px;
+        }
+
+        /* CỘT PHẢI: INTERACTIVE */
+        .right-interactive-column { display: flex; flex-direction: column; gap: 16px; }
+        .input-form-box { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 26px rgba(0,0,0,0.08); }
+        .form-toggle { display: flex; border-radius: 8px; overflow: hidden; margin-bottom: 14px; border: 1px solid var(--border); }
+        .toggle-btn { flex: 1; border: none; padding: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 13px; text-align: center; background: #e2e8f0; color: var(--text-sub); }
+        .toggle-btn.expense-mode.active { background: #fef08a; color: #854d0e; }
+        .toggle-btn.income-mode.active { background: #bbf7d0; color: #166534; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-sub); margin-bottom: 6px; }
+        .form-row-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+        .input-ctrl { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; color: var(--dark); box-sizing: border-box; outline: none; background: #f8fafc; }
+        .input-ctrl:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
+        
+        .amount-preview { font-size: 11px; color: var(--primary); font-weight: 500; margin-top: 6px; min-height: 16px; display: block; }
+        .btn-submit-tx { width: 100%; background: linear-gradient(135deg, #3f83f8, #6569ff); color: white; border: none; padding: 14px; font-weight: 700; font-size: 14px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 6px; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 10px 22px rgba(63, 131, 248, 0.28); }
+        .btn-submit-tx:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(63, 131, 248, 0.28); }
+
+        .calendar-box { background: var(--surface); border: 1px solid rgba(203, 213, 225, 0.85); border-radius: 20px; padding: 18px; box-shadow: 0 18px 40px rgba(31, 41, 55, 0.05); position: relative; }
+        .calendar-header-nav { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; border-radius: 6px; margin-bottom: 10px; overflow: hidden; }
+        .calendar-nav-btn { background: transparent; border: none; font-size: 12px; font-weight: bold; color: var(--dark); padding: 8px 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .calendar-nav-btn:hover { background: #cbd5e1; }
+        .calendar-title { font-size: 12px; font-weight: 700; color: var(--dark); text-transform: uppercase; letter-spacing: 0.5px; flex: 1; text-align: center; }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+        .calendar-weekday { font-size: 11px; font-weight: 700; color: var(--text-sub); padding: 2px 0; }
+        .calendar-weekday.sunday { color: var(--danger); }
+        .calendar-day { border: 1px solid rgba(226, 232, 240, 0.95); border-radius: 14px; padding: 6px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: all 0.18s ease; user-select: none; background: rgba(255,255,255,0.85); }
+        .calendar-day:hover { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.45); transform: translateY(-1px); }
+        .calendar-day .solar { font-size: 12px; font-weight: 700; color: var(--dark); }
+        .calendar-day .lunar { font-size: 9px; color: #16a34a; margin-top: 1px; font-weight: 500; }
+        .calendar-day.empty { background: transparent; border: none; cursor: default; }
+        .calendar-day.active-input-day { background: #fef08a; border-color: var(--warning); } 
+        .calendar-day.current-today { background: #dcfce7 !important; border-color: var(--success) !important; }
+        .calendar-day.current-today.active-input-day { background: linear-gradient(135deg, #dcfce7 0%, #fef08a 100%) !important; border-color: #16a34a !important; }
+        .note-marker { position: absolute; top: 2px; right: 2px; width: 4px; height: 4px; background-color: var(--danger); border-radius: 50%; }
+        .calendar-note-popup {
+            display: none; position: absolute; z-index: 30; min-width: 220px; max-width: 260px;
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.16); padding: 12px;
+        }
+        .calendar-note-popup-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--dark); }
+        .calendar-note-popup-header button { background: transparent; border: none; color: var(--text-main); cursor: pointer; font-size: 16px; line-height: 1; }
+        .calendar-note-input { width: 100%; min-height: 90px; resize: vertical; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; color: var(--dark); font-family: inherit; font-size: 13px; }
+        .calendar-note-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+        .calendar-note-actions button { border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: 700; }
+        .calendar-note-actions .save-note-btn { background: var(--primary); color: white; }
+        .calendar-note-actions .close-note-btn { background: #f1f5f9; color: var(--text-main); }
+
+        /* LUNAR CALENDAR STYLES */
+        .lunar-calendar-wrapper { 
+            overflow-x: auto; border-radius: 22px; border: 1px solid rgba(139, 92, 246, 0.3);
+            max-height: 600px; overflow-y: auto; background: linear-gradient(180deg, rgba(245, 243, 255, 0.98), rgba(232, 224, 255, 0.9)); 
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7);
+        }
+        
+        .lunar-calendar-table { 
+            width: 100%; border-collapse: separate; border-spacing: 0; 
+            text-align: center; font-size: 13px; table-layout: fixed; background: transparent;
+        }
+        
+        .lunar-calendar-table thead tr:first-child th {
+            font-size: 14px; font-weight: 700; text-align: center; padding: 14px;
+        }
+        
+        .lunar-calendar-table thead tr:last-child th {
+            padding: 10px 8px; text-align: center; font-weight: 700; color: var(--text-main); 
+            background: linear-gradient(90deg, rgba(216, 180, 254, 0.8), rgba(221, 214, 254, 0.8));
+            border-bottom: 2px solid rgba(139, 92, 246, 0.4);
+            position: sticky; top: 0; z-index: 10;
+        }
+        
+        .lunar-calendar-table tbody td { 
+            border-bottom: 1px solid rgba(216, 180, 254, 0.4); border-right: 1px solid rgba(216, 180, 254, 0.4);
+            padding: 12px 8px; color: var(--text-main); background: rgba(255,255,255,0.9);
+            transition: all 0.2s ease;
+        }
+        
+        .lunar-calendar-table tbody tr:nth-child(even) td { background: rgba(245, 243, 255, 0.85); }
+        .lunar-calendar-table tbody tr:hover td { background: rgba(221, 214, 254, 0.6); }
+        
+        .lunar-calendar-table td:nth-child(1) { font-weight: 700; color: #8b5cf6; width: 15%; }
+        .lunar-calendar-table td:nth-child(2) { width: 15%; color: var(--text-sub); }
+        .lunar-calendar-table td:nth-child(3) { font-weight: 600; color: #d946ef; width: 25%; }
+        .lunar-calendar-table td:nth-child(4) { font-size: 12px; color: var(--text-sub); width: 45%; text-align: left; padding-left: 16px; }
+        
+        .lunar-date { font-size: 14px; font-weight: 700; }
+        .lunar-festival { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .lunar-holiday { background: #ef4444; color: white; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+
+        /* TRANG 2: TABLE */
+        .table-responsive { overflow-x: auto; border-radius: 22px; border: 1px solid rgba(203, 213, 225, 0.85); max-height: 560px; overflow-y: auto; background: linear-gradient(180deg, rgba(250, 252, 255, 0.96), rgba(239, 245, 255, 0.88)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: right; font-size: 13px; table-layout: fixed; background: transparent; }
+        
+        .col-date { width: 65px; text-align: center; }
+        .col-anuong { width: 90px; } .col-dichuyen { width: 145px; } .col-giaitri { width: 85px; } .col-muasam { width: 100px; } .col-tietkiem { width: 105px; }
+        .col-total { width: 105px; } .col-mb { width: 85px; } .col-shinhan { width: 120px; } .col-tienmat { width: 95px; }
+
+        thead tr th { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(203, 213, 225, 0.9); border-right: 1px solid rgba(203, 213, 225, 0.9); padding: 10px 6px; text-align: center; font-weight: 700; background: rgba(248, 250, 252, 0.96); backdrop-filter: blur(10px); }
+        thead tr:nth-child(2) th { top: 38px; }
+        .header-main-expense { background-color: #fef08a !important; color: #854d0e; }
+        .header-main-income { background-color: #bbf7d0 !important; color: #166534; }
+        .header-sub { background-color: #f1f5f9 !important; color: var(--text-main); font-size: 11px; }
+
+        td { border-bottom: 1px solid rgba(226, 232, 240, 0.95); border-right: 1px solid rgba(226, 232, 240, 0.95); padding: 8px 10px; color: var(--text-main); white-space: nowrap; background: rgba(255,255,255,0.85); }
+        tr:nth-child(even) td { background: rgba(248, 251, 255, 0.9); }
+        tr:hover td { background-color: rgba(221, 234, 255, 0.95); }
+        td:first-child { font-weight: 500; background-color: #f8fafc; position: sticky; left: 0; z-index: 5; border-right: 1px solid var(--border); text-align: center; }
+        
+        .editable-cell { cursor: pointer; }
+        .editable-cell:hover { background-color: #bae6fd !important; color: #0369a1 !important; font-weight: bold; }
+        .target-cell {
+            cursor: text;
+            background: rgba(248, 250, 252, 0.96);
+            border-radius: 12px;
+            padding: 10px 6px;
+            text-align: center;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+        .target-cell:focus {
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        .target-cell:hover { background: rgba(255,255,255,0.95); }
+        .target-cell.exceeded {
+            background: rgba(244, 63, 94, 0.12);
+            color: #b91c1c;
+            font-weight: 700;
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            box-shadow: inset 0 0 0 1px rgba(244, 63, 94, 0.12);
+        }
+        .actual-exceeded {
+            background: rgba(244, 63, 94, 0.08);
+            color: #b91c1c;
+            font-weight: 700;
+            border-radius: 12px;
+            box-shadow: inset 0 0 0 1px rgba(244, 63, 94, 0.1);
+        }
+        .empty-cell { color: #cbd5e1; text-align: center; }
+        .total-cell { background-color: #fef9c3; font-weight: bold; } 
+        .income-cell { color: #15803d; font-weight: 500; }
+        .expense-cell { color: #cbd5e1; }
+        .has-value { color: #b91c1c; font-weight: 500; }
+        .divider-col { border-right: 3px solid #ef4444 !important; }
+        .row-summary td { background-color: #f8fafc; font-weight: bold; border-top: 2px solid var(--border); color: var(--dark); border-bottom: 2px solid var(--border); }
+
+        @media (max-width: 1024px) {
+            .top-control-bar { flex-direction: column; align-items: stretch; padding: 14px 18px; gap: 12px; }
+            .time-filters { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .time-filters select { width: 48%; }
+            .slide-btn { flex: 1 1 100%; justify-content: center; }
+            .slide-btn.active { width: auto; }
+            .page-banner, .slide-page, .target-card-container, .chart-mock-container, .input-form-box, .calendar-box, .table-responsive { border-radius: 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .top-control-bar { padding: 12px 14px; }
+            .time-filters select { width: 100%; }
+            .slide-btn { width: 100%; }
+            .slide-header h1 { font-size: 24px; }
+            .slide-header p { font-size: 13px; }
+            .overview-grid { gap: 16px; }
+            .card { padding: 18px 20px; }
+            .workspace-grid { gap: 20px; }
+            .slide-page { padding: 24px; }
+            .form-row-inner { grid-template-columns: 1fr; }
+            .form-group { margin-bottom: 14px; }
+            .calendar-box { padding: 16px; }
+            .calendar-grid { gap: 6px; }
+            .calendar-day { padding: 10px 4px; }
+            .table-responsive { max-height: none; }
+            table { font-size: 12px; }
+            .target-table th, .target-table td { padding: 10px 6px; }
+            .target-table .label-cell { min-width: 80px; }
+        }
+
+        @media (max-width: 580px) {
+            .container { padding: 0 16px 16px; }
+            .slide-header h1 { font-size: 22px; }
+            .overview-grid { grid-template-columns: 1fr; }
+            .card-info p { font-size: 22px; }
+            .form-row-inner { gap: 8px; }
+            .input-ctrl { font-size: 12px; padding: 10px 10px; }
+            .btn-submit-tx { padding: 12px; font-size: 13px; }
+            .time-filters { gap: 8px; }
+            .target-table { font-size: 12px; }
+            .mock-chart-graphics { padding: 16px 10px 0 10px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 class="mb-4 text-center">Quản Lý Chi Tiêu</h2>
-    
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card p-3">
-                <h5>Ghi giao dịch mới</h5>
-                <input type="text" id="note" class="form-control mb-2" placeholder="Nội dung">
-                <input type="number" id="amount" class="form-control mb-2" placeholder="Số tiền (VNĐ)">
-                <button onclick="saveData()" class="btn btn-primary w-100">Ghi sổ</button>
-            </div>
+    <div class="top-control-bar">
+        <div class="ppt-navigation">
+            <button id="btn-slide1" class="slide-btn active" onclick="scrollToPage('slide1')">
+                <span class="material-icons-round">analytics</span> Trang 1: Tổng Quan
+            </button>
+            <button id="btn-slide2" class="slide-btn" onclick="scrollToPage('slide2')">
+                <span class="material-icons-round">grid_on</span> Trang 2: Số Chi Tiết
+            </button>
         </div>
 
-        <div class="col-md-8">
-            <div class="card p-3">
-                <h5>Danh sách gần đây</h5>
-                <ul id="list" class="list-group list-group-flush">
-                    </ul>
-            </div>
+        <div class="time-filters">
+            <span class="material-icons-round" style="color: var(--text-sub);">calendar_month</span>
+            <select id="select-year" onchange="renderAllData()"></select>
+            <select id="select-month" onchange="renderAllData()">
+                <option value="1">Tháng 1</option><option value="2">Tháng 2</option><option value="3">Tháng 3</option><option value="4">Tháng 4</option>
+                <option value="5" selected>Tháng 5</option><option value="6">Tháng 6</option><option value="7">Tháng 7</option><option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option><option value="10">Tháng 10</option><option value="11">Tháng 11</option><option value="12">Tháng 12</option>
+            </select>
         </div>
     </div>
-</div>
+
+    <div class="container">
+        
+        <!-- TRANG 1 -->
+        <div id="slide1" class="slide-page">
+            <div class="slide-header">
+                <h1><span class="material-icons-round" style="color:var(--primary)">insert_chart</span> Báo Cáo Tổng Quan Tài Chính <span class="time-title">Tháng 5/2026</span></h1>
+                <p>Hệ thống tự động đồng bộ số liệu và hiển thị trực quan hóa dữ liệu theo chu kỳ</p>
+            </div>
+
+            <div class="overview-grid">
+                <div class="card income">
+                    <div class="card-info"><h3>Tổng Thu Nhập Tháng</h3><p id="top-total-income">0 đ</p></div>
+                    <span class="material-icons-round card-icon">account_balance_wallet</span>
+                </div>
+                <div class="card expense">
+                    <div class="card-info"><h3>Tổng Chi Tiêu Tháng</h3><p id="top-total-expense">0 đ</p></div>
+                    <span class="material-icons-round card-icon">trending_down</span>
+                </div>
+                <div class="card balance">
+                    <div class="card-info"><h3>Số Dư Còn Lại Tháng</h3><p id="top-final-balance">0 đ</p></div>
+                    <span class="material-icons-round card-icon">savings</span>
+                </div>
+            </div>
+
+            <div class="workspace-grid">
+                
+                <!-- CỘT TRÁI -->
+                <div class="left-analytics-column">
+                    <div class="target-card-container">
+                        <div class="target-section-title">
+                            <span class="material-icons-round" style="color:var(--warning)">track_changes</span> Đối Chiếu Hạn Mức Mục Tiêu (Target Tháng)
+                        </div>
+                        <p style="margin: 0 0 14px; color: var(--text-sub); font-size: 13px;">Click vào ô Target để chỉnh sửa ngay trên trang. Nhấn Enter hoặc click ra ngoài để lưu.</p>
+                        <div class="target-table-wrapper">
+                            <table class="target-table">
+                                <colgroup>
+                                    <col class="label-cell">
+                                    <col style="width:18%"><col style="width:22%"><col style="width:15%"><col style="width:17%"><col style="width:18%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th class="label-cell">Hạng mục</th>
+                                        <th>Ăn uống</th><th>Di chuyển, nhà</th><th>Giải trí</th><th>Mua sắm</th><th>Tiết kiệm</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="label-cell">Target</td>
+                                        <td id="tgt-anuong" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('anuong', this)" onkeydown="handleTargetKey(event, 'anuong')">0 đ</td>
+                                        <td id="tgt-dichuyen" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('dichuyen', this)" onkeydown="handleTargetKey(event, 'dichuyen')">0 đ</td>
+                                        <td id="tgt-giaitri" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('giaitri', this)" onkeydown="handleTargetKey(event, 'giaitri')">0 đ</td>
+                                        <td id="tgt-muasam" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('muasam', this)" onkeydown="handleTargetKey(event, 'muasam')">0 đ</td>
+                                        <td id="tgt-tietkiem" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('tietkiem', this)" onkeydown="handleTargetKey(event, 'tietkiem')">0 đ</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-cell">Tiêu</td>
+                                        <td id="spnt-anuong">0 đ</td><td id="spnt-dichuyen">0 đ</td><td id="spnt-giaitri">0 đ</td><td id="spnt-muasam">0 đ</td><td id="spnt-tietkiem">0 đ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- THAY ĐỔI THEO YÊU CẦU: BIỂU ĐỒ 12 THÁNG LIÊN TỤC -->
+                    <div class="chart-mock-container">
+                        <div class="target-section-title" style="margin-bottom: 4px;">
+                            <span class="material-icons-round" style="color:var(--primary)">bar_chart</span> Diễn Biến Thu Nhập & Chi Tiêu 12 Tháng Lũy Kế (<span id="chart-year-label">2026</span>)
+                        </div>
+                        <div class="mock-chart-graphics" id="months-chart-wrapper">
+                            <!-- JS tự động vẽ 12 cột tương ứng 12 tháng tại đây -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI -->
+                <div class="right-interactive-column">
+                    <div class="input-form-box">
+                        <div class="target-section-title" style="margin-bottom:12px;">
+                            <span class="material-icons-round" style="color:var(--primary)">add_card</span> Ghi Sổ Giao Dịch Mới
+                        </div>
+                        <div class="form-toggle">
+                            <button id="toggle-exp" class="toggle-btn expense-mode active" onclick="setFormMode('expense')">Chi Tiêu</button>
+                            <button id="toggle-inc" class="toggle-btn income-mode" onclick="setFormMode('income')">Thu Nhập</button>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-row-inner">
+                                <div>
+                                    <label for="tx-day">Ngày</label>
+                                    <input type="number" id="tx-day" class="input-ctrl" min="1" max="31" value="31" oninput="highlightCalendarDay()">
+                                </div>
+                                <div>
+                                    <label for="tx-category">Danh mục</label>
+                                    <select id="tx-category" class="input-ctrl"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tx-amount">Số tiền nhập tắt (hàng nghìn đ)</label>
+                            <input type="number" id="tx-amount" class="input-ctrl" placeholder="Nhập 50 ứng với 50.000 đ" min="0" oninput="updateAmountPreview()">
+                            <span id="amount-preview" class="amount-preview"></span>
+                        </div>
+                        <button class="btn-submit-tx" onclick="addTransaction()">
+                            <span class="material-icons-round">done</span> Ghi sổ giao dịch
+                        </button>
+                        <button type="button" style="width: 100%; background: #cbd5e1; color: var(--dark); border: none; padding: 10px; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; margin-top: 8px; transition: background 0.2s ease;" onclick="resetForm()">
+                            <span class="material-icons-round" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">refresh</span> Xóa Form
+                        </button>
+                    </div>
+
+                    <div class="calendar-box">
+                        <div class="calendar-header-nav">
+                            <button class="calendar-nav-btn" onclick="navigateMonth(-1)">◀</button>
+                            <div class="calendar-title" id="calendar-month-year-title">Lịch Tháng 5 / 2026</div>
+                            <button class="calendar-nav-btn" onclick="navigateMonth(1)">▶</button>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid-body"></div>
+                        <div id="calendar-note-popup" class="calendar-note-popup">
+                            <div class="calendar-note-popup-header">
+                                <span id="note-popup-title">Ghi chú</span>
+                                <button type="button" onclick="closeNotePopup()">×</button>
+                            </div>
+                            <textarea id="calendar-note-content" class="calendar-note-input" placeholder="Nhập ghi chú..."></textarea>
+                            <div class="calendar-note-actions">
+                                <button type="button" class="close-note-btn" onclick="closeNotePopup()">Hủy</button>
+                                <button type="button" class="save-note-btn" onclick="saveCalendarNote()">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TRANG 2 -->
+        <div id="slide2" class="slide-page">
+            <div class="slide-header">
+                <h1><span class="material-icons-round" style="color:var(--success)">table_rows</span> Sổ Chi Tiết Giao Dịch <span class="time-title">Tháng 5/2026</span></h1>
+                <p>💡 Click trực tiếp vào ô bất kỳ dưới bảng để sửa nhanh số tiền!</p>
+            </div>
+            <div class="table-responsive">
+                <table id="excel-table">
+                    <colgroup>
+                        <col class="col-date"><col class="col-anuong"><col class="col-dichuyen"><col class="col-giaitri"><col class="col-muasam"><col class="col-tietkiem"><col class="col-total"><col class="col-mb"><col class="col-shinhan"><col class="col-tienmat">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="background-color: #e2e8f0;" id="table-month-label">Tháng 5</th>
+                            <th colspan="5" class="header-main-expense">Chi Tiêu</th>
+                            <th rowspan="2" style="background-color: #fef08a; color: #854d0e;">Tổng Chi</th>
+                            <th colspan="3" class="header-main-income">Thu Nhập</th>
+                        </tr>
+                        <tr>
+                            <th class="header-sub">Ăn uống</th><th class="header-sub">Di chuyển, nhà cửa</th><th class="header-sub">Giải trí</th><th class="header-sub">Mua sắm</th><th class="header-sub">Tiết kiệm</th><th class="header-sub">MB</th><th class="header-sub">Shinhan</th><th class="header-sub">Tiền mặt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                    <tfoot>
+                        <tr class="row-summary" id="row-totals"></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="sync-status">Đã đồng bộ</div>
 
 <script type="module">
-     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
     import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
     const firebaseConfig = {
-        apiKey: "AIzaSyAipEyRdgKPSAYqq8vMi6HFlmttDp8E2q4",
-        authDomain: "webcosplaycuatoi.firebaseapp.com",
-        projectId: "webcosplaycuatoi",
-        storageBucket: "webcosplaycuatoi.firebasestorage.app",
-        messagingSenderId: "1051760144047",
-        appId: "1:1051760144047:web:4aa73cae9ce1d643ce6e5a",
-        measurementId: "G-P9KV24H1ZE"
+      apiKey: "AIzaSyAipEyRdgKPSAYqq8vMi6HFlmttDp8E2q4",
+      authDomain: "webcosplaycuatoi.firebaseapp.com",
+      projectId: "webcosplaycuatoi",
+      storageBucket: "webcosplaycuatoi.firebasestorage.app",
+      messagingSenderId: "1051760144047",
+      appId: "1:1051760144047:web:4aa73cae9ce1d643ce6e5a",
+      measurementId: "G-P9KV24H1ZE"
     };
 
     const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
     const db = getFirestore(app);
+    // Đây là "địa chỉ" lưu trữ dữ liệu của bạn trên đám mây
+    const docRef = doc(db, "nguoi_dung", "du_lieu_chi_tieu");
 
-    // Lưu dữ liệu
-    window.saveData = async () => {
-        const note = document.getElementById("note").value;
-        const amount = document.getElementById("amount").value;
-        if (!note || !amount) return alert("Vui lòng nhập đầy đủ");
+    // Kích hoạt khả năng lưu trữ ngoại tuyến
+    enableIndexedDbPersistence(db).catch((err) => {
+        if (err.code == 'failed-precondition') {
+            console.log("Tính năng ngoại tuyến thất bại: Đa thiết bị hoặc nhiều tab đang mở cùng lúc.");
+        } else if (err.code == 'unimplemented') {
+            console.log("Trình duyệt hiện tại không hỗ trợ lưu trữ ngoại tuyến.");
+        }
+    });
 
-        await addDoc(collection(db, "transactions"), {
-            note: note,
-            amount: Number(amount),
-            date: serverTimestamp()
-        });
-        document.getElementById("note").value = "";
-        document.getElementById("amount").value = "";
+    function showSyncStatus() {
+        const status = document.getElementById('sync-status');
+        status.style.opacity = '1';
+        setTimeout(() => { status.style.opacity = '0'; }, 2000);
+    }
+
+    // Ghi đè toàn bộ trạng thái ứng dụng lên Firestore (Thay thế hoàn toàn localStorage)
+    async function saveToFirebase() {
+        try {
+            await setDoc(docRef, {
+                financialDatabase,
+                globalTargets,
+                calendarNotes,
+                updatedAt: serverTimestamp()
+            });
+            showSyncStatus();
+        } catch (e) {
+            console.error("Lỗi khi lưu dữ liệu vào Firestore: ", e);
+        }
+    }
+
+    let currentFormMode = 'expense'; 
+
+    const categories = {
+        expense: [
+            { value: 'anuong', label: 'Ăn uống' }, { value: 'dichuyen', label: 'Di chuyển, nhà cửa' },
+            { value: 'giaitri', label: 'Giải trí' }, { value: 'muasam', label: 'Mua sắm' }, { value: 'tietkiem', label: 'Tiết kiệm' }
+        ],
+        income: [
+            { value: 'mb', label: 'Ngân hàng MB' }, { value: 'shinhan', label: 'Ngân hàng Shinhan' }, { value: 'tienmat', label: 'Tiền mặt' }
+        ]
     };
 
-    // Đọc dữ liệu thời gian thực
-    const q = query(collection(db, "transactions"), orderBy("date", "desc"));
-    onSnapshot(q, (snapshot) => {
-        const list = document.getElementById("list");
-        list.innerHTML = "";
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            list.innerHTML += `
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>${data.note}</span>
-                    <strong>${data.amount.toLocaleString()} đ</strong>
-                </li>`;
-        });
-    });
-</script>
+    const categoryLabels = {
+        anuong: 'Ăn uống', dichuyen: 'Di chuyển, nhà cửa', giaitri: 'Giải trí', muasam: 'Mua sắm', tietkiem: 'Tiết kiệm',
+        mb: 'Ngân hàng MB', shinhan: 'Ngân hàng Shinhan', tienmat: 'Tiền mặt'
+    };
 
+    // Database dữ liệu thực tế mẫu
+    let financialDatabase = {
+        "2026": {
+            "1": {
+                1:  { expense: { giaitri: 2070000, muasam: 170000 }, income: { mb: 2382000 } },
+                2:  { expense: { anuong: 15000 } },
+                3:  { expense: { anuong: 8000 } },
+                4:  { expense: { anuong: 15000 } },
+                5:  { expense: { anuong: 15000 } },
+                6:  { expense: { anuong: 15000 } },
+                7:  { expense: { anuong: 15000 } },
+                8:  { expense: { anuong: 15000 } },
+                9:  { expense: { anuong: 213000, giaitri: 390000, muasam: 290000 } },
+                10: { expense: { anuong: 15000, dichuyen: 150000, muasam: 38000 }, income: { mb: 12665000, shinhan: 1260000 } },
+                11: { expense: { giaitri: 448000 }, income: { tienmat: 50000 } },
+                12: {},
+                13: { expense: { muasam: 3958000 } },
+                14: {},
+                15: { expense: { anuong: 10000 } },
+                16: { expense: { dichuyen: 2050000, tietkiem: 6000000 } },
+                17: {},
+                18: { expense: { anuong: 97000 }, income: { tienmat: 558000 } },
+                19: { expense: { anuong: 15000, giaitri: 62000 } },
+                20: { expense: { anuong: 15000, giaitri: 520000 } },
+                21: { expense: { anuong: 15000, giaitri: 185000 }, income: { tienmat: 59000 } },
+                22: { expense: { anuong: 15000 } },
+                23: { expense: { anuong: 15000 } },
+                24: { expense: { anuong: 15000 } },
+                25: { expense: { anuong: 15000 } },
+                26: { expense: { anuong: 10000 } },
+                27: { expense: { anuong: 10000 } },
+                28: { expense: { anuong: 10000 } },
+                29: { expense: { anuong: 10000 } },
+                30: { expense: { anuong: 10000, giaitri: 88000 } },
+                31: {}
+            },
+            "2": {
+                1:  { income: { mb: 310000, shinhan: 100000 } },
+                2:  { expense: { anuong: 10000 } },
+                3:  { expense: { anuong: 10000 } },
+                4:  { expense: { anuong: 10000 } },
+                5:  { expense: { anuong: 46000, giaitri: 164000, muasam: 2550000 }, income: { mb: 6250000 } },
+                6:  { expense: { anuong: 233000, giaitri: 106000 } },
+                7:  { expense: { dichuyen: 150000, giaitri: 700000 } },
+                8:  { expense: { anuong: 486000, muasam: 49000 } },
+                9:  { expense: { anuong: 10000, dichuyen: 70000, giaitri: 590000 } },
+                10: { expense: { anuong: 10000, giaitri: 558000 }, income: { shinhan: 12814000 } },
+                11: { expense: { anuong: 20000, dichuyen: 187000, giaitri: 500000 } },
+                12: { expense: { anuong: 150000, giaitri: 936000 } },
+                13: { expense: { giaitri: 2000000, muasam: 449000, tietkiem: 5000000 } },
+                14: { expense: { anuong: 269000, dichuyen: 10000, muasam: 1050000 } },
+                15: { expense: { anuong: 30000 } },
+                16: { expense: { muasam: 120000 }, income: { mb: 1600000 } },
+                17: { expense: { anuong: 150000, dichuyen: 500000 } },
+                18: {},
+                19: { expense: { anuong: 42000 } },
+                20: { expense: { anuong: 240000 } },
+                21: { expense: { dichuyen: 100000, giaitri: 100000, muasam: 126000 } },
+                22: { expense: { giaitri: 50000 } },
+                23: { expense: { anuong: 27000 } },
+                24: { expense: { anuong: 30000, dichuyen: 1600000, muasam: 151000 } },
+                25: { expense: { anuong: 36000 } },
+                26: { expense: { anuong: 35000, muasam: 125000 } },
+                27: { expense: { anuong: 99000, muasam: 50000, giaitri: 113000 } },
+                28: { expense: { anuong: 235000, giaitri: 50000, muasam: 147000 } }
+            },
+            "3": {
+                1:  { expense: { muasam: 50000 } },
+                2:  { expense: { anuong: 45000, dichuyen: 128000 } },
+                3:  { expense: { anuong: 15000 } },
+                5:  { expense: { anuong: 65000 } },
+                6:  { expense: { muasam: 121000 } },
+                8:  { expense: { anuong: 10000, giaitri: 42000 } },
+                9:  { expense: { anuong: 21000, giaitri: 40000, muasam: 69000 } },
+                10: { expense: { anuong: 30000, dichuyen: 215000, giaitri: 1163000 } },
+                11: { expense: { anuong: 30000, dichuyen: 3150000, giaitri: 64000, muasam: 45000 }, income: { shinhan: 14478000 } },
+                12: { expense: { anuong: 36000, muasam: 229000, tietkiem: 5000000 }, income: { tienmat: 595000 } },
+                13: { expense: { giaitri: 247000, muasam: 556000 } },
+                14: { expense: { anuong: 50000, dichuyen: 266000 } },
+                15: { expense: { anuong: 45000, giaitri: 622000 } },
+                16: { expense: { anuong: 54000, dichuyen: 48000 } },
+                17: { expense: { anuong: 15000, giaitri: 95000 } },
+                18: { expense: { anuong: 50000, muasam: 149000 } },
+                19: { expense: { anuong: 15000, giaitri: 600000 } },
+                20: { expense: { anuong: 15000, muasam: 214000 } },
+                21: { expense: { anuong: 15000, giaitri: 95000, muasam: 368000 } },
+                22: { expense: { anuong: 75000 } },
+                23: { expense: { anuong: 10000 } },
+                24: { expense: { anuong: 20000, muasam: 142000 } },
+                25: { expense: { anuong: 32000, dichuyen: 60000, muasam: 18000 } },
+                26: { expense: { anuong: 10000 } },
+                27: { expense: { anuong: 20000 } },
+                28: { expense: { anuong: 24000 } },
+                29: { expense: { anuong: 49000, giaitri: 42000 } },
+                30: { expense: { anuong: 55000 } },
+                31: { expense: { anuong: 20000 } }
+            },
+            "4": {
+                1:  { expense: { anuong: 15000, giaitri: 42000 }, income: { mb: 257000, tienmat: 138000 } },
+                2:  { expense: { anuong: 15000 } },
+                3:  { expense: { dichuyen: 50000, giaitri: 20000 } },
+                4:  { expense: { anuong: 60000, giaitri: 48000 } },
+                5:  { expense: { anuong: 10000, giaitri: 88000 } },
+                6:  { expense: { anuong: 10000 } },
+                7:  { expense: { anuong: 10000 } },
+                8:  { expense: { anuong: 10000 } },
+                9:  { expense: { anuong: 17000 } },
+                10: { expense: { anuong: 85000, dichuyen: 150000, giaitri: 190000, muasam: 310000 } },
+                11: { expense: { anuong: 150000, dichuyen: 60000, giaitri: 200000, muasam: 223000 }, income: { shinhan: 14993000 } },
+                12: { expense: { giaitri: 1242000, muasam: 238000 } },
+                13: { expense: { dichuyen: 2200000, muasam: 89000, tietkiem: 6900000 } },
+                14: { expense: { anuong: 15000, muasam: 340000 } },
+                15: { expense: { anuong: 17000, giaitri: 800000 } },
+                16: { expense: { dichuyen: 80000 } },
+                17: { expense: { anuong: 180000, muasam: 112000 } },
+                18: { expense: { dichuyen: 70000, muasam: 153000 } },
+                19: { expense: { anuong: 43000, muasam: 243000 } },
+                20: { expense: { giaitri: 20000, muasam: 50000 } },
+                21: { expense: { anuong: 27000, muasam: 169000 } },
+                22: { expense: { anuong: 23000, muasam: 111000 } },
+                23: { expense: { anuong: 52000 } },
+                25: { expense: { anuong: 7000 } },
+                26: { expense: { anuong: 90000 } },
+                27: { expense: { anuong: 15000 } },
+                28: { expense: { anuong: 47000, dichuyen: 85000 } },
+                29: { expense: { anuong: 87000, muasam: 38000 }, income: { mb: 300000 } },
+                30: {}
+            },
+            "5": {
+                1:  { expense: { anuong: 15000 }, income: { tienmat: 382000 } },
+                2:  {},
+                3:  { expense: { anuong: 40000 } },
+                4:  {},
+                5:  { expense: { anuong: 15000, dichuyen: 60000 } },
+                6:  {},
+                7:  { expense: { anuong: 29000 } },
+                8:  { expense: { giaitri: 200000, tietkiem: 300000 }, income: { shinhan: 13202000 } },
+                9:  { expense: { dichuyen: 140000 } },
+                10: { expense: { muasam: 1336000 } },
+                11: { expense: { anuong: 43000, muasam: 610000 } },
+                12: { expense: { anuong: 103000, dichuyen: 2150000, tietkiem: 6000000 } },
+                13: { expense: { anuong: 258000, muasam: 134000 } },
+                14: { expense: { anuong: 15000 } },
+                15: { expense: { anuong: 62000, dichuyen: 158000, giaitri: 43000, muasam: 58000 } },
+                16: { expense: { anuong: 15000, dichuyen: 60000 } },
+                17: { expense: { muasam: 50000 } },
+                18: { expense: { muasam: 121000 } },
+                19: { expense: { muasam: 47000 } },
+                20: { expense: { anuong: 85000, dichuyen: 85000, muasam: 31000 } },
+                21: {},
+                22: { expense: { muasam: 305000 } },
+                23: {},
+                24: {},
+                25: { expense: { anuong: 135000, dichuyen: 226000, muasam: 44000 } },
+                26: {},
+                27: {},
+                28: { expense: { anuong: 50000, dichuyen: 50000, muasam: 28000 } },
+                29: { expense: { muasam: 50000 } },
+                30: {},
+                31: {}
+            },
+        }
+    };
+
+    let globalTargets = { anuong: 700000, dichuyen: 3000000, giaitri: 500000, muasam: 2000000, tietkiem: 6000000 };
+    let calendarNotes = {};
+    let lastChartYear = null;
+
+    function parseTargetText(value) {
+        const digits = value.replace(/[^0-9]/g, '').trim();
+        return digits.length ? Number(digits) : 0;
+    }
+
+    function formatTargetValue(value) {
+        return `${value.toLocaleString()} đ`;
+    }
+
+    function updateTargetValue(category, element) {
+        if (!globalTargets.hasOwnProperty(category)) return;
+        const newValue = parseTargetText(element.innerText || '0');
+        globalTargets[category] = newValue;
+        element.innerText = formatTargetValue(newValue);
+        saveToFirebase();
+    }
+
+    function handleTargetKey(event, category) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.target.blur();
+        }
+    }
+    function daysInMonth(month, year) { return new Date(year, month, 0).getDate(); }
+
+    function setFormMode(mode) {
+        currentFormMode = mode;
+        document.getElementById('tx-category').innerHTML = categories[mode].map(cat => `<option value="${cat.value}">${cat.label}</option>`).join('');
+        document.getElementById('toggle-exp').classList.toggle('active', mode === 'expense');
+        document.getElementById('toggle-inc').classList.toggle('active', mode === 'income');
+        updateAmountPreview();
+    }
+
+    function updateAmountPreview() {
+        const inputVal = document.getElementById('tx-amount').value;
+        const previewEl = document.getElementById('amount-preview');
+        if (!inputVal || parseFloat(inputVal) <= 0) { previewEl.innerText = ""; return; }
+        previewEl.innerText = `Xem trước: ${(parseFloat(inputVal) * 1000).toLocaleString()} đ`;
+        previewEl.style.color = (currentFormMode === 'income') ? '#2ecc71' : '#3498db';
+    }
+
+    function resetForm() {
+        document.getElementById('tx-day').value = '31';
+        document.getElementById('tx-amount').value = '';
+        document.getElementById('amount-preview').innerText = '';
+        document.getElementById('tx-category').value = categories[currentFormMode][0].value;
+        highlightCalendarDay();
+    }
+
+    // HÀM QUAN TRỌNG: Tự động tính toán tổng 12 tháng của năm đang chọn và vẽ biểu đồ
+    function generateTwelveMonthsChart(activeYear) {
+        const chartWrapper = document.getElementById('months-chart-wrapper');
+        document.getElementById('chart-year-label').innerText = activeYear;
+        chartWrapper.innerHTML = ""; 
+
+        let monthsData = [];
+        let maxVal = 1000000; // Ngưỡng trần tối thiểu để tính tỉ lệ phần trăm cột cao thấp
+
+        // 1. Thu thập dữ liệu thu/chi từ cơ sở dữ liệu cho đủ 12 tháng
+        for (let m = 1; m <= 12; m++) {
+            let totalInc = 0;
+            let totalExp = 0;
+            const monthObj = (financialDatabase[activeYear] && financialDatabase[activeYear][m]) ? financialDatabase[activeYear][m] : {};
+            
+            for (let day in monthObj) {
+                const exp = monthObj[day].expense || {};
+                const inc = monthObj[day].income || {};
+                totalExp += (exp.anuong || 0) + (exp.dichuyen || 0) + (exp.giaitri || 0) + (exp.muasam || 0) + (exp.tietkiem || 0);
+                totalInc += (inc.mb || 0) + (inc.shinhan || 0) + (inc.tienmat || 0);
+            }
+            monthsData.push({ month: m, income: totalInc, expense: totalExp });
+            if (totalInc > maxVal) maxVal = totalInc;
+            if (totalExp > maxVal) maxVal = totalExp;
+        }
+
+        // 2. Kết xuất các cột đồ họa dựa theo phần trăm giá trị thực tế
+        monthsData.forEach(item => {
+            let incHeight = Math.max(2, (item.income / maxVal) * 180); 
+            let expHeight = Math.max(2, (item.expense / maxVal) * 180); 
+
+            const barGroup = document.createElement('div');
+            barGroup.className = 'chart-bar-group';
+            barGroup.innerHTML = `
+                <div class="chart-tooltip">
+                    <strong>Tháng ${item.month}</strong><br/>
+                    ▲ Thu: ${item.income.toLocaleString()} đ<br/>
+                    ▼ Chi: ${item.expense.toLocaleString()} đ
+                </div>
+                <div class="bar-pair">
+                    <div class="bar-pill inc" style="height: ${incHeight}px;"></div>
+                    <div class="bar-pill exp" style="height: ${expHeight}px;"></div>
+                </div>
+                <div class="chart-label">T${item.month}</div>
+            `;
+            chartWrapper.appendChild(barGroup);
+        });
+    }
+
+    function renderMiniCalendar(month, year) {
+        const gridBody = document.getElementById('calendar-grid-body');
+        let html = `
+            <div class="calendar-weekday">T2</div><div class="calendar-weekday">T3</div>
+            <div class="calendar-weekday">T4</div><div class="calendar-weekday">T5</div>
+            <div class="calendar-weekday">T6</div><div class="calendar-weekday">T7</div>
+            <div class="calendar-weekday sunday">CN</div>
+        `;
+        let adjustFirstDay = new Date(year, month - 1, 1).getDay();
+        adjustFirstDay = adjustFirstDay === 0 ? 6 : adjustFirstDay - 1;
+        const totalDays = daysInMonth(month, year);
+
+        for (let i = 0; i < adjustFirstDay; i++) {
+            html += `<div class="calendar-day empty"></div>`;
+        }
+        const today = new Date();
+        const isCurrentMonth = today.getFullYear() === Number(year) && (today.getMonth() + 1) === Number(month);
+
+        for (let day = 1; day <= totalDays; day++) {
+            const noteKey = `${year}-${month}-${day}`;
+            const noteText = calendarNotes[noteKey] || '';
+            const todayClass = isCurrentMonth && day === today.getDate() ? ' current-today' : '';
+            const noteMarker = noteText ? '<span class="note-marker"></span>' : '';
+
+            const lunar = solarToLunar(day, month, year);
+            const lunarDisplay = lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day;
+
+            html += `
+                <div class="calendar-day${todayClass}" id="cal-day-${day}" onclick="selectCalendarDay(${day})" oncontextmenu="noteCalendarDay(event, ${day})" title="Nhấn chuột phải để ghi chú">
+                    <span class="solar">${day}</span>
+                    <span class="lunar">${lunarDisplay}</span>
+                    ${noteMarker}
+                </div>
+            `;
+        }
+        gridBody.innerHTML = html;
+        highlightCalendarDay();
+    }
+
+    function selectCalendarDay(day) { document.getElementById('tx-day').value = day; highlightCalendarDay(); }
+    function highlightCalendarDay() {
+        let inputDay = parseInt(document.getElementById('tx-day').value);
+        const month = parseInt(document.getElementById('select-month').value);
+        const year = parseInt(document.getElementById('select-year').value);
+        const maxDay = daysInMonth(month, year);
+        if (isNaN(inputDay) || inputDay < 1) inputDay = 1;
+        if (inputDay > maxDay) inputDay = maxDay;
+
+        document.getElementById('tx-day').value = inputDay;
+        document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active-input-day'));
+        const targetEl = document.getElementById(`cal-day-${inputDay}`);
+        if (targetEl) targetEl.classList.add('active-input-day');
+    }
+
+    function noteCalendarDay(event, day) {
+        event.preventDefault();
+        const year = parseInt(document.getElementById('select-year').value);
+        const month = parseInt(document.getElementById('select-month').value);
+        const noteKey = `${year}-${month}-${day}`;
+        const currentNote = calendarNotes[noteKey] || '';
+        const popup = document.getElementById('calendar-note-popup');
+        const popupTitle = document.getElementById('note-popup-title');
+        const textarea = document.getElementById('calendar-note-content');
+        const selectedCell = event.currentTarget || event.target.closest('.calendar-day');
+        const calendarBox = document.querySelector('.calendar-box');
+        if (!selectedCell || !calendarBox) return;
+
+        popupTitle.innerText = `Ghi chú ngày ${day}/${month}/${year}`;
+        textarea.value = currentNote;
+        popup.dataset.noteKey = noteKey;
+
+        const cellRect = selectedCell.getBoundingClientRect();
+        const containerRect = calendarBox.getBoundingClientRect();
+        const popupWidth = 240;
+        const popupHeight = 170;
+        let left = cellRect.left - containerRect.left;
+        let top = cellRect.bottom - containerRect.top + 6;
+
+        if (left + popupWidth > containerRect.width) {
+            left = Math.max(8, containerRect.width - popupWidth - 8);
+        }
+        if (top + popupHeight > containerRect.height) {
+            top = cellRect.top - containerRect.top - popupHeight - 6;
+            if (top < 8) top = 8;
+        }
+
+        popup.style.left = `${left}px`;
+        popup.style.top = `${top}px`;
+        popup.style.display = 'block';
+    }
+
+    function closeNotePopup() {
+        const popup = document.getElementById('calendar-note-popup');
+        if (popup) popup.style.display = 'none';
+    }
+
+    function saveCalendarNote() {
+        const popup = document.getElementById('calendar-note-popup');
+        const textarea = document.getElementById('calendar-note-content');
+        const noteKey = popup.dataset.noteKey;
+        if (!noteKey) return;
+
+        const trimmedNote = textarea.value.trim();
+        if (trimmedNote === '') {
+            delete calendarNotes[noteKey];
+        } else {
+            calendarNotes[noteKey] = trimmedNote;
+        }
+        closeNotePopup();
+        const [year, month, day] = noteKey.split('-').map(Number);
+        saveToFirebase();
+    }
+
+    function navigateMonth(direction) {
+        const yearSelect = document.getElementById('select-year');
+        const monthSelect = document.getElementById('select-month');
+        let currentMonth = parseInt(monthSelect.value) + direction;
+        let currentYear = parseInt(yearSelect.value);
+        
+        if (currentMonth > 12) { currentMonth = 1; currentYear += 1; } 
+        else if (currentMonth < 1) { currentMonth = 12; currentYear -= 1; }
+        
+        yearSelect.value = currentYear.toString();
+        monthSelect.value = currentMonth.toString();
+        renderAllData();
+    }
+
+    async function addTransaction() {
+        const year = document.getElementById('select-year').value;
+        const month = document.getElementById('select-month').value;
+        const day = parseInt(document.getElementById('tx-day').value);
+        const category = document.getElementById('tx-category').value;
+        const inputAmount = parseFloat(document.getElementById('tx-amount').value);
+
+        if (!inputAmount || inputAmount <= 0) { alert('Số tiền không hợp lệ!'); return; }
+        const finalAmount = inputAmount * 1000;
+
+        if (!financialDatabase[year]) financialDatabase[year] = {};
+        if (!financialDatabase[year][month]) financialDatabase[year][month] = {};
+        if (!financialDatabase[year][month][day]) financialDatabase[year][month][day] = { expense: {}, income: {} };
+        if (!financialDatabase[year][month][day][currentFormMode]) financialDatabase[year][month][day][currentFormMode] = {};
+
+        financialDatabase[year][month][day][currentFormMode][category] = (financialDatabase[year][month][day][currentFormMode][category] || 0) + finalAmount;
+        
+        // Lưu giao dịch chi tiết vào collection "giao_dich" như bạn yêu cầu
+        try {
+            await addDoc(collection(db, "giao_dich"), {
+                ngay: `${year}-${month.padStart(2, '0')}-${day.toString().padStart(2, '0')}`,
+                so_tien: finalAmount,
+                loai: categoryLabels[category],
+                categoryID: category, 
+                type: currentFormMode // 'expense' hoặc 'income'
+            });
+        } catch (e) {
+            console.error("Lỗi khi thêm document vào giao_dich: ", e);
+        }
+
+        // Xóa form sau khi ghi thành công
+        document.getElementById('tx-amount').value = "";
+        document.getElementById('amount-preview').innerText = "";
+        saveToFirebase();
+        alert('✓ Ghi sổ giao dịch thành công!');
+    }
+
+    function modifyCell(day, type, category) {
+        const year = document.getElementById('select-year').value;
+        const month = document.getElementById('select-month').value;
+        let userInput = prompt("Nhập số tiền mới (hàng nghìn đ) hoặc gõ 0 để Xóa:");
+        if (userInput === null) return;
+        let val = parseFloat(userInput);
+        if (isNaN(val) || val < 0) return;
+
+        if (!financialDatabase[year] || !financialDatabase[year][month] || !financialDatabase[year][month][day] || !financialDatabase[year][month][day][type]) {
+            return;
+        }
+
+        if (val === 0) {
+            delete financialDatabase[year][month][day][type][category];
+            if (Object.keys(financialDatabase[year][month][day][type]).length === 0) {
+                delete financialDatabase[year][month][day][type];
+            }
+            if (Object.keys(financialDatabase[year][month][day]).length === 0) {
+                delete financialDatabase[year][month][day];
+            }
+        } else {
+            financialDatabase[year][month][day][type][category] = val * 1000;
+        }
+        saveToFirebase();
+    }
+
+    function renderAllData() {
+        const year = document.getElementById('select-year').value;
+        const month = document.getElementById('select-month').value;
+        
+        document.querySelectorAll('.time-title').forEach(el => el.innerText = `Tháng ${month}/${year}`);
+        document.getElementById('table-month-label').innerText = `Thg ${month}/${year.slice(-2)}`;
+        document.getElementById('calendar-month-year-title').innerText = `Lịch Tháng ${month} / ${year}`;
+
+        // Chỉ vẽ lại biểu đồ khi đổi năm
+        if (year !== lastChartYear) {
+            generateTwelveMonthsChart(year);
+            lastChartYear = year;
+        }
+        renderMiniCalendar(month, year);
+
+        const currentMonthData = (financialDatabase[year] && financialDatabase[year][month]) ? financialDatabase[year][month] : {};
+        let colTotals = { anuong: 0, dichuyen: 0, giaitri: 0, muasam: 0, tietkiem: 0, totalExpense: 0, mb: 0, shinhan: 0, tienmat: 0 };
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = ""; 
+
+        const maxDays = daysInMonth(month, year);
+        for (let day = 1; day <= maxDays; day++) {
+            const tr = document.createElement('tr');
+            const dayData = currentMonthData[day] || { expense: {}, income: {} };
+            const exp = dayData.expense || {};
+            const inc = dayData.income || {};
+
+            const dayTotalExpense = (exp.anuong || 0) + (exp.dichuyen || 0) + (exp.giaitri || 0) + (exp.muasam || 0) + (exp.tietkiem || 0);
+            colTotals.anuong += exp.anuong || 0; colTotals.dichuyen += exp.dichuyen || 0; colTotals.giaitri += exp.giaitri || 0; colTotals.muasam += exp.muasam || 0; colTotals.tietkiem += exp.tietkiem || 0;
+            colTotals.totalExpense += dayTotalExpense;
+            colTotals.mb += inc.mb || 0; colTotals.shinhan += inc.shinhan || 0; colTotals.tienmat += inc.tienmat || 0;
+
+            const formatCell = (val, type, category, isExpense = true) => {
+                if (!val) return `<td class="empty-cell editable-cell" onclick="modifyCell(${day}, '${type}', '${category}')">-</td>`;
+                return `<td class="${isExpense ? 'expense-cell has-value' : 'income-cell'} editable-cell" onclick="modifyCell(${day}, '${type}', '${category}')">${val.toLocaleString()} đ</td>`;
+            };
+
+            tr.innerHTML = `
+                <td>${day < 10 ? '0'+day : day}</td>
+                ${formatCell(exp.anuong, 'expense', 'anuong')}
+                ${formatCell(exp.dichuyen, 'expense', 'dichuyen')}
+                ${formatCell(exp.giaitri, 'expense', 'giaitri')}
+                ${formatCell(exp.muasam, 'expense', 'muasam')}
+                ${formatCell(exp.tietkiem, 'expense', 'tietkiem')}
+                <td class="total-cell divider-col">${dayTotalExpense > 0 ? '-' + dayTotalExpense.toLocaleString() + ' đ' : '0 đ'}</td>
+                ${formatCell(inc.mb, 'income', 'mb', false)}
+                ${formatCell(inc.shinhan, 'income', 'shinhan', false)}
+                ${formatCell(inc.tienmat, 'income', 'tienmat', false)}
+            `;
+            tbody.appendChild(tr);
+        }
+
+        const totalIncome = colTotals.mb + colTotals.shinhan + colTotals.tienmat;
+        document.getElementById('row-totals').innerHTML = `
+            <td style="text-align:center;">Tổng cộng</td>
+            <td>${colTotals.anuong.toLocaleString()} đ</td><td>${colTotals.dichuyen.toLocaleString()} đ</td><td>${colTotals.giaitri.toLocaleString()} đ</td><td>${colTotals.muasam.toLocaleString()} đ</td><td>${colTotals.tietkiem.toLocaleString()} đ</td>
+            <td class="divider-col" style="background:#fef9c3;">${colTotals.totalExpense.toLocaleString()} đ</td>
+            <td>${colTotals.mb.toLocaleString()} đ</td><td>${colTotals.shinhan.toLocaleString()} đ</td><td>${colTotals.tienmat.toLocaleString()} đ</td>
+        `;
+
+        document.getElementById('tgt-anuong').innerText = `${globalTargets.anuong.toLocaleString()} đ`;
+        document.getElementById('tgt-dichuyen').innerText = `${globalTargets.dichuyen.toLocaleString()} đ`;
+        document.getElementById('tgt-giaitri').innerText = `${globalTargets.giaitri.toLocaleString()} đ`;
+        document.getElementById('tgt-muasam').innerText = `${globalTargets.muasam.toLocaleString()} đ`;
+        document.getElementById('tgt-tietkiem').innerText = `${globalTargets.tietkiem.toLocaleString()} đ`;
+
+        const exceedMap = {
+            anuong: colTotals.anuong > globalTargets.anuong,
+            dichuyen: colTotals.dichuyen > globalTargets.dichuyen,
+            giaitri: colTotals.giaitri > globalTargets.giaitri,
+            muasam: colTotals.muasam > globalTargets.muasam,
+            tietkiem: colTotals.tietkiem > globalTargets.tietkiem
+        };
+
+        Object.keys(exceedMap).forEach(key => {
+            const targetCell = document.getElementById(`tgt-${key}`);
+            const actualCell = document.getElementById(`spnt-${key}`);
+            if (targetCell) {
+                targetCell.classList.toggle('exceeded', exceedMap[key]);
+            }
+            if (actualCell) {
+                actualCell.classList.toggle('actual-exceeded', exceedMap[key]);
+            }
+        });
+
+        document.getElementById('spnt-anuong').innerText = `${colTotals.anuong.toLocaleString()} đ`;
+        document.getElementById('spnt-dichuyen').innerText = `${colTotals.dichuyen.toLocaleString()} đ`;
+        document.getElementById('spnt-giaitri').innerText = `${colTotals.giaitri.toLocaleString()} đ`;
+        document.getElementById('spnt-muasam').innerText = `${colTotals.muasam.toLocaleString()} đ`;
+        document.getElementById('spnt-tietkiem').innerText = `${colTotals.tietkiem.toLocaleString()} đ`;
+
+        document.getElementById('top-total-income').innerText = `${totalIncome.toLocaleString()} đ`;
+        document.getElementById('top-total-expense').innerText = `${colTotals.totalExpense.toLocaleString()} đ`;
+        document.getElementById('top-final-balance').innerText = `${(totalIncome - colTotals.totalExpense).toLocaleString()} đ`;
+    }
+
+    function scrollToPage(pageId) { 
+        window.scrollTo({ top: document.getElementById(pageId).offsetTop - 80, behavior: "smooth" });
+        // Update active button state
+        document.querySelectorAll('.slide-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${pageId}`).classList.add('active');
+    }
+
+    // LUNAR CALENDAR CONVERSION
+    // More accurate lunar calendar lookup for 2026
+    const lunarCalendarData2026 = {
+        '1': { start_day: 20, start_lunar: 25, days: 30 }, // Jan 20 = 25/12 Âm
+        '2': { start_day: 19, start_lunar: 1, days: 29 },   // Feb 19 = 1/1 Âm
+        '3': { start_day: 20, start_lunar: 1, days: 30 },   // Mar 20 = 1/2 Âm
+        '4': { start_day: 19, start_lunar: 1, days: 30 },   // Apr 19 = 1/3 Âm
+        '5': { start_day: 19, start_lunar: 1, days: 29 },   // May 19 = 1/4 Âm
+        '6': { start_day: 18, start_lunar: 1, days: 30 },   // Jun 18 = 1/5 Âm
+        '7': { start_day: 18, start_lunar: 1, days: 29 },   // Jul 18 = 1/6 Âm
+        '8': { start_day: 17, start_lunar: 1, days: 30 },   // Aug 17 = 1/7 Âm
+        '9': { start_day: 16, start_lunar: 1, days: 29 },   // Sep 16 = 1/8 Âm
+        '10': { start_day: 15, start_lunar: 1, days: 30 },  // Oct 15 = 1/9 Âm
+        '11': { start_day: 14, start_lunar: 1, days: 29 },  // Nov 14 = 1/10 Âm
+        '12': { start_day: 14, start_lunar: 1, days: 30 }   // Dec 14 = 1/11 Âm
+    };
+
+    function solarToLunar(day, month, year) {
+        if (year.toString() === '2026' && lunarCalendarData2026[month]) {
+            const monthData = lunarCalendarData2026[month];
+            const dayDiff = day - monthData.start_day;
+            
+            if (dayDiff < 0) {
+                // Day is before lunar month start, use previous month
+                const prevMonth = month === 1 ? 12 : parseInt(month) - 1;
+                const prevMonthData = lunarCalendarData2026[prevMonth];
+                const lunarDay = prevMonthData.days + dayDiff + 1;
+                const lunarMonth = prevMonth;
+                return { day: lunarDay, month: lunarMonth, year: year };
+            } else {
+                const lunarDay = dayDiff + monthData.start_lunar;
+                let lunarMonth = month;
+                let lunarYear = year;
+                
+                if (lunarDay > monthData.days) {
+                    const nextMonth = parseInt(month) + 1;
+                    if (nextMonth <= 12) {
+                        return solarToLunar(day + 1, month + 1, year);
+                    }
+                }
+                
+                return { day: lunarDay, month: parseInt(lunarMonth), year: lunarYear };
+            }
+        }
+        
+        // Fallback algorithm for other years
+        const lunarMonths = [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29];
+        let dayOfYear = 0;
+        for (let m = 1; m < month; m++) {
+            dayOfYear += daysInMonth(m, year);
+        }
+        dayOfYear += day;
+        
+        const yearStart = new Date(year, 0, 1);
+        const lunarYearStart = new Date(year, 1, 10); // Approximate lunar new year
+        
+        let lunarDay = 1 + Math.floor((new Date(year, month - 1, day) - lunarYearStart) / (24 * 3600 * 1000));
+        let lunarMonth = 1;
+        let lunarYear = year;
+        
+        while (lunarDay > lunarMonths[lunarMonth - 1]) {
+            lunarDay -= lunarMonths[lunarMonth - 1];
+            lunarMonth++;
+            if (lunarMonth > 12) {
+                lunarMonth = 1;
+                lunarYear++;
+            }
+        }
+        
+        if (lunarDay <= 0) {
+            lunarMonth--;
+            if (lunarMonth <= 0) {
+                lunarMonth = 12;
+                lunarYear--;
+            }
+            lunarDay += lunarMonths[lunarMonth - 1];
+        }
+        
+        return { day: Math.max(1, lunarDay), month: lunarMonth, year: lunarYear };
+    }
+
+    // Expose functions to window so HTML event handlers (onclick, etc.) work with type="module"
+    window.scrollToPage = scrollToPage;
+    window.renderAllData = renderAllData;
+    window.updateTargetValue = updateTargetValue;
+    window.saveToFirebase = saveToFirebase;
+    window.handleTargetKey = handleTargetKey;
+    window.setFormMode = setFormMode;
+    window.updateAmountPreview = updateAmountPreview;
+    window.navigateMonth = navigateMonth;
+    window.addTransaction = addTransaction;
+    window.modifyCell = modifyCell;
+    window.selectCalendarDay = selectCalendarDay;
+    window.noteCalendarDay = noteCalendarDay;
+    window.closeNotePopup = closeNotePopup;
+    window.saveCalendarNote = saveCalendarNote;
+    window.resetForm = resetForm;
+
+    // Khởi tạo bộ chọn năm động
+    function initYearSelector() {
+        const yearSelect = document.getElementById('select-year');
+        const currentYear = new Date().getFullYear();
+        for (let i = currentYear - 1; i <= currentYear + 3; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `Năm ${i}`;
+            if (i === 2026) option.selected = true; // Giữ mặc định theo code cũ
+            yearSelect.appendChild(option);
+        }
+    }
+
+    // Khởi tạo giao diện (năm/tháng) trước khi bắt đầu đồng bộ dữ liệu
+    initYearSelector();
+    setFormMode('expense');
+    renderAllData(); // Hiển thị khung dữ liệu ban đầu
+
+    // Lắng nghe thay đổi từ Firestore và cập nhật giao diện thời gian thực
+    onSnapshot(docRef, (docSnap) => {
+        console.log("Đang kiểm tra dữ liệu đồng bộ...");
+        if (docSnap.exists()) {
+            const cloudData = docSnap.data();
+            
+            if (cloudData.financialDatabase) financialDatabase = cloudData.financialDatabase;
+            if (cloudData.globalTargets) globalTargets = cloudData.globalTargets;
+            if (cloudData.calendarNotes) calendarNotes = cloudData.calendarNotes;
+        }
+        
+        // Luôn gọi hàm vẽ bảng để đảm bảo dữ liệu hiển thị đúng sau khi F5 hoặc có thay đổi
+        renderAllData();
+    }, (error) => {
+        console.error("Lỗi khi lắng nghe Firestore: ", error);
+    });
+
+    // Log kiểm tra các giao dịch gần nhất từ Cloud
+    const recentTxQuery = query(collection(db, "giao_dich"), orderBy("ngay", "desc"), limit(5));
+    onSnapshot(recentTxQuery, (snapshot) => {
+        if (!snapshot.empty) {
+            console.log("--- 5 giao dịch gần nhất từ Cloud ---");
+            snapshot.forEach((doc) => {
+                const item = doc.data();
+                console.log(`[${item.ngay}] ${item.loai}: ${item.so_tien.toLocaleString()} đ`);
+            });
+        }
+    });
+
+</script>
 </body>
 </html>
