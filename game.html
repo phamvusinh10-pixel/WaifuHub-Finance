@@ -1,0 +1,514 @@
+<!-- Ghi nhớ lệnh deploy: cd /d E:\web && firebase deploy -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traced Blades: Lưỡi Đao Huyền Ảo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #010103;
+            color: #e5e5ea;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            cursor: none;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #020205;
+        }
+        #ui {
+            position: absolute;
+            top: 2vw;
+            left: 2vw;
+            right: 2vw;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: clamp(11px, 1.5vw, 16px);
+            text-shadow: 0 0 10px #000;
+            z-index: 5;
+        }
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.85);
+            padding: clamp(6px, 1vw, 12px) clamp(10px, 1.5vw, 18px);
+            border-radius: 6px;
+            border: 1px solid #333;
+        }
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            display: none;
+            z-index: 10;
+        }
+        .death-title {
+            color: #ff0033;
+            font-size: 6vw;
+            letter-spacing: 5px;
+            text-shadow: 0 0 25px #ff0033;
+            margin-bottom: 15px;
+            font-weight: 900;
+            text-align: center;
+        }
+        button {
+            padding: 14px 40px;
+            font-size: 18px;
+            background: #2a0000;
+            color: #ff4d4d;
+            border: 1px solid #ff0033;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        button:hover {
+            background: #ff0033;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="ui">
+            <div class="ui-panel">
+                <div>SINH MỆNH: <span id="hp-ui" style="color: #ff3355;">100%</span></div>
+                <div style="margin-top: 5px;">HỒN THẠCH: <span id="score-ui" style="color: #ffd700;">0</span></div>
+            </div>
+            
+            <div class="ui-panel" style="text-align: right;">
+                <div>SỐ DAO TÍCH LŨY</div>
+                <div id="blade-count-ui" style="color: #00ffff; font-size: 20px; margin-top: 5px;">0</div>
+                <div style="font-size: 10px; color: #888;">CLICK CHUỘT ĐỂ PHÓNG DAO</div>
+            </div>
+        </div>
+
+        <div id="game-over-screen">
+            <h2 class="death-title">HỒN TIÊU PHÁCH TÁN</h2>
+            <p style="margin-top: 15px; font-size: 24px;">Điểm săn quái: <span id="final-score" style="color: #ffd700;">0</span></p>
+            <button onclick="resetGame()" style="margin-top: 20px;">TÁI SINH</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const hpUi = document.getElementById('hp-ui');
+        const scoreUi = document.getElementById('score-ui');
+        const bladeCountUi = document.getElementById('blade-count-ui');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScore = document.getElementById('final-score');
+
+        let ghosts = [], embers = [], groundBlades = [], flyingBlades = [], hearts = [], ghostBullets = [];
+        let mouse = { x: 0, y: 0 };
+        
+        let player = { x: 0, y: 0, radius: 20, hp: 100, targetX: 0, targetY: 0, bladeCount: 0, orbitRotation: 0 };
+
+        let score, isGameOver, spawnTimer, itemSpawnTimer, heartSpawnTimer, screenShake = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (player.x === 0 && player.y === 0) {
+                player.x = canvas.width / 2;
+                player.y = canvas.height / 2;
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            player.targetX = e.clientX - rect.left;
+            player.targetY = e.clientY - rect.top;
+            mouse.x = player.targetX;
+            mouse.y = player.targetY;
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (isGameOver || player.bladeCount <= 0) return;
+
+            let angleToMouse = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+            screenShake = 12;
+
+            for (let i = 0; i < player.bladeCount; i++) {
+                let spreadAngle = angleToMouse + (i - (player.bladeCount - 1) / 2) * 0.15;
+                flyingBlades.push({
+                    x: player.x + Math.cos(spreadAngle) * 30,
+                    y: player.y + Math.sin(spreadAngle) * 30,
+                    vx: Math.cos(spreadAngle) * 14,
+                    vy: Math.sin(spreadAngle) * 14,
+                    length: 28
+                });
+            }
+
+            player.bladeCount = 0;
+            updateUI();
+        });
+
+        function init() {
+            resizeCanvas();
+            ghosts = []; embers = []; groundBlades = []; flyingBlades = []; hearts = []; ghostBullets = [];
+            score = 0; isGameOver = false; spawnTimer = 0; itemSpawnTimer = 0; heartSpawnTimer = 0; screenShake = 0;
+            player.hp = 100; player.bladeCount = 3;
+            
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+            player.targetX = player.x;
+            player.targetY = player.y;
+            document.getElementById('game-container').style.cursor = 'none'; // Ẩn chuột khi bắt đầu game
+
+            updateUI();
+            gameOverScreen.style.display = 'none';
+        }
+
+        function updateUI() {
+            hpUi.innerText = player.hp + "%";
+            scoreUi.innerText = score;
+            bladeCountUi.innerText = player.bladeCount;
+        }
+
+        function createExplosion(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                if (embers.length > 80) embers.shift();
+                embers.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                    size: Math.random() * 2.5 + 1, color: color, alpha: 1
+                });
+            }
+        }
+
+        function drawHeart(x, y, size) {
+            ctx.beginPath();
+            ctx.moveTo(x, y + size / 4);
+            ctx.quadraticCurveTo(x, y, x - size / 2, y);
+            ctx.quadraticCurveTo(x - size, y, x - size, y + size / 3);
+            ctx.quadraticCurveTo(x - size, y + size * 2 / 3, x - size / 4, y + size);
+            ctx.lineTo(x, y + size);
+            ctx.lineTo(x + size / 4, y + size);
+            ctx.quadraticCurveTo(x + size, y + size * 2 / 3, x + size, y + size / 3);
+            ctx.quadraticCurveTo(x + size, y, x + size / 2, y);
+            ctx.quadraticCurveTo(x, y, x, y + size / 4);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function draw() {
+            ctx.save();
+            if (screenShake > 0) {
+                ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            groundBlades.forEach(b => {
+                b.pulse += 0.08;
+                let offset = Math.sin(b.pulse) * 4;
+                let val = b.value || 1;
+                let color = val === 4 ? '#ff00ff' : (val === 3 ? '#ffd700' : '#00ffff');
+
+                ctx.save(); ctx.translate(b.x, b.y + offset);
+                ctx.shadowBlur = 30; ctx.shadowColor = color;
+                ctx.strokeStyle = color; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(0, 10); ctx.stroke();
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5;
+                ctx.beginPath(); ctx.moveTo(-6, -4); ctx.lineTo(6, -4); ctx.stroke();
+
+                if (val > 1) {
+                    ctx.fillStyle = color;
+                    ctx.font = 'bold 12px Courier New';
+                    ctx.fillText('X' + val, 8, -5);
+                }
+                ctx.restore();
+            });
+
+            hearts.forEach(h => {
+                h.pulse += 0.1;
+                let heartSize = 13 + Math.sin(h.pulse) * 3;
+                ctx.save();
+                ctx.shadowBlur = 20; ctx.shadowColor = '#ff3366';
+                ctx.fillStyle = '#ff3366';
+                drawHeart(h.x, h.y - heartSize/2, heartSize);
+                ctx.restore();
+            });
+
+            flyingBlades.forEach(fb => {
+                ctx.save(); ctx.translate(fb.x, fb.y);
+                let angle = Math.atan2(fb.vy, fb.vx); ctx.rotate(angle);
+                ctx.shadowBlur = 20; ctx.shadowColor = '#ffd700';
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.9)'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(-fb.length/2, 0); ctx.lineTo(fb.length/2, 0); ctx.stroke();
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(-fb.length/4, 0); ctx.lineTo(fb.length/2, 0); ctx.stroke();
+                ctx.restore();
+            });
+
+            if (player.bladeCount > 0) {
+                let orbitRadius = 42 + (player.bladeCount * 2);
+                for (let i = 0; i < player.bladeCount; i++) {
+                    let bladeAngle = player.orbitRotation + (i * (Math.PI * 2) / player.bladeCount);
+                    let bx = player.x + Math.cos(bladeAngle) * orbitRadius;
+                    let by = player.y + Math.sin(bladeAngle) * orbitRadius;
+                    ctx.save(); ctx.translate(bx, by); ctx.rotate(bladeAngle + Math.PI/2);
+                    ctx.shadowBlur = 15; ctx.shadowColor = '#00ffff';
+                    ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(0, 8); ctx.stroke();
+                    ctx.restore();
+                }
+            }
+
+            ctx.shadowBlur = 20; ctx.shadowColor = player.hp > 30 ? '#3b82f6' : '#ff3355';
+            ctx.fillStyle = player.hp > 30 ? 'rgba(59, 130, 246, 0.85)' : 'rgba(239, 68, 68, 0.85)';
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(player.x, player.y, player.radius * 0.3, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            embers.forEach(e => {
+                ctx.save(); ctx.globalAlpha = e.alpha; ctx.fillStyle = e.color;
+                ctx.fillRect(e.x, e.y, e.size, e.size); ctx.restore();
+            });
+
+            ghosts.forEach(ghost => {
+                ctx.beginPath(); ctx.fillStyle = ghost.color;
+                ctx.arc(ghost.x, ghost.y, ghost.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                let offset = ghost.radius > 15 ? 4 : 2;
+                ctx.fillRect(ghost.x - offset, ghost.y - 2, 2, 2); ctx.fillRect(ghost.x + (offset - 2), ghost.y - 2, 2, 2);
+            });
+
+            ghostBullets.forEach(gb => {
+                ctx.save();
+                ctx.beginPath(); ctx.fillStyle = '#facc15';
+                ctx.shadowBlur = 15; ctx.shadowColor = '#facc15';
+                ctx.arc(gb.x, gb.y, 4, 0, Math.PI * 2); 
+                ctx.fill();
+                ctx.restore();
+            });
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            let lightRadius = 420;
+            let gradient = ctx.createRadialGradient(player.x, player.y, 30, player.x, player.y, lightRadius);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)');
+            gradient.addColorStop(0.4, 'rgba(1,1,3,0.2)');
+            gradient.addColorStop(1, 'rgba(1,1,3,0.99)');
+
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            player.x += (player.targetX - player.x) * 0.12;
+            player.y += (player.targetY - player.y) * 0.12;
+            player.orbitRotation += 0.04;
+
+            itemSpawnTimer++;
+            if (itemSpawnTimer > 60 && groundBlades.length < 15) {
+                let spawnX = Math.random() * (canvas.width - 150) + 75;
+                let spawnY = Math.random() * (canvas.height - 150) + 75;
+                
+                // Ngẫu nhiên chọn số lượng dao xuất hiện (1 hoặc 3)
+                let spawnCount = Math.random() > 0.5 ? 3 : 1;
+                for (let k = 0; k < spawnCount; k++) {
+                    groundBlades.push({ x: spawnX, y: spawnY, pulse: k * 1.5 });
+                }
+                itemSpawnTimer = 0;
+            }
+
+            heartSpawnTimer++;
+            // Độ khó: Trái tim xuất hiện thưa dần khi điểm cao
+            let heartInterval = 300 + Math.floor(score / 5);
+            if (heartSpawnTimer > heartInterval && hearts.length < 2) { 
+                hearts.push({ x: Math.random() * (canvas.width - 150) + 75, y: Math.random() * (canvas.height - 150) + 75, pulse: 0 });
+                heartSpawnTimer = 0;
+            }
+
+            for (let i = groundBlades.length - 1; i >= 0; i--) {
+                let b = groundBlades[i];
+                if (Math.hypot(b.x - player.x, b.y - player.y) < player.radius + 15) {
+                    player.bladeCount++;
+                    createExplosion(b.x, b.y, '#00ffff', 8);
+                    groundBlades.splice(i, 1);
+                    updateUI();
+                }
+            }
+
+            for (let i = hearts.length - 1; i >= 0; i--) {
+                let h = hearts[i];
+                if (Math.hypot(h.x - player.x, h.y - player.y) < player.radius + 18) {
+                    player.hp = Math.min(100, player.hp + 25);
+                    createExplosion(h.x, h.y, '#ff3366', 15);
+                    hearts.splice(i, 1);
+                    updateUI();
+                }
+            }
+
+            for (let i = flyingBlades.length - 1; i >= 0; i--) {
+                let fb = flyingBlades[i]; fb.x += fb.vx; fb.y += fb.vy;
+                if (fb.x < -50 || fb.x > canvas.width + 50 || fb.y < -50 || fb.y > canvas.height + 50) {
+                    flyingBlades.splice(i, 1); continue;
+                }
+                for (let gIdx = ghosts.length - 1; gIdx >= 0; gIdx--) {
+                    let ghost = ghosts[gIdx];
+                    if (Math.hypot(ghost.x - fb.x, ghost.y - fb.y) < ghost.radius + 12) {
+                        ghost.hp--; createExplosion(fb.x, fb.y, '#ffd700', 4);
+                        if (ghost.hp <= 0) {
+                            createExplosion(ghost.x, ghost.y, ghost.color, 10);
+                            ghosts.splice(gIdx, 1); score += 10; updateUI();
+                        }
+                    }
+                }
+            }
+
+            for (let i = embers.length - 1; i >= 0; i--) {
+                let e = embers[i]; e.x += e.vx; e.y += e.vy; e.alpha -= 0.03;
+                if (e.alpha <= 0) embers.splice(i, 1);
+            }
+
+            spawnTimer++;
+            // Độ khó: Quái xuất hiện nhanh hơn và giới hạn quái tăng lên 50
+            let spawnRate = Math.max(8, 40 - Math.floor(score / 15));
+            if (spawnTimer > spawnRate && ghosts.length < 50) {
+                let x, y, edge = Math.floor(Math.random() * 4);
+                if (edge === 0) { x = Math.random() * canvas.width; y = -20; }
+                else if (edge === 1) { x = canvas.width + 20; y = Math.random() * canvas.height; }
+                else if (edge === 2) { x = Math.random() * canvas.width; y = canvas.height + 20; }
+                else { x = -20; y = Math.random() * canvas.height; }
+
+                // Độ khó: Tốc độ quái tăng dần theo điểm số
+                let difficultyMult = 1 + (score / 1000);
+                let randType = Math.random();
+                let color = '#ef4444', speed = (Math.random() * 0.7 + 1.1) * difficultyMult, radius = 11, hp = 1, canShoot = false;
+
+                if (randType > 0.92) { color = '#facc15'; speed = 0.8 * difficultyMult; radius = 12; hp = 1; canShoot = true; }
+                else if (randType > 0.8) { color = '#c084fc'; speed = 3.2 * difficultyMult; radius = 8; } 
+                else if (randType > 0.65) { color = '#22c55e'; speed = 0.7 * difficultyMult; radius = 18; hp = 2; }
+
+                ghosts.push({ x, y, radius, speed, color, hp, canShoot, shootTimer: 0 });
+                spawnTimer = 0;
+            }
+
+            for (let gIndex = ghosts.length - 1; gIndex >= 0; gIndex--) {
+                let ghost = ghosts[gIndex];
+                let angle = Math.atan2(player.y - ghost.y, player.x - ghost.x);
+                ghost.x += Math.cos(angle) * ghost.speed; ghost.y += Math.sin(angle) * ghost.speed;
+
+                if (ghost.canShoot) {
+                    ghost.shootTimer++;
+                    if (ghost.shootTimer > 120) {
+                        let shootAngle = Math.atan2(player.y - ghost.y, player.x - ghost.x);
+                        ghostBullets.push({
+                            x: ghost.x, y: ghost.y,
+                            vx: Math.cos(shootAngle) * 4.5,
+                            vy: Math.sin(shootAngle) * 4.5
+                        });
+                        ghost.shootTimer = 0;
+                    }
+                }
+
+                let isKilledByOrbit = false;
+                let orbitRadius = 42 + (player.bladeCount * 2);
+                let distToPlayer = Math.hypot(ghost.x - player.x, ghost.y - player.y);
+
+                if (player.bladeCount > 0 && Math.abs(distToPlayer - orbitRadius) < ghost.radius + 8) {
+                    ghost.hp--; player.bladeCount--;
+                    createExplosion(ghost.x, ghost.y, '#00ffff', 8);
+                    updateUI();
+                    if (ghost.hp <= 0) { ghosts.splice(gIndex, 1); score += 10; updateUI(); }
+                    isKilledByOrbit = true;
+                }
+
+                if (isKilledByOrbit) continue;
+
+                if (distToPlayer < ghost.radius + player.radius) {
+                    createExplosion(ghost.x, ghost.y, '#ff0033', 12);
+                    ghosts.splice(gIndex, 1);
+                    player.hp -= 15; screenShake = 10;
+                    if (player.hp < 0) player.hp = 0;
+                    updateUI();
+
+                    if (player.hp <= 0) {
+                        isGameOver = true; finalScore.innerText = score;
+                        gameOverScreen.style.display = 'flex';
+                        document.getElementById('game-container').style.cursor = 'default'; // Hiện chuột khi game over
+                    }
+                }
+            }
+
+            for (let i = ghostBullets.length - 1; i >= 0; i--) {
+                let gb = ghostBullets[i]; gb.x += gb.vx; gb.y += gb.vy;
+                if (gb.x < -20 || gb.x > canvas.width + 20 || gb.y < -20 || gb.y > canvas.height + 20) {
+                    ghostBullets.splice(i, 1); continue;
+                }
+                if (Math.hypot(gb.x - player.x, gb.y - player.y) < player.radius + 5) {
+                    player.hp -= 10; createExplosion(gb.x, gb.y, '#facc15', 5);
+                    ghostBullets.splice(i, 1); updateUI();
+                    if (player.hp <= 0) {
+                        player.hp = 0; isGameOver = true; finalScore.innerText = score;
+                        gameOverScreen.style.display = 'flex';
+                        document.getElementById('game-container').style.cursor = 'default';
+                        updateUI();
+                    }
+                }
+            }
+
+            if (screenShake > 0) screenShake--;
+        }
+
+        function resetGame() { init(); }
+
+        init();
+        gameLoop();
+
+        // --- ĐÃ THÊM: CHẶN CHUỘT PHẢI TUYỆT ĐỐI ---
+        window.addEventListener('contextmenu', (e) => { e.preventDefault(); });
+
+        // --- ĐÃ THÊM: NHẤN PHÍM CÁCH ĐỂ TÁI SINH KHI GAME OVER ---
+        window.addEventListener('keydown', (e) => {
+            if (isGameOver && e.key === ' ') {
+                resetGame();
+            }
+        });
+    </script>
+</body>
+</html>

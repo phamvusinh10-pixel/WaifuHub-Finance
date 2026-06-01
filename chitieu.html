@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tài Chính Cá Nhân</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; }
+        .card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="mb-4 text-center">Quản Lý Chi Tiêu</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h5>Ghi giao dịch mới</h5>
+                <input type="text" id="note" class="form-control mb-2" placeholder="Nội dung">
+                <input type="number" id="amount" class="form-control mb-2" placeholder="Số tiền (VNĐ)">
+                <button onclick="saveData()" class="btn btn-primary w-100">Ghi sổ</button>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-3">
+                <h5>Danh sách gần đây</h5>
+                <ul id="list" class="list-group list-group-flush">
+                    </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAipEyRdgKPSAYqq8vMi6HFlmttDp8E2q4",
+        authDomain: "webcosplaycuatoi.firebaseapp.com",
+        projectId: "webcosplaycuatoi",
+        storageBucket: "webcosplaycuatoi.firebasestorage.app",
+        messagingSenderId: "1051760144047",
+        appId: "1:1051760144047:web:4aa73cae9ce1d643ce6e5a",
+        measurementId: "G-P9KV24H1ZE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Lưu dữ liệu
+    window.saveData = async () => {
+        const note = document.getElementById("note").value;
+        const amount = document.getElementById("amount").value;
+        if (!note || !amount) return alert("Vui lòng nhập đầy đủ");
+
+        await addDoc(collection(db, "transactions"), {
+            note: note,
+            amount: Number(amount),
+            date: serverTimestamp()
+        });
+        document.getElementById("note").value = "";
+        document.getElementById("amount").value = "";
+    };
+
+    // Đọc dữ liệu thời gian thực
+    const q = query(collection(db, "transactions"), orderBy("date", "desc"));
+    onSnapshot(q, (snapshot) => {
+        const list = document.getElementById("list");
+        list.innerHTML = "";
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            list.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>${data.note}</span>
+                    <strong>${data.amount.toLocaleString()} đ</strong>
+                </li>`;
+        });
+    });
+</script>
+
+</body>
+</html>
