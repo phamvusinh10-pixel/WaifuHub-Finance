@@ -21,7 +21,7 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            user-select: none;
+            user-select: auto;
         }
         #game-container {
             position: relative;
@@ -499,9 +499,6 @@
 
         init();
         gameLoop();
-
-        // --- ĐÃ THÊM: CHẶN CHUỘT PHẢI TUYỆT ĐỐI ---
-        window.addEventListener('contextmenu', (e) => { e.preventDefault(); });
 
         // --- ĐÃ THÊM: NHẤN PHÍM CÁCH ĐỂ TÁI SINH KHI GAME OVER ---
         window.addEventListener('keydown', (e) => {

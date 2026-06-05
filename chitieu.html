@@ -106,8 +106,9 @@
         
         /* CONTROL BAR */
         .top-control-bar { 
+            display: none; /* Ẩn theo yêu cầu người dùng */
             position: sticky; top: 0; z-index: 100;
-            display: flex; justify-content: space-between; align-items: center; 
+            /* display: flex; justify-content: space-between; align-items: center; */
             background: rgba(255, 255, 255, 0.9); padding: 12px 18px; 
             box-shadow: 0 18px 40px rgba(31, 41, 55, 0.08); gap: 12px; flex-wrap: wrap;
             backdrop-filter: blur(18px); border-bottom: 1px solid rgba(203, 213, 225, 0.65);
@@ -194,7 +195,110 @@
             background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(235, 243, 255, 0.9));
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
         }
-        .target-table { border-collapse: collapse; font-size: 13px; width: 100%; table-layout: fixed; background: transparent; }
+        .target-card-list {
+            display: none;
+            gap: 16px;
+            margin-top: 18px;
+        }
+        .target-card-item {
+            background: var(--surface);
+            border: 1px solid rgba(203, 213, 225, 0.9);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 16px 30px rgba(31, 41, 55, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .target-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        .target-card-progress {
+            width: 100%;
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(203, 213, 225, 0.45);
+            overflow: hidden;
+        }
+        .target-card-progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+        .target-card-meta {
+            font-size: 12px;
+            color: var(--text-sub);
+            display: flex;
+            justify-content: space-between;
+        }
+        .target-cell {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            text-align: left;
+            min-height: 90px;
+            padding: 12px 10px 42px;
+            overflow: hidden;
+        }
+        .target-cell::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(203, 213, 225, 0.35);
+        }
+        .target-cell::after {
+            content: '';
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            height: 8px;
+            border-radius: 999px;
+            width: var(--progress, 0);
+            background: var(--progress-color, #22c55e);
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            display: block;
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--text-sub);
+            word-break: break-word;
+        }
+        .progress-percent {
+            display: inline-flex;
+            justify-content: flex-end;
+            font-size: 12px;
+            color: var(--text-sub);
+            font-weight: 700;
+        }
+        .target-editable {
+            display: block;
+            width: 100%;
+            min-height: 30px;
+            line-height: 1.4;
+            outline: none;
+            font-weight: 700;
+            color: var(--dark);
+            background: transparent;
+        }
+        .target-editable:focus {
+            outline: 2px solid rgba(59, 130, 246, 0.25);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+        }
+        .target-table { border-collapse: collapse; font-size: 13px; width: 100%; table-layout: auto; background: transparent; }
         .target-table th, .target-table td { padding: 10px 10px; text-align: right; border-bottom: 1px solid rgba(226, 232, 240, 0.95); border-right: 1px solid rgba(226, 232, 240, 0.95); box-sizing: border-box; }
         .target-table th:last-child, .target-table td:last-child { border-right: none; }
         .target-table .label-cell {
@@ -443,6 +547,8 @@
             .input-form-box, .calendar-box { padding: 14px; }
             .form-toggle { flex-direction: column; }
             .toggle-btn { width: 100%; }
+            .target-table-wrapper { display: none; }
+            .target-card-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
         }
         @media (max-width: 420px) {
             .slide-header h1 { font-size: 20px; }
@@ -452,6 +558,11 @@
             .calendar-title { font-size: 11px; }
             .card-info p { font-size: 18px; }
         }
+
+        /* Form moved to top styles */
+        .main-input-top { max-width: 560px; margin: 16px auto 24px; }
+        @media (max-width: 1024px) { .main-input-top { max-width: 100%; margin: 12px 0 18px; } }
+        @media (max-width: 580px) { .main-input-top { padding: 14px; border-radius: 16px; } }
     </style>
 </head>
 <body>
@@ -479,6 +590,40 @@
 
     <div class="container">
         
+        <!-- Form dời lên đầu -->
+        <div class="input-form-box main-input-top">
+            <div class="target-section-title" style="margin-bottom:12px;">
+                <span class="material-icons-round" style="color:var(--primary)">add_card</span> Ghi Sổ Giao Dịch Mới
+            </div>
+            <div class="form-toggle">
+                <button id="toggle-exp" class="toggle-btn expense-mode active" onclick="setFormMode('expense')">Chi Tiêu</button>
+                <button id="toggle-inc" class="toggle-btn income-mode" onclick="setFormMode('income')">Thu Nhập</button>
+            </div>
+            <div class="form-group">
+                <div class="form-row-inner">
+                    <div>
+                        <label for="tx-day">Ngày</label>
+                        <input type="number" id="tx-day" class="input-ctrl" min="1" max="31" value="" oninput="highlightCalendarDay()">
+                    </div>
+                    <div>
+                        <label for="tx-category">Danh mục</label>
+                        <select id="tx-category" class="input-ctrl"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="tx-amount">Số tiền nhập tắt (hàng nghìn đ)</label>
+                <input type="number" id="tx-amount" class="input-ctrl" placeholder="Nhập 50 ứng với 50.000 đ" min="0" oninput="updateAmountPreview()">
+                <span id="amount-preview" class="amount-preview"></span>
+            </div>
+            <button class="btn-submit-tx" onclick="addTransaction()">
+                <span class="material-icons-round">done</span> Ghi sổ giao dịch
+            </button>
+            <button type="button" style="width: 100%; background: #cbd5e1; color: var(--dark); border: none; padding: 10px; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; margin-top: 8px; transition: background 0.2s ease;" onclick="resetForm()">
+                <span class="material-icons-round" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">refresh</span> Xóa Form
+            </button>
+        </div>
+
         <!-- TRANG 1 -->
         <div id="slide1" class="slide-page">
             <div class="slide-header">
@@ -514,79 +659,62 @@
                             <table class="target-table">
                                 <colgroup>
                                     <col class="label-cell">
-                                    <col style="width:18%"><col style="width:22%"><col style="width:15%"><col style="width:17%"><col style="width:18%">
+                                    <col style="width:24%">
+                                    <col style="width:24%">
+                                    <col style="width:32%">
                                 </colgroup>
                                 <thead>
                                     <tr>
                                         <th class="label-cell">Hạng mục</th>
-                                        <th>Ăn uống</th><th>Di chuyển, nhà</th><th>Giải trí</th><th>Mua sắm</th><th>Tiết kiệm</th>
+                                        <th>Mục tiêu</th>
+                                        <th>Đã tiêu</th>
+                                        <th>Tiến độ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="label-cell">Target</td>
-                                        <td id="tgt-anuong" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('anuong', this)" onkeydown="handleTargetKey(event, 'anuong')">0 đ</td>
-                                        <td id="tgt-dichuyen" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('dichuyen', this)" onkeydown="handleTargetKey(event, 'dichuyen')">0 đ</td>
-                                        <td id="tgt-giaitri" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('giaitri', this)" onkeydown="handleTargetKey(event, 'giaitri')">0 đ</td>
-                                        <td id="tgt-muasam" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('muasam', this)" onkeydown="handleTargetKey(event, 'muasam')">0 đ</td>
-                                        <td id="tgt-tietkiem" class="target-cell" contenteditable="true" spellcheck="false" onblur="updateTargetValue('tietkiem', this)" onkeydown="handleTargetKey(event, 'tietkiem')">0 đ</td>
+                                        <td class="label-cell">Ăn uống</td>
+                                        <td id="tgt-anuong" class="target-cell"><span class="target-editable" contenteditable="true" spellcheck="false" onblur="updateTargetValue('anuong', this)" onkeydown="handleTargetKey(event, 'anuong')">0 đ</span><span class="progress-text">0 / 0 đ</span></td>
+                                        <td id="spnt-anuong">0 đ</td>
+                                        <td><span class="progress-percent" id="prog-anuong">0%</span></td>
                                     </tr>
                                     <tr>
-                                        <td class="label-cell">Tiêu</td>
-                                        <td id="spnt-anuong">0 đ</td><td id="spnt-dichuyen">0 đ</td><td id="spnt-giaitri">0 đ</td><td id="spnt-muasam">0 đ</td><td id="spnt-tietkiem">0 đ</td>
+                                        <td class="label-cell">Di chuyển, nhà</td>
+                                        <td id="tgt-dichuyen" class="target-cell"><span class="target-editable" contenteditable="true" spellcheck="false" onblur="updateTargetValue('dichuyen', this)" onkeydown="handleTargetKey(event, 'dichuyen')">0 đ</span><span class="progress-text">0 / 0 đ</span></td>
+                                        <td id="spnt-dichuyen">0 đ</td>
+                                        <td><span class="progress-percent" id="prog-dichuyen">0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-cell">Giải trí</td>
+                                        <td id="tgt-giaitri" class="target-cell"><span class="target-editable" contenteditable="true" spellcheck="false" onblur="updateTargetValue('giaitri', this)" onkeydown="handleTargetKey(event, 'giaitri')">0 đ</span><span class="progress-text">0 / 0 đ</span></td>
+                                        <td id="spnt-giaitri">0 đ</td>
+                                        <td><span class="progress-percent" id="prog-giaitri">0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-cell">Mua sắm</td>
+                                        <td id="tgt-muasam" class="target-cell"><span class="target-editable" contenteditable="true" spellcheck="false" onblur="updateTargetValue('muasam', this)" onkeydown="handleTargetKey(event, 'muasam')">0 đ</span><span class="progress-text">0 / 0 đ</span></td>
+                                        <td id="spnt-muasam">0 đ</td>
+                                        <td><span class="progress-percent" id="prog-muasam">0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-cell">Tiết kiệm</td>
+                                        <td id="tgt-tietkiem" class="target-cell"><span class="target-editable" contenteditable="true" spellcheck="false" onblur="updateTargetValue('tietkiem', this)" onkeydown="handleTargetKey(event, 'tietkiem')">0 đ</span><span class="progress-text">0 / 0 đ</span></td>
+                                        <td id="spnt-tietkiem">0 đ</td>
+                                        <td><span class="progress-percent" id="prog-tietkiem">0%</span></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- THAY ĐỔI THEO YÊU CẦU: BIỂU ĐỒ 12 THÁNG LIÊN TỤC -->
-                    <div class="chart-mock-container">
-                        <div class="target-section-title" style="margin-bottom: 4px;">
-                            <span class="material-icons-round" style="color:var(--primary)">bar_chart</span> Diễn Biến Thu Nhập & Chi Tiêu 12 Tháng Lũy Kế (<span id="chart-year-label">2026</span>)
-                        </div>
-                        <div class="mock-chart-graphics" id="months-chart-wrapper">
-                            <!-- JS tự động vẽ 12 cột tương ứng 12 tháng tại đây -->
-                        </div>
+                    <div class="target-card-list" id="target-card-list" aria-label="Danh sách tiến độ mục tiêu">
+                        <!-- Nội dung sẽ được tạo động bởi JavaScript -->
                     </div>
                 </div>
 
                 <!-- CỘT PHẢI -->
                 <div class="right-interactive-column">
-                    <div class="input-form-box">
-                        <div class="target-section-title" style="margin-bottom:12px;">
-                            <span class="material-icons-round" style="color:var(--primary)">add_card</span> Ghi Sổ Giao Dịch Mới
-                        </div>
-                        <div class="form-toggle">
-                            <button id="toggle-exp" class="toggle-btn expense-mode active" onclick="setFormMode('expense')">Chi Tiêu</button>
-                            <button id="toggle-inc" class="toggle-btn income-mode" onclick="setFormMode('income')">Thu Nhập</button>
-                        </div>
-                        <div class="form-group">
-                            <div class="form-row-inner">
-                                <div>
-                                    <label for="tx-day">Ngày</label>
-                                    <input type="number" id="tx-day" class="input-ctrl" min="1" max="31" value="" oninput="highlightCalendarDay()">
-                                </div>
-                                <div>
-                                    <label for="tx-category">Danh mục</label>
-                                    <select id="tx-category" class="input-ctrl"></select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="tx-amount">Số tiền nhập tắt (hàng nghìn đ)</label>
-                            <input type="number" id="tx-amount" class="input-ctrl" placeholder="Nhập 50 ứng với 50.000 đ" min="0" oninput="updateAmountPreview()">
-                            <span id="amount-preview" class="amount-preview"></span>
-                        </div>
-                        <button class="btn-submit-tx" onclick="addTransaction()">
-                            <span class="material-icons-round">done</span> Ghi sổ giao dịch
-                        </button>
-                        <button type="button" style="width: 100%; background: #cbd5e1; color: var(--dark); border: none; padding: 10px; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; margin-top: 8px; transition: background 0.2s ease;" onclick="resetForm()">
-                            <span class="material-icons-round" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">refresh</span> Xóa Form
-                        </button>
-                    </div>
-
-                    <div class="calendar-box">
+<div class="calendar-box">
                         <div class="calendar-header-nav">
                             <button class="calendar-nav-btn" onclick="navigateMonth(-1)">◀</button>
                             <div class="calendar-title" id="calendar-month-year-title">Lịch Tháng 5 / 2026</div>
@@ -877,7 +1005,11 @@
 
     let globalTargets = { anuong: 700000, dichuyen: 3000000, giaitri: 500000, muasam: 2000000, tietkiem: 6000000 };
     let calendarNotes = {};
-    let lastChartYear = null;
+    function getProgressColor(percent) {
+        if (percent <= 50) return '#22c55e';
+        if (percent <= 80) return '#f59e0b';
+        return '#ef4444';
+    }
 
     function parseTargetText(value) {
         const digits = value.replace(/[^0-9]/g, '').trim();
@@ -902,6 +1034,34 @@
             event.target.blur();
         }
     }
+
+    function renderTargetProgressCards(colTotals) {
+        const listEl = document.getElementById('target-card-list');
+        if (!listEl) return;
+        const keys = ['anuong', 'dichuyen', 'giaitri', 'muasam', 'tietkiem'];
+        listEl.innerHTML = keys.map(key => {
+            const spent = colTotals[key];
+            const target = globalTargets[key];
+            const percent = target === 0 ? 0 : Math.min(100, Math.round((spent / target) * 100));
+            const color = getProgressColor(percent);
+            return `
+                <div class="target-card-item">
+                    <div class="target-card-header">
+                        <span>${categoryLabels[key]}</span>
+                        <span>${spent.toLocaleString()} / ${target.toLocaleString()} đ</span>
+                    </div>
+                    <div class="target-card-progress">
+                        <div class="target-card-progress-fill" style="width:${percent}%; background:${color};"></div>
+                    </div>
+                    <div class="target-card-meta">
+                        <span>${percent}% ngân sách</span>
+                        <span>${target === 0 ? 'Không có target' : `${spent.toLocaleString()} đ`}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
     function daysInMonth(month, year) { return new Date(year, month, 0).getDate(); }
 
     function setFormMode(mode) {
@@ -930,53 +1090,6 @@
     }
 
     // HÀM QUAN TRỌNG: Tự động tính toán tổng 12 tháng của năm đang chọn và vẽ biểu đồ
-    function generateTwelveMonthsChart(activeYear) {
-        const chartWrapper = document.getElementById('months-chart-wrapper');
-        document.getElementById('chart-year-label').innerText = activeYear;
-        chartWrapper.innerHTML = ""; 
-
-        let monthsData = [];
-        let maxVal = 1000000; // Ngưỡng trần tối thiểu để tính tỉ lệ phần trăm cột cao thấp
-
-        // 1. Thu thập dữ liệu thu/chi từ cơ sở dữ liệu cho đủ 12 tháng
-        for (let m = 1; m <= 12; m++) {
-            let totalInc = 0;
-            let totalExp = 0;
-            const monthObj = (financialDatabase[activeYear] && financialDatabase[activeYear][m]) ? financialDatabase[activeYear][m] : {};
-            
-            for (let day in monthObj) {
-                const exp = monthObj[day].expense || {};
-                const inc = monthObj[day].income || {};
-                totalExp += (exp.anuong || 0) + (exp.dichuyen || 0) + (exp.giaitri || 0) + (exp.muasam || 0) + (exp.tietkiem || 0);
-                totalInc += (inc.mb || 0) + (inc.shinhan || 0) + (inc.tienmat || 0);
-            }
-            monthsData.push({ month: m, income: totalInc, expense: totalExp });
-            if (totalInc > maxVal) maxVal = totalInc;
-            if (totalExp > maxVal) maxVal = totalExp;
-        }
-
-        // 2. Kết xuất các cột đồ họa dựa theo phần trăm giá trị thực tế
-        monthsData.forEach(item => {
-            let incHeight = Math.max(2, (item.income / maxVal) * 180); 
-            let expHeight = Math.max(2, (item.expense / maxVal) * 180); 
-
-            const barGroup = document.createElement('div');
-            barGroup.className = 'chart-bar-group';
-            barGroup.innerHTML = `
-                <div class="chart-tooltip">
-                    <strong>Tháng ${item.month}</strong><br/>
-                    ▲ Thu: ${item.income.toLocaleString()} đ<br/>
-                    ▼ Chi: ${item.expense.toLocaleString()} đ
-                </div>
-                <div class="bar-pair">
-                    <div class="bar-pill inc" style="height: ${incHeight}px;"></div>
-                    <div class="bar-pill exp" style="height: ${expHeight}px;"></div>
-                </div>
-                <div class="chart-label">T${item.month}</div>
-            `;
-            chartWrapper.appendChild(barGroup);
-        });
-    }
 
     function renderMiniCalendar(month, year) {
         const gridBody = document.getElementById('calendar-grid-body');
@@ -1176,11 +1289,6 @@
         document.getElementById('table-month-label').innerText = `Thg ${month}/${year.slice(-2)}`;
         document.getElementById('calendar-month-year-title').innerText = `Lịch Tháng ${month} / ${year}`;
 
-        // Chỉ vẽ lại biểu đồ khi đổi năm
-        if (year !== lastChartYear) {
-            generateTwelveMonthsChart(year);
-            lastChartYear = year;
-        }
         renderMiniCalendar(month, year);
 
         const currentMonthData = (financialDatabase[year] && financialDatabase[year][month]) ? financialDatabase[year][month] : {};
@@ -1228,11 +1336,31 @@
             <td>${colTotals.mb.toLocaleString()} đ</td><td>${colTotals.shinhan.toLocaleString()} đ</td><td>${colTotals.tienmat.toLocaleString()} đ</td>
         `;
 
-        document.getElementById('tgt-anuong').innerText = `${globalTargets.anuong.toLocaleString()} đ`;
-        document.getElementById('tgt-dichuyen').innerText = `${globalTargets.dichuyen.toLocaleString()} đ`;
-        document.getElementById('tgt-giaitri').innerText = `${globalTargets.giaitri.toLocaleString()} đ`;
-        document.getElementById('tgt-muasam').innerText = `${globalTargets.muasam.toLocaleString()} đ`;
-        document.getElementById('tgt-tietkiem').innerText = `${globalTargets.tietkiem.toLocaleString()} đ`;
+        document.getElementById('tgt-anuong').querySelector('.target-editable').innerText = `${globalTargets.anuong.toLocaleString()} đ`;
+        document.getElementById('tgt-dichuyen').querySelector('.target-editable').innerText = `${globalTargets.dichuyen.toLocaleString()} đ`;
+        document.getElementById('tgt-giaitri').querySelector('.target-editable').innerText = `${globalTargets.giaitri.toLocaleString()} đ`;
+        document.getElementById('tgt-muasam').querySelector('.target-editable').innerText = `${globalTargets.muasam.toLocaleString()} đ`;
+        document.getElementById('tgt-tietkiem').querySelector('.target-editable').innerText = `${globalTargets.tietkiem.toLocaleString()} đ`;
+
+        ['anuong', 'dichuyen', 'giaitri', 'muasam', 'tietkiem'].forEach(key => {
+            const spent = colTotals[key];
+            const target = globalTargets[key];
+            const percent = target === 0 ? 0 : Math.min(100, Math.round((spent / target) * 100));
+            const cell = document.getElementById(`tgt-${key}`);
+            if (!cell) return;
+            cell.style.setProperty('--progress', `${percent}%`);
+            cell.style.setProperty('--progress-color', getProgressColor(percent));
+            let ratioEl = cell.querySelector('.progress-text');
+            if (!ratioEl) {
+                ratioEl = document.createElement('span');
+                ratioEl.className = 'progress-text';
+                cell.appendChild(ratioEl);
+            }
+            ratioEl.innerText = `${spent.toLocaleString()} / ${target.toLocaleString()} đ`;
+            const progressEl = document.getElementById(`prog-${key}`);
+            if (progressEl) progressEl.innerText = `${percent}%`;
+        });
+        renderTargetProgressCards(colTotals);
 
         const exceedMap = {
             anuong: colTotals.anuong > globalTargets.anuong,
