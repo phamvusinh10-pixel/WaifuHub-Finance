@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Tự Làm Trang Web Cho Người Mới</title>
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-sidebar: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #7dd3fc;
+            --code-bg: #111827;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Thanh điều hướng bên trái (Sidebar) */
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+            padding: 15px 0;
+        }
+
+        .menu-list li a {
+            display: block;
+            padding: 14px 20px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-list li a:hover, .menu-list li a.active {
+            background-color: rgba(56, 189, 248, 0.08);
+            color: var(--accent-hover);
+            border-left-color: var(--accent);
+        }
+
+        /* Khu vực hiển thị nội dung chính */
+        .content-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 50px;
+            scroll-behavior: smooth;
+        }
+
+        .step-section {
+            display: none; /* Ẩn tất cả, chỉ hiện phần được chọn */
+            max-width: 850px;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .step-section.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--accent-hover);
+            margin: 35px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p {
+            line-height: 1.75;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Định dạng các khối code mẫu */
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        code {
+            font-family: 'Consolas', 'Fira Code', Monaco, monospace;
+            color: #f43f5e;
+            font-size: 0.95rem;
+            background-color: rgba(244, 63, 94, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        pre code {
+            color: #34d399; /* Màu xanh lá dịu cho khối code */
+            background-color: transparent;
+            padding: 0;
+        }
+
+        /* Khối ghi chú/mẹo */
+        .tip-box {
+            background-color: rgba(56, 189, 248, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 25px 0;
+        }
+
+        .tip-box strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Hiệu ứng chuyển bài mượt */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hỗ trợ Responsive màn hình nhỏ */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: 220px; }
+            .content-container { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">🌐 Lập Trình Web 101</div>
+        <ul class="menu-list">
+            <li><a href="#" class="active" onclick="changeStep('overview')">Tổng quan về Trang Web</a></li>
+            <li><a href="#" onclick="changeStep('tools')">Bước 1: Chuẩn bị công cụ</a></li>
+            <li><a href="#" onclick="changeStep('html')">Bước 2: Xây dựng khung (HTML)</a></li>
+            <li><a href="#" onclick="changeStep('css')">Bước 3: Trang trí giao diện (CSS)</a></li>
+            <li><a href="#" onclick="changeStep('js')">Bước 4: Thêm tương tác (JS)</a></li>
+            <li><a href="#" onclick="changeStep('deploy')">Bước 5: Đưa lên Internet</a></li>
+        </ul>
+    </nav>
+
+    <main class="content-container">
+
+        <section id="overview" class="step-section active">
+            <h1>Tổng Quan Về Cách Một Trang Web Hoạt Động</h1>
+            <p>Để tạo ra một trang web, bạn không cần phải là một thiên tài máy tính. Về bản chất, trang web được cấu thành từ các tệp văn bản chứa các đoạn mã đặc biệt, được trình duyệt web (như Chrome, Edge) đọc và dịch lại thành giao diện hình ảnh trực quan.</p>
+            
+            <h2>Một trang web cơ bản gồm những gì?</h2>
+            <p>Hầu hết mọi trang web tĩnh trên mạng internet đều được xây dựng dựa trên sự kết hợp chặt chẽ của bộ ba ngôn ngữ cốt lõi:</p>
+            <ul>
+                <li><strong>HTML:</strong> Đóng vai trò như bộ xương, định hình các thành phần (văn bản, nút bấm, ảnh).</li>
+                <li><strong>CSS:</strong> Đóng vai trò như lớp áo khoác, sơn màu, căn chỉnh bố cục cho đẹp mắt.</li>
+                <li><strong>JavaScript:</strong> Đóng vai trò như hệ thống thần kinh, giúp trang web xử lý hành động phản hồi người dùng.</li>
+            </ul>
+            <div class="tip-box">
+                <strong>💡 Hãy nhớ rằng:</strong> Bạn hoàn toàn có thể tự làm tất cả những điều này trên một chiếc máy tính cá nhân thông thường mà không tốn bất kỳ chi phí nào!
+            </div>
+        </section>
+
+        <section id="tools" class="step-section">
+            <h1>Bước 1: Chuẩn Bị Môi Trường Làm Việc</h1>
+            <p>Trước khi bắt đầu gõ những dòng mã đầu tiên, bạn cần cài đặt một công cụ viết code chuyên nghiệp thay vì dùng Notepad mặc định của máy tính.</p>
+            
+            <h2>1. Cài đặt VS Code (Visual Studio Code)</h2>
+            <p>Đây là phần mềm soạn thảo mã nguồn phổ biến nhất thế giới hiện nay. Nó hoàn toàn miễn phí, nhẹ và hỗ trợ tự động gợi ý code cực kỳ thông minh.</p>
+            
+            <h2>2. Cách tạo file dự án đầu tiên</h2>
+            <ol>
+                <li>Tạo một thư mục mới ngoài màn hình máy tính của bạn và đặt tên là <code>my-website</code>.</li>
+                <li>Mở phần mềm VS Code lên, kéo và thả thư mục vừa tạo vào giao diện VS Code.</li>
+                <li>Nhấn vào biểu tượng New File trong VS Code, tạo một file mới đặt tên chính xác là <code>index.html</code>.</li>
+            </ol>
+        </section>
+
+        <section id="html" class="step-section">
+            <h1>Bước 2: Xây Dựng Khung Xương Bằng HTML</h1>
+            <p>HTML sử dụng các "thẻ" (tags) nằm trong cặp dấu <code>&lt; &gt;</code> để thông báo cho trình duyệt biết thành phần đó là gì.</p>
+            
+            <h2>Cấu trúc một file HTML tiêu chuẩn</h2>
+            <p>Hãy sao chép đoạn mã nền tảng này vào file <code>index.html</code> bạn vừa tạo trong VS Code:</p>
+            
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="vi"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Trang Web Đầu Tiên Của Tôi&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Xin chào! Tôi là một trang web mới.&lt;/h1&gt;
+    &lt;p&gt;Đây là dòng văn bản giới thiệu đơn giản bằng HTML.&lt;/p&gt;
+    &lt;button id="my-button"&gt;Click Vào Tôi&lt;/button&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+            <div class="tip-box">
+                <strong>🔍 Cách xem thành quả:</strong> Bạn chỉ cần mở thư mục ngoài màn hình máy tính, bấm đúp chuột vào file <code>index.html</code>. Trình duyệt Chrome hoặc Edge sẽ mở ra và hiển thị tiêu đề cùng nút bấm vừa viết!
+            </div>
+        </section>
+
+        <section id="css" class="step-section">
+            <h1>Bước 3: Trang Trí Giao Diện Bằng CSS</h1>
+            <p>Nếu không có CSS, trang web của bạn trông sẽ rất thô sơ với nền trắng và chữ đen nền tảng. CSS giúp thổi hồn vào giao diện bằng màu sắc và bố cục.</p>
+            
+            <h2>Cách nhúng CSS vào HTML</h2>
+            <p>Để đơn giản nhất cho người mới bắt đầu, chúng ta sử dụng thẻ <code>&lt;style&gt;</code> đặt ngay bên trong cặp thẻ <code>&lt;head&gt;</code> của file HTML:</p>
+
+            <pre><code>&lt;style&gt;
+    body {
+        background-color: #0f172a; /* Đổi màu nền tối */
+        color: #ffffff;            /* Đổi chữ sang màu trắng */
+        font-family: sans-serif;   /* Đổi font chữ dễ nhìn hơn */
+        text-align: center;        /* Căn giữa toàn bộ nội dung */
+        padding-top: 50px;
+    }
+    
+    button {
+        background-color: #38bdf8; /* Màu nền nút xanh dương */
+        color: #1e293b;            /* Màu chữ trong nút */
+        padding: 10px 20px;        /* Độ rộng của nút */
+        border: none;              /* Bỏ viền thô kệch */
+        border-radius: 6px;        /* Bo tròn góc nút */
+        cursor: pointer;           /* Biến con trỏ chuột thành hình bàn tay */
+        font-weight: bold;
+    }
+&lt;/style&gt;</code></pre>
+        </section>
+
+        <section id="js" class="step-section">
+            <h1>Bước 4: Tạo Tính Năng Tương Tác Bằng JavaScript</h1>
+            <p>JavaScript là ngôn ngữ lập trình giúp trang web của bạn có thể phản hồi lại các hành động của người dùng (ví dụ: gửi dữ liệu, mở menu ẩn, hiện thông báo alert).</p>
+            
+            <h2>Ví dụ bắt sự kiện click chuột</h2>
+            <p>Đặt thẻ <code>&lt;script&gt;</code> này vào vị trí ngay phía trên thẻ đóng <code>&lt;/body&gt;</code> ở cuối file HTML của bạn:</p>
+
+            <pre><code>&lt;script&gt;
+    // Tìm phần tử nút bấm thông qua ID đã đặt ở phần HTML
+    const nutBam = document.getElementById('my-button');
+
+    // Lắng nghe hành động khi người dùng click chuột vào nút
+    nutBam.addEventListener('click', function() {
+        alert('Chúc mừng! Bạn đã kích hoạt thành công mã JavaScript đầu tiên!');
+    });
+&lt;/script&gt;</code></pre>
+        </section>
+
+        <section id="deploy" class="step-section">
+            <h1>Bước 5: Phát Hành Trang Web Lên Mạng Internet</h1>
+            <p>Hiện tại, trang web của bạn mới chỉ chạy offline trên máy tính cá nhân của bạn (Local). Để người khác có thể truy cập được từ xa, bạn cần đưa nó lên một máy chủ lưu trữ (Hosting).</p>
+            
+            <h2>Các bước đưa lên mạng miễn phí bằng GitHub Pages:</h2>
+            <ol>
+                <li>Đăng ký tài khoản và tạo một kho lưu trữ mới (Repository) ở trạng thái <strong>Public</strong> trên trang web GitHub.</li>
+                <li>Sử dụng phần mềm quản lý mã nguồn <strong>Git</strong> để đẩy toàn bộ thư mục chứa file <code>index.html</code> lên GitHub bằng các lệnh:
+                    <pre><code>git add .
+git commit -m "Đăng tải trang web đầu tiên"
+git push</code></pre>
+                </li>
+                <li>Trên giao diện web của GitHub, vào mục <strong>Settings</strong> của kho lưu trữ > chọn menu <strong>Pages</strong> bên góc trái > ở phần branch, chọn nhánh <code>main</code> rồi bấm <strong>Save</strong>.</li>
+            </ol>
+            <p>Hệ thống sẽ mất khoảng 1 phút để xử lý và cung cấp cho bạn một đường link trang web dạng công khai miễn phí. Giờ đây bạn đã có thể gửi link đó cho bạn bè ở bất cứ đâu kiểm tra!</p>
+        </section>
+
+    </main>
+
+    <script>
+        function changeStep(stepId) {
+            // 1. Ẩn toàn bộ các phần nội dung cũ
+            const sections = document.querySelectorAll('.step-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // 2. Kích hoạt hiển thị phần nội dung được chọn
+            const targetSection = document.getElementById(stepId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // 3. Đổi trạng thái tô sáng trên thanh danh mục bên trái
+            const menuLinks = document.querySelectorAll('.menu-list li a');
+            menuLinks.forEach(link => link.classList.remove('active'));
+            
+            // Thêm class active cho mục vừa click vào
+            event.currentTarget.classList.add('active');
+
+            // 4. Cuộn màn hình nội dung chính về lại đỉnh trang đầu bài
+            document.querySelector('.content-container').scrollTop = 0;
+        }
+    </script>
+</body>
+</html>
