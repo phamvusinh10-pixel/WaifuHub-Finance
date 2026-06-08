@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hướng Dẫn Tự Làm Trang Web Cho Người Mới</title>
+    <title>Cẩm Nang Toàn Diện: Tự Học Lập Trình Web Cho Người Mới</title>
     <style>
         :root {
-            --bg-main: #0f172a;
-            --bg-sidebar: #1e293b;
-            --text-main: #f8fafc;
+            --bg-main: #0b0f19;
+            --bg-sidebar: #131a2b;
+            --text-main: #f1f5f9;
             --text-muted: #94a3b8;
             --accent: #38bdf8;
             --accent-hover: #7dd3fc;
-            --code-bg: #111827;
-            --border: #334155;
+            --code-bg: #030712;
+            --border: #1e293b;
+            --table-header: #1e293b;
         }
 
         * {
@@ -33,7 +34,7 @@
 
         /* Thanh điều hướng bên trái (Sidebar) */
         .sidebar {
-            width: 320px;
+            width: 340px;
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
@@ -48,7 +49,6 @@
             color: var(--accent);
             border-bottom: 1px solid var(--border);
             text-align: center;
-            letter-spacing: 0.5px;
         }
 
         .menu-list {
@@ -83,8 +83,8 @@
         }
 
         .step-section {
-            display: none; /* Ẩn tất cả, chỉ hiện phần được chọn */
-            max-width: 850px;
+            display: none;
+            max-width: 900px;
             margin: 0 auto;
             animation: fadeIn 0.4s ease-out;
         }
@@ -94,23 +94,28 @@
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             color: var(--accent);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             line-height: 1.3;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
         }
 
         h2 {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: var(--accent-hover);
             margin: 35px 0 15px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            color: #e2e8f0;
+            margin: 20px 0 10px 0;
         }
 
         p {
-            line-height: 1.75;
+            line-height: 1.8;
             margin-bottom: 20px;
             color: var(--text-muted);
             font-size: 1.05rem;
@@ -120,14 +125,37 @@
             margin-left: 25px;
             margin-bottom: 20px;
             color: var(--text-muted);
-            line-height: 1.7;
+            line-height: 1.8;
         }
 
         li {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        /* Định dạng các khối code mẫu */
+        /* Định dạng bảng dữ liệu */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--table-header);
+            color: var(--accent);
+        }
+
+        td strong {
+            color: #ef4444;
+        }
+
+        /* Định dạng khối code mẫu */
         pre {
             background-color: var(--code-bg);
             border: 1px solid var(--border);
@@ -135,209 +163,293 @@
             padding: 18px;
             overflow-x: auto;
             margin: 20px 0;
+            position: relative;
         }
 
         code {
             font-family: 'Consolas', 'Fira Code', Monaco, monospace;
             color: #f43f5e;
             font-size: 0.95rem;
-            background-color: rgba(244, 63, 94, 0.1);
+            background-color: rgba(244, 63, 94, 0.05);
             padding: 2px 6px;
             border-radius: 4px;
         }
 
         pre code {
-            color: #34d399; /* Màu xanh lá dịu cho khối code */
+            color: #34d399;
             background-color: transparent;
             padding: 0;
         }
 
-        /* Khối ghi chú/mẹo */
-        .tip-box {
-            background-color: rgba(56, 189, 248, 0.05);
+        .code-comment {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        /* Khối thông tin nổi bật */
+        .info-box {
+            background-color: rgba(56, 189, 248, 0.03);
             border-left: 4px solid var(--accent);
             padding: 20px;
             border-radius: 0 8px 8px 0;
             margin: 25px 0;
         }
 
-        .tip-box strong {
+        .info-box strong {
             color: var(--accent);
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .error-box {
+            background-color: rgba(239, 68, 68, 0.03);
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 25px 0;
+        }
+
+        .error-box strong {
+            color: #ef4444;
             display: block;
             margin-bottom: 5px;
         }
 
-        /* Hiệu ứng chuyển bài mượt */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Hỗ trợ Responsive màn hình nhỏ */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; height: 220px; }
-            .content-container { padding: 25px; }
+            .sidebar { width: 100%; height: 250px; }
+            .content-container { padding: 30px; }
         }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="sidebar-header">🌐 Lập Trình Web 101</div>
+        <div class="sidebar-header">🌐 Web Development Masterclass</div>
         <ul class="menu-list">
-            <li><a href="#" class="active" onclick="changeStep('overview')">Tổng quan về Trang Web</a></li>
-            <li><a href="#" onclick="changeStep('tools')">Bước 1: Chuẩn bị công cụ</a></li>
-            <li><a href="#" onclick="changeStep('html')">Bước 2: Xây dựng khung (HTML)</a></li>
-            <li><a href="#" onclick="changeStep('css')">Bước 3: Trang trí giao diện (CSS)</a></li>
-            <li><a href="#" onclick="changeStep('js')">Bước 4: Thêm tương tác (JS)</a></li>
-            <li><a href="#" onclick="changeStep('deploy')">Bước 5: Đưa lên Internet</a></li>
+            <li><a href="#" class="active" onclick="changeStep('deep-overview')">1. Kiến trúc Web chuyên sâu</a></li>
+            <li><a href="#" onclick="changeStep('deep-tools')">2. Cấu hình môi trường nâng cao</a></li>
+            <li><a href="#" onclick="changeStep('deep-html')">3. Giải phẫu cấu trúc HTML</a></li>
+            <li><a href="#" onclick="changeStep('deep-css')">4. Tư duy xây dựng giao diện (CSS)</a></li>
+            <li><a href="#" onclick="changeStep('deep-js')">5. Bản chất của Cơ chế Tương tác (JS)</a></li>
+            <li><a href="#" onclick="changeStep('deep-trouble')">6. Sửa lỗi thường gặp (Debug)</a></li>
         </ul>
     </nav>
 
     <main class="content-container">
 
-        <section id="overview" class="step-section active">
-            <h1>Tổng Quan Về Cách Một Trang Web Hoạt Động</h1>
-            <p>Để tạo ra một trang web, bạn không cần phải là một thiên tài máy tính. Về bản chất, trang web được cấu thành từ các tệp văn bản chứa các đoạn mã đặc biệt, được trình duyệt web (như Chrome, Edge) đọc và dịch lại thành giao diện hình ảnh trực quan.</p>
+        <section id="deep-overview" class="step-section active">
+            <h1>1. Phân Tích Kiến Trúc Giao Diện (Frontend)</h1>
+            <p>Mỗi khi bạn truy cập một địa chỉ web, trình duyệt sẽ tải về các tệp tin mã nguồn và dựng chúng theo mô hình phân tầng. Hãy nhìn vào bảng so sánh chi tiết dưới đây để nắm rõ nhiệm vụ cốt lõi từng thành phần:</p>
             
-            <h2>Một trang web cơ bản gồm những gì?</h2>
-            <p>Hầu hết mọi trang web tĩnh trên mạng internet đều được xây dựng dựa trên sự kết hợp chặt chẽ của bộ ba ngôn ngữ cốt lõi:</p>
-            <ul>
-                <li><strong>HTML:</strong> Đóng vai trò như bộ xương, định hình các thành phần (văn bản, nút bấm, ảnh).</li>
-                <li><strong>CSS:</strong> Đóng vai trò như lớp áo khoác, sơn màu, căn chỉnh bố cục cho đẹp mắt.</li>
-                <li><strong>JavaScript:</strong> Đóng vai trò như hệ thống thần kinh, giúp trang web xử lý hành động phản hồi người dùng.</li>
-            </ul>
-            <div class="tip-box">
-                <strong>💡 Hãy nhớ rằng:</strong> Bạn hoàn toàn có thể tự làm tất cả những điều này trên một chiếc máy tính cá nhân thông thường mà không tốn bất kỳ chi phí nào!
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tiêu chí</th>
+                        <th>HTML (HyperText Markup)</th>
+                        <th>CSS (Cascading Style Sheets)</th>
+                        <th>JavaScript (Kịch bản)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vai trò</strong></td>
+                        <td>Định hình kết cấu dữ liệu, tạo khung xương vững chắc cho trang web.</td>
+                        <td>Thiết kế phong cách, màu sắc, bố cục, hiệu ứng thị giác.</td>
+                        <td>Xử lý logic, tính toán dữ liệu, tương tác động real-time.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Thành phần chính</strong></td>
+                        <td>Thẻ mở/đóng (Tags), Thuộc tính (Attributes).</td>
+                        <td>Bộ chọn (Selectors), Thuộc tính thuộc lớp (Properties).</td>
+                        <td>Biến (Variables), Hàm (Functions), Sự kiện (Events).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ví dụ đời thực</strong></td>
+                        <td>Cột bê tông, gạch xây, tường thô của ngôi nhà.</td>
+                        <td>Màu sơn, rèm cửa, cách sắp xếp bàn ghế nội thất.</td>
+                        <td>Hệ thống mở cửa tự động, công tắc đèn thông minh.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <strong>💡 Mô hình DOM (Document Object Model):</strong> Khi trình duyệt nạp tệp HTML, nó biến các thẻ HTML thành một cấu trúc cây phân cấp (Cây DOM). Thẻ cha bao bọc thẻ con. JavaScript sẽ can thiệp vào chính cây sơ đồ này để thay đổi giao diện theo ý muốn của người lập trình.
             </div>
         </section>
 
-        <section id="tools" class="step-section">
-            <h1>Bước 1: Chuẩn Bị Môi Trường Làm Việc</h1>
-            <p>Trước khi bắt đầu gõ những dòng mã đầu tiên, bạn cần cài đặt một công cụ viết code chuyên nghiệp thay vì dùng Notepad mặc định của máy tính.</p>
+        <section id="deep-tools" class="step-section">
+            <h1>2. Cài Đặt & Tối Ưu Hóa Môi Trường Viết Code</h1>
+            <p>Sử dụng công cụ thô sơ sẽ làm giảm tốc độ viết code đi 10 lần. Dưới đây là các bước chuẩn bị môi trường chuyên nghiệp chuẩn doanh nghiệp:</p>
             
-            <h2>1. Cài đặt VS Code (Visual Studio Code)</h2>
-            <p>Đây là phần mềm soạn thảo mã nguồn phổ biến nhất thế giới hiện nay. Nó hoàn toàn miễn phí, nhẹ và hỗ trợ tự động gợi ý code cực kỳ thông minh.</p>
-            
-            <h2>2. Cách tạo file dự án đầu tiên</h2>
-            <ol>
-                <li>Tạo một thư mục mới ngoài màn hình máy tính của bạn và đặt tên là <code>my-website</code>.</li>
-                <li>Mở phần mềm VS Code lên, kéo và thả thư mục vừa tạo vào giao diện VS Code.</li>
-                <li>Nhấn vào biểu tượng New File trong VS Code, tạo một file mới đặt tên chính xác là <code>index.html</code>.</li>
-            </ol>
+            <h2>1. Thiết lập VS Code hiệu quả</h2>
+            <p>Sau khi tải xuống <strong>Visual Studio Code</strong>, bạn hãy nhấn vào biểu tượng 4 ô vuông (Extensions) ở thanh công cụ bên trái và cài đặt thêm 2 tiện ích mở rộng quan trọng sau:</p>
+            <ul>
+                <li><strong>Live Server:</strong> Giúp tự động cập nhật và tải lại giao diện trang web trên trình duyệt ngay lập tức mỗi khi bạn nhấn Ctrl + S để lưu code, không cần F5 thủ công.</li>
+                <li><strong>Auto Rename Tag:</strong> Tự động sửa thẻ đóng khi bạn thay đổi tên thẻ mở, tránh lỗi quên đóng thẻ cực kỳ phiền toái.</li>
+            </ul>
+
+            <h2>2. Quy tắc quản lý thư mục dự án</h2>
+            <p>Một dự án lập trình web luôn cần được sắp xếp khoa học để tránh bị rối loạn khi quy mô lớn dần. Sơ đồ cấu trúc chuẩn:</p>
+            <pre><code>my-website/          <span class="code-comment"># Thư mục gốc dự án</span>
+├── index.html       <span class="code-comment"># Tệp tin chính (Trang chủ luôn đặt tên này)</span>
+├── css/             <span class="code-comment"># Thư mục chứa các tệp giao diện</span>
+│   └── style.css
+├── js/              <span class="code-comment"># Thư mục chứa mã xử lý kịch bản</span>
+│   └── main.js
+└── assets/          <span class="code-comment"># Thư mục chứa tài nguyên hình ảnh, video, font</span>
+    └── logo.png</code></pre>
         </section>
 
-        <section id="html" class="step-section">
-            <h1>Bước 2: Xây Dựng Khung Xương Bằng HTML</h1>
-            <p>HTML sử dụng các "thẻ" (tags) nằm trong cặp dấu <code>&lt; &gt;</code> để thông báo cho trình duyệt biết thành phần đó là gì.</p>
-            
-            <h2>Cấu trúc một file HTML tiêu chuẩn</h2>
-            <p>Hãy sao chép đoạn mã nền tảng này vào file <code>index.html</code> bạn vừa tạo trong VS Code:</p>
-            
+        <section id="deep-html" class="step-section">
+            <h1>3. Giải Phẫu Chi Tiết Cấu Trúc File HTML</h1>
+            <p>Dưới đây là mã nguồn tiêu chuẩn của tệp <code>index.html</code>. Hãy xem phần giải thích chi tiết ý nghĩa từng dòng mã ở ngay phía dưới để biết lý do tại sao chúng phải xuất hiện:</p>
+
             <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html lang="vi"&gt;
 &lt;head&gt;
     &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Trang Web Đầu Tiên Của Tôi&lt;/title&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Học Lập Trình Web Toàn Tập&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;
-    &lt;h1&gt;Xin chào! Tôi là một trang web mới.&lt;/h1&gt;
-    &lt;p&gt;Đây là dòng văn bản giới thiệu đơn giản bằng HTML.&lt;/p&gt;
-    &lt;button id="my-button"&gt;Click Vào Tôi&lt;/button&gt;
+    &lt;header&gt;
+        &lt;h1&gt;Khóa Học Thực Chiến&lt;/h1&gt;
+    &lt;/header&gt;
+    &lt;main&gt;
+        &lt;p&gt;Nội dung cốt lõi hiển thị tại đây.&lt;/p&gt;
+        &lt;button id="action-btn"&gt;Kích Hoạt&lt;/button&gt;
+    &lt;/main&gt;
 &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 
-            <div class="tip-box">
-                <strong>🔍 Cách xem thành quả:</strong> Bạn chỉ cần mở thư mục ngoài màn hình máy tính, bấm đúp chuột vào file <code>index.html</code>. Trình duyệt Chrome hoặc Edge sẽ mở ra và hiển thị tiêu đề cùng nút bấm vừa viết!
+            <h2>Giải thích chi tiết từng dòng lệnh:</h2>
+            <ul>
+                <li><strong><code>&lt;!DOCTYPE html&gt;</code>:</strong> Khai báo cho trình duyệt biết đây là phiên bản chuẩn HTML5 mới nhất, ép trình duyệt hiển thị đúng quy chuẩn kỹ thuật.</li>
+                <li><strong><code>&lt;html lang="vi"&gt;</code>:</strong> Thẻ cha lớn nhất bao bọc toàn bộ trang web. Thuộc tính <code>lang="vi"</code> giúp công cụ tìm kiếm (Google) hiểu trang web viết bằng tiếng Việt.</li>
+                <li><strong><code>&lt;head&gt;</code>:</strong> Phần "não bộ" ẩn của trang web. Chứa các thông tin cấu hình máy tính đọc, không hiển thị trực tiếp cho người dùng xem.</li>
+                <li><strong><code>&lt;meta charset="UTF-8"&gt;</code>:</strong> Bộ mã hóa ký tự giúp trang web hiển thị đúng tiếng Việt có dấu (không bị lỗi ô vuông hay ký tự lạ như ).</li>
+                <li><strong><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code>:</strong> Dòng lệnh ép trang web phải co giãn tương thích (Responsive) trên màn hình điện thoại di động và máy tính bảng.</li>
+                <li><strong><code>&lt;body&gt;</code>:</strong> Phần "thân thể" chứa toàn bộ nội dung trực quan (chữ, ảnh, video, nút bấm) hiển thị trực tiếp trên màn hình trình duyệt.</li>
+            </ul>
+        </section>
+
+        <section id="deep-css" class="step-section">
+            <h1>4. Tư Duy Xây Dựng Giao Diện Bằng CSS</h1>
+            <p>Để làm chủ CSS, bạn cần hiểu nguyên lý **Box Model** (Mọi thành phần trên web đều là một chiếc hộp chữ nhật) và cách nhắm mục tiêu bằng **Bộ chọn (Selectors)**.</p>
+            
+            <h2>Cú pháp viết CSS nâng cấp</h2>
+            <p>Thay vì viết gộp chung, hãy tách biệt tư duy định dạng bằng cách dán đoạn CSS này vào giữa thẻ <code>&lt;style&gt;</code>:</p>
+
+            <pre><code><span class="code-comment">/* 1. Bộ chọn phần tử (Áp dụng toàn bộ thẻ body) */</span>
+body {
+    background-color: #0f172a;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+<span class="code-comment">/* 2. Bộ chọn theo ID (Chỉ định duy nhất 1 phần tử qua dấu #) */</span>
+#action-btn {
+    background-color: #38bdf8;
+    color: #0f172a;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 9999px; <span class="code-comment">/* Tạo nút bấm bo tròn hình viên thuốc */</span>
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease; <span class="code-comment">/* Tạo hiệu ứng mượt mà khi rê chuột vào */</span>
+}
+
+<span class="code-comment">/* 3. Hiệu ứng giả lập khi người dùng di chuột (Hover effect) */</span>
+#action-btn:hover {
+    background-color: #7dd3fc;
+    transform: scale(1.05); <span class="code-comment">/* Phóng to nút bấm lên 5% khi di chuột */</span>
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
+}</code></pre>
+
+            <div class="info-box">
+                <strong>💡 Mẹo thuộc lòng Box Model:</strong> Mỗi chiếc hộp phần tử gồm 4 lớp từ trong ra ngoài: **Content** (Nội dung) $\rightarrow$ **Padding** (Khoảng đệm trong) $\rightarrow$ **Border** (Viền cạnh) $\rightarrow$ **Margin** (Khoảng cách căn lề bên ngoài với các hộp khác).
             </div>
         </section>
 
-        <section id="css" class="step-section">
-            <h1>Bước 3: Trang Trí Giao Diện Bằng CSS</h1>
-            <p>Nếu không có CSS, trang web của bạn trông sẽ rất thô sơ với nền trắng và chữ đen nền tảng. CSS giúp thổi hồn vào giao diện bằng màu sắc và bố cục.</p>
+        <section id="deep-js" class="step-section">
+            <h1>5. Xử Lý Luồng Tương Tác Với JavaScript</h1>
+            <p>JavaScript vận hành theo mô hình: **Lắng nghe sự kiện (Event Listener) $\rightarrow$ Thực thi hàm hành động (Callback Function)**.</p>
             
-            <h2>Cách nhúng CSS vào HTML</h2>
-            <p>Để đơn giản nhất cho người mới bắt đầu, chúng ta sử dụng thẻ <code>&lt;style&gt;</code> đặt ngay bên trong cặp thẻ <code>&lt;head&gt;</code> của file HTML:</p>
-
-            <pre><code>&lt;style&gt;
-    body {
-        background-color: #0f172a; /* Đổi màu nền tối */
-        color: #ffffff;            /* Đổi chữ sang màu trắng */
-        font-family: sans-serif;   /* Đổi font chữ dễ nhìn hơn */
-        text-align: center;        /* Căn giữa toàn bộ nội dung */
-        padding-top: 50px;
-    }
-    
-    button {
-        background-color: #38bdf8; /* Màu nền nút xanh dương */
-        color: #1e293b;            /* Màu chữ trong nút */
-        padding: 10px 20px;        /* Độ rộng của nút */
-        border: none;              /* Bỏ viền thô kệch */
-        border-radius: 6px;        /* Bo tròn góc nút */
-        cursor: pointer;           /* Biến con trỏ chuột thành hình bàn tay */
-        font-weight: bold;
-    }
-&lt;/style&gt;</code></pre>
-        </section>
-
-        <section id="js" class="step-section">
-            <h1>Bước 4: Tạo Tính Năng Tương Tác Bằng JavaScript</h1>
-            <p>JavaScript là ngôn ngữ lập trình giúp trang web của bạn có thể phản hồi lại các hành động của người dùng (ví dụ: gửi dữ liệu, mở menu ẩn, hiện thông báo alert).</p>
-            
-            <h2>Ví dụ bắt sự kiện click chuột</h2>
-            <p>Đặt thẻ <code>&lt;script&gt;</code> này vào vị trí ngay phía trên thẻ đóng <code>&lt;/body&gt;</code> ở cuối file HTML của bạn:</p>
+            <h2>Kịch bản xử lý logic chi tiết</h2>
+            <p>Đoạn mã dưới đây thực hiện tác vụ: Khi người dùng bấm nút, nút bấm sẽ đổi màu, đổi chữ đồng thời đếm số lần đã bấm:</p>
 
             <pre><code>&lt;script&gt;
-    // Tìm phần tử nút bấm thông qua ID đã đặt ở phần HTML
-    const nutBam = document.getElementById('my-button');
+    <span class="code-comment">// Bước 1: Khởi tạo biến lưu trữ số lần click (Dữ liệu)</span>
+    let count = 0;
 
-    // Lắng nghe hành động khi người dùng click chuột vào nút
-    nutBam.addEventListener('click', function() {
-        alert('Chúc mừng! Bạn đã kích hoạt thành công mã JavaScript đầu tiên!');
+    <span class="code-comment">// Bước 2: Truy vấn lấy phần tử HTML đưa vào bộ nhớ JavaScript</span>
+    const codeButton = document.getElementById('action-btn');
+
+    <span class="code-comment">// Bước 3: Thiết lập bộ lắng nghe sự kiện CLICK</span>
+    codeButton.addEventListener('click', function() {
+        <span class="code-comment">// Tăng giá trị biến đếm lên 1 đơn vị</span>
+        count = count + 1;
+
+        <span class="code-comment">// Thay đổi nội dung chữ hiển thị của nút bấm</span>
+        codeButton.innerText = "Bạn đã bấm " + count + " lần!";
+
+        <span class="code-comment">// Thay đổi trực tiếp phong cách CSS của nút bấm sang màu cam</span>
+        codeButton.style.backgroundColor = "#fb923c";
+        codeButton.style.color = "#ffffff";
     });
 &lt;/script&gt;</code></pre>
         </section>
 
-        <section id="deploy" class="step-section">
-            <h1>Bước 5: Phát Hành Trang Web Lên Mạng Internet</h1>
-            <p>Hiện tại, trang web của bạn mới chỉ chạy offline trên máy tính cá nhân của bạn (Local). Để người khác có thể truy cập được từ xa, bạn cần đưa nó lên một máy chủ lưu trữ (Hosting).</p>
+        <section id="deep-trouble" class="step-section">
+            <h1>6. Cẩm Nang Sửa Lỗi Cho Người Mới (Debugging)</h1>
+            <p>Trong lập trình, việc code bị lỗi và không chạy đúng ý là chuyện xảy ra hàng giờ. Điều quan trọng là bạn phải biết cách mở tab kiểm tra lỗi ẩn của trình duyệt.</p>
             
-            <h2>Các bước đưa lên mạng miễn phí bằng GitHub Pages:</h2>
+            <h2>Vũ khí tối thượng: DevTools</h2>
+            <p>Khi trang web chạy không giống thiết kế hoặc bấm nút không thấy hiện tượng gì, hãy làm theo quy trình sau:</p>
             <ol>
-                <li>Đăng ký tài khoản và tạo một kho lưu trữ mới (Repository) ở trạng thái <strong>Public</strong> trên trang web GitHub.</li>
-                <li>Sử dụng phần mềm quản lý mã nguồn <strong>Git</strong> để đẩy toàn bộ thư mục chứa file <code>index.html</code> lên GitHub bằng các lệnh:
-                    <pre><code>git add .
-git commit -m "Đăng tải trang web đầu tiên"
-git push</code></pre>
-                </li>
-                <li>Trên giao diện web của GitHub, vào mục <strong>Settings</strong> của kho lưu trữ > chọn menu <strong>Pages</strong> bên góc trái > ở phần branch, chọn nhánh <code>main</code> rồi bấm <strong>Save</strong>.</li>
+                <li>Nhấp chuột phải vào bất kỳ vị trí nào trên trang web của bạn $\rightarrow$ Chọn **Inspect (Kiểm tra)** hoặc nhấn phím <code>F12</code>.</li>
+                <li>Chọn tab **Console**: Nếu có lỗi JavaScript, nó sẽ hiện các dòng thông báo màu đỏ tại đây, chỉ rõ cho bạn biết bạn đang viết sai cú pháp ở dòng số mấy.</li>
+                <li>Chọn tab **Elements**: Cho phép bạn rê chuột vào từng thẻ HTML để xem kích thước thực tế và xem các thuộc tính CSS nào đang bị ghi đè hoặc bị lỗi gạch chéo.</li>
             </ol>
-            <p>Hệ thống sẽ mất khoảng 1 phút để xử lý và cung cấp cho bạn một đường link trang web dạng công khai miễn phí. Giờ đây bạn đã có thể gửi link đó cho bạn bè ở bất cứ đâu kiểm tra!</p>
+
+            <div class="error-box">
+                <strong>⚠️ 3 Lỗi kinh điển khiến code không chạy:</strong>
+                <ul>
+                    <li><strong>Viết sai chính tả chữ hoa/chữ thường:</strong> JavaScript phân biệt rất kỹ. <code>getElementById</code> khác hoàn toàn với <code>getelementbyid</code> (viết sai sẽ báo lỗi không phải là hàm).</li>
+                    <li><strong>Quên đóng dấu ngoặc hoặc dấu nháy:</strong> Thừa hoặc thiếu một dấu <code>"</code> hoặc dấu <code>}</code> sẽ khiến toàn bộ file ngưng hoạt động.</li>
+                    <li><strong>Sai đường dẫn file:</strong> Khi tách file CSS/JS riêng, viết sai tên thư mục khiến trình duyệt báo lỗi <code>404 Not Found</code>.</li>
+                </ul>
+            </div>
         </section>
 
     </main>
 
     <script>
         function changeStep(stepId) {
-            // 1. Ẩn toàn bộ các phần nội dung cũ
             const sections = document.querySelectorAll('.step-section');
             sections.forEach(sec => sec.classList.remove('active'));
 
-            // 2. Kích hoạt hiển thị phần nội dung được chọn
             const targetSection = document.getElementById(stepId);
             if (targetSection) {
                 targetSection.classList.add('active');
             }
 
-            // 3. Đổi trạng thái tô sáng trên thanh danh mục bên trái
             const menuLinks = document.querySelectorAll('.menu-list li a');
             menuLinks.forEach(link => link.classList.remove('active'));
             
-            // Thêm class active cho mục vừa click vào
             event.currentTarget.classList.add('active');
-
-            // 4. Cuộn màn hình nội dung chính về lại đỉnh trang đầu bài
             document.querySelector('.content-container').scrollTop = 0;
         }
     </script>
