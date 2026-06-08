@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khóa Học Python Cơ Bản Cho Người Mới</title>
+    <title>Khóa Học Python Toàn Diện & Chuyên Sâu</title>
     <style>
         :root {
-            --bg-color: #1e1e2e;
-            --sidebar-bg: #252538;
-            --text-color: #cdd6f4;
-            --text-muted: #a6adc8;
-            --accent-color: #89b4fa;
-            --accent-hover: #b4befe;
-            --code-bg: #313244;
-            --border-color: #45475a;
+            --bg-color: #1a1b26;
+            --sidebar-bg: #1f2335;
+            --text-color: #a9b1d6;
+            --text-main: #c0caf5;
+            --accent-color: #7aa2f7;
+            --accent-hover: #bb9af3;
+            --code-bg: #24283b;
+            --border-color: #414868;
+            --table-bg: #292e42;
         }
 
         * {
@@ -25,15 +26,15 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Thanh điều hướng bên trái (Sidebar) */
+        /* Sidebar bên trái */
         .sidebar {
-            width: 300px;
+            width: 340px;
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border-color);
             display: flex;
@@ -42,8 +43,8 @@
         }
 
         .sidebar-header {
-            padding: 20px;
-            font-size: 1.2rem;
+            padding: 25px 20px;
+            font-size: 1.25rem;
             font-weight: bold;
             color: var(--accent-color);
             border-bottom: 1px solid var(--border-color);
@@ -54,38 +55,38 @@
             list-style: none;
             overflow-y: auto;
             flex: 1;
-            padding: 10px 0;
+            padding: 15px 0;
         }
 
         .menu-list li a {
             display: block;
-            padding: 12px 20px;
-            color: var(--text-color);
+            padding: 14px 20px;
+            color: var(--text-main);
             text-decoration: none;
             font-size: 0.95rem;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             border-left: 4px solid transparent;
         }
 
         .menu-list li a:hover, .menu-list li a.active {
-            background-color: var(--code-bg);
+            background-color: rgba(122, 162, 247, 0.08);
             color: var(--accent-hover);
             border-left-color: var(--accent-color);
         }
 
-        /* Khu vực hiển thị nội dung bài học */
+        /* Nội dung chính */
         .content-container {
             flex: 1;
             overflow-y: auto;
-            padding: 40px;
+            padding: 50px;
             scroll-behavior: smooth;
         }
 
         .lesson-section {
-            display: none; /* Ẩn tất cả, chỉ hiện bài học được chọn */
-            max-width: 850px;
-            margin: 0 auto 60px auto;
-            animation: fadeIn 0.5s ease;
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease-out;
         }
 
         .lesson-section.active {
@@ -93,214 +94,295 @@
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             color: var(--accent-color);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
         }
 
         h2 {
             font-size: 1.5rem;
             color: var(--accent-hover);
-            margin: 30px 0 15px 0;
+            margin: 35px 0 15px 0;
         }
 
         p {
-            line-height: 1.7;
-            margin-bottom: 15px;
-            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            font-size: 1.05rem;
         }
 
-        /* Định dạng các khối code mẫu */
+        /* Định dạng bảng */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--table-bg);
+            color: var(--accent-color);
+        }
+
+        /* Khối Code mẫu */
         pre {
             background-color: var(--code-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 15px;
+            padding: 18px;
             overflow-x: auto;
-            margin: 15px 0;
+            margin: 20px 0;
         }
 
         code {
-            font-family: 'Consolas', 'Courier New', Courier, monospace;
-            color: #f38ba8;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            color: #f7768e;
             font-size: 0.95rem;
+            background-color: rgba(247, 118, 142, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
         pre code {
-            color: #a6e3a1; /* Màu xanh lá cho khối code */
+            color: #9ece6a;
+            background-color: transparent;
+            padding: 0;
         }
 
-        /* Khối ghi chú nổi bật */
+        .comment {
+            color: #565f89;
+            font-style: italic;
+        }
+
+        /* Hộp ghi chú */
         .note-box {
-            background-color: rgba(137, 180, 250, 0.1);
+            background-color: rgba(122, 162, 247, 0.05);
             border-left: 4px solid var(--accent-color);
-            padding: 15px;
+            padding: 20px;
             border-radius: 0 8px 8px 0;
-            margin: 20px 0;
+            margin: 25px 0;
         }
 
         .note-box strong {
             color: var(--accent-color);
+            display: block;
+            margin-bottom: 5px;
         }
 
-        /* Hiệu ứng mượt mà khi chuyển bài */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Hỗ trợ thiết bị di động */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; height: 200px; }
-            .content-container { padding: 20px; }
+            .sidebar { width: 100%; height: 250px; }
+            .content-container { padding: 30px; }
         }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="sidebar-header">🐍 Python Căn Bản</div>
+        <div class="sidebar-header">🐍 Python Pro Guide</div>
         <ul class="menu-list">
-            <li><a href="#" class="active" onclick="showLesson('intro')">1. Giới thiệu & Cài đặt</a></li>
-            <li><a href="#" onclick="showLesson('variables')">2. Biến & Kiểu dữ liệu</a></li>
-            <li><a href="#" onclick="showLesson('operators')">3. Toán tử cơ bản</a></li>
-            <li><a href="#" onclick="showLesson('conditionals')">4. Câu lệnh điều kiện</a></li>
-            <li><a href="#" onclick="showLesson('loops')">5. Vòng lặp (Loops)</a></li>
-            <li><a href="#" onclick="showLesson('functions')">6. Hàm (Functions)</a></li>
+            <li><a href="#" class="active" onclick="showLesson('py-intro')">1. Tổng quan & Bản chất Thụt lề</a></li>
+            <li><a href="#" onclick="showLesson('py-strings')">2. Xử lý Chuỗi & Các hàm cốt lõi</a></li>
+            <li><a href="#" onclick="showLesson('py-lists')">3. Cấu trúc List & Thao tác mảng</a></li>
+            <li><a href="#" onclick="showLesson('py-dicts')">4. Cấu trúc Dictionary (Từ điển)</a></li>
+            <li><a href="#" onclick="showLesson('py-conditionals-loops')">5. Điều khiển Luồng & Vòng lặp</a></li>
+            <li><a href="#" onclick="showLesson('py-files')">6. Làm việc với Tập tin (File I/O)</a></li>
         </ul>
     </nav>
 
     <main class="content-container">
 
-        <section id="intro" class="lesson-section active">
-            <h1>Bài 1: Giới thiệu & Cài đặt Python</h1>
-            <p>Python là một ngôn ngữ lập trình bậc cao, cực kỳ phổ biến nhờ vào cú pháp rõ ràng, dễ đọc và gần gũi với tiếng Anh bản xứ. Đây là lựa chọn hoàn hảo hàng đầu cho người mới bắt đầu học lập trình.</p>
+        <section id="py-intro" class="lesson-section active">
+            <h1>1. Tổng Quan & Cơ Chế Khối Lệnh Của Python</h1>
+            <p>Không giống như đa số các ngôn ngữ khác sử dụng dấu ngoặc nhọn <code>{ }</code> để gom cụm mã nguồn, Python bắt buộc người lập trình sử dụng **Khoảng thụt lề (Indentation)**. Đây là đặc điểm lớn nhất giúp mã nguồn Python luôn sạch sẽ và đồng bộ giữa mọi lập trình viên.</p>
             
-            <h2>Tại sao nên học Python?</h2>
-            <p>Python được ứng dụng rộng rãi trong nhiều lĩnh vực: Tự động hóa văn phòng (Excel, Word), Phân tích dữ liệu, Trí tuệ nhân tạo (AI), và Phát triển Web.</p>
+            <h2>Quy tắc Thụt lề sống còn:</h2>
+            <p>Một khối lệnh (Block) trong Python bắt đầu bằng một dấu hai chấm <code>:</code>, và tất cả các dòng lệnh con bên trong khối đó phải được thụt lề bằng nhau (khuyến nghị dùng <strong>4 dấu cách - Spaces</strong> hoặc 1 phím <strong>Tab</strong>).</p>
+            
+            <pre><code>if True:
+    print("Dòng này hợp lệ")  <span class="comment"># Thụt vào 4 khoảng trắng</span>
+  print("LỖI CÚ PHÁP!")       <span class="comment"># Thụt lề sai sẽ gây ra lỗi IndentationError</span></code></pre>
+        </section>
 
-            <h2>Chương trình đầu tiên: Hello World</h2>
-            <p>Để xuất một dòng chữ ra màn hình trong Python, bạn chỉ cần sử dụng hàm <code>print()</code>:</p>
-            <pre><code># Đây là dòng ghi chú (comment), Python sẽ bỏ qua nó
-print("Xin chào thế giới! Tôi đang học Python.")</code></pre>
+        <section id="py-strings" class="lesson-section">
+            <h1>2. Xử Lý Chuỗi Ký Tự (Strings) Chuyên Sâu</h1>
+            <p>Chuỗi ký tự là một tập hợp các ký tự nằm trong dấu nháy đơn hoặc nháy kép. Python cung cấp một hệ thống các hàm (Phương thức) xử lý chuỗi cực mạnh:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên hàm</th>
+                        <th>Công dụng xử lý</th>
+                        <th>Ví dụ minh họa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>upper() / lower()</code></td>
+                        <td>Chuyển đổi toàn bộ chuỗi thành chữ HOA hoặc chữ thường.</td>
+                        <td><code>"abc".upper()</code> $\rightarrow$ <code>"ABC"</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>strip()</code></td>
+                        <td>Loại bỏ toàn bộ khoảng trắng thừa ở đầu và cuối chuỗi dữ liệu.</td>
+                        <td><code>"  hello  ".strip()</code> $\rightarrow$ <code>"hello"</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>replace(old, new)</code></td>
+                        <td>Tìm kiếm cụm ký tự cũ và thay thế hoàn toàn bằng cụm mới.</td>
+                        <td><code>"A B C".replace(" ", "-")</code> $\rightarrow$ <code>"A-B-C"</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>split(char)</code></td>
+                        <td>Cắt chuỗi thành một Danh sách (List) dựa trên ký tự phân tách.</td>
+                        <td><code>"a,b,c".split(",")</code> $\rightarrow$ <code>['a', 'b', 'c']</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>join(list)</code></td>
+                        <td>Nối một danh sách các chuỗi lại thành một chuỗi duy nhất.</td>
+                        <td><code>"-".join(['a', 'b'])</code> $\rightarrow$ <code>"a-b"</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Mã thực hành tổng hợp về Chuỗi:</h2>
+            <pre><code>data = "   Họ và Tên: Lâm Xuyên   "
+clean_data = data.strip() <span class="comment"># Loại bỏ dấu cách thừa</span>
+print(clean_data) <span class="comment"># Kết quả: "Họ và Tên: Lâm Xuyên"</span>
+
+<span class="comment"># Tách chuỗi dựa vào dấu hai chấm</span>
+parts = clean_data.split(":")
+print(parts) <span class="comment"># Kết quả: ['Họ và Tên', ' Lâm Xuyên']</span></code></pre>
+        </section>
+
+        <section id="py-lists" class="lesson-section">
+            <h1>3. Làm Chủ Cấu Trúc Dữ Liệu List (Danh Sách)</h1>
+            <p>List là một cấu trúc dữ liệu dùng để lưu trữ nhiều phần tử trong một biến duy nhất. Các phần tử trong List có thứ tự (Index bắt đầu từ số 0) và có thể thay đổi giá trị được.</p>
+
+            <h2>Các hàm thao tác với List không thể quên:</h2>
+            <pre><code>fruits = ["Táo", "Chuối", "Cam"]
+
+<span class="comment"># 1. len(): Lấy số lượng phần tử đang có trong danh sách</span>
+print(len(fruits))  <span class="comment"># Kết quả: 3</span>
+
+<span class="comment"># 2. append(): Thêm một phần tử mới vào vị trí cuối cùng của List</span>
+fruits.append("Xoài")
+print(fruits)  <span class="comment"># Kết quả: ["Táo", "Chuối", "Cam", "Xoài"]</span>
+
+<span class="comment"># 3. insert(index, value): Thêm phần tử vào một vị trí chỉ định trước</span>
+fruits.insert(1, "Dâu tây") <span class="comment"># Đưa "Dâu tây" vào vị trí số 1</span>
+print(fruits)  <span class="comment"># Kết quả: ["Táo", "Dâu tây", "Chuối", "Cam", "Xoài"]</span>
+
+<span class="comment"># 4. remove(value): Tìm và xóa phần tử đầu tiên khớp với giá trị truyền vào</span>
+fruits.remove("Chuối")
+
+<span class="comment"># 5. pop(index): Xóa và trả về phần tử tại vị trí chỉ định (mặc định là cuối cùng)</span>
+last_item = fruits.pop()
+print(last_item)  <span class="comment"># Kết quả: "Xoài"</span>
+
+<span class="comment"># 6. sort(): Sắp xếp các phần tử trong danh sách theo thứ tự bảng chữ cái hoặc tăng dần</span>
+fruits.sort()
+print(fruits)  <span class="comment"># Kết quả danh sách đã được sắp xếp</span></code></pre>
+        </section>
+
+        <section id="py-dicts" class="lesson-section">
+            <h1>4. Cấu Trúc Dictionary (Từ Điển Key - Value)</h1>
+            <p>Dictionary là cấu trúc dữ liệu cực kỳ tối ưu, lưu trữ thông tin dưới dạng cặp <strong>Khóa : Giá trị (Key : Value)</strong>. Mỗi một Key trong Dictionary phải là duy nhất.</p>
+
+            <h2>Mã nguồn mẫu và các phương thức truy vấn:</h2>
+            <pre><code>user_profile = {
+    "name": "Lâm Xuyên",
+    "age": 21,
+    "role": "Admin"
+}
+
+<span class="comment"># 1. get(key): Lấy giá trị an toàn, không sợ bị lỗi treo chương trình nếu Key không tồn tại</span>
+print(user_profile.get("age"))     <span class="comment"># Kết quả: 21</span>
+print(user_profile.get("status"))  <span class="comment"># Không có key này -> trả về None (thay vì báo lỗi sập hệ thống)</span>
+
+<span class="comment"># 2. keys(): Lấy ra danh sách tất cả các Khóa (Keys) đang có</span>
+print(user_profile.keys())    <span class="comment"># Kết quả: dict_keys(['name', 'age', 'role'])</span>
+
+<span class="comment"># 3. values(): Lấy ra danh sách tất cả các Giá trị (Values) tương ứng</span>
+print(user_profile.values())  <span class="comment"># Kết quả: dict_values(['Lâm Xuyên', 21, 'Admin'])</span>
+
+<span class="comment"># 4. items(): Trả về cặp bộ (Key, Value) dùng rất nhiều trong vòng lặp</span>
+for key, value in user_profile.items():
+    print(key, "=>", value)</code></pre>
+        </section>
+
+        <section id="py-conditionals-loops" class="lesson-section">
+            <h1>5. Điều Khiển Luồng Tối Ưu Với Vòng Lặp</h1>
+            <p>Khi kết hợp các hàm toán học và cấu trúc tuần hoàn, bạn có thể giải quyết các bài toán dữ liệu lớn chỉ bằng vài dòng mã ngắn.</p>
+
+            <h2>Hàm range() và kỹ thuật duyệt List nâng cao</h2>
+            <pre><code><span class="comment"># Hàm range(start, stop, step) sinh ra chuỗi số liên tục</span>
+for i in range(1, 10, 2):
+    print(i) <span class="comment"># In ra các số lẻ: 1, 3, 5, 7, 9</span>
+
+<span class="comment"># Kỹ thuật duyệt kết hợp hàm enumerate() để lấy cả vị trí (index) lẫn giá trị</span>
+names = ["An", "Bình", "Cường"]
+for index, name in enumerate(names):
+    print(f"Vị trí {index} là bạn: {name}")</code></pre>
             
             <div class="note-box">
-                <strong>Thực hành:</strong> Bạn có thể truy cập trang web <strong>repl.it</strong> hoặc <strong>online-python.com</strong> để chạy thử đoạn code trên trực tiếp ngay trên trình duyệt mà chưa cần cài đặt phần mềm phức tạp vào máy.
+                <strong>💡 Từ khóa Break & Continue:</strong> Dùng <code>break</code> để lập tức thoát hoàn toàn khỏi vòng lặp trước thời hạn. Dùng <code>continue</code> để bỏ qua lượt chạy hiện tại và nhảy sang lượt lặp tiếp theo ngay lập tức.
             </div>
         </section>
 
-        <section id="variables" class="lesson-section">
-            <h1>Bài 2: Biến và Kiểu dữ liệu</h1>
-            <p>Biến (Variable) giống như một chiếc hộp dùng để lưu trữ dữ liệu. Trong Python, bạn không cần phải khai báo kiểu dữ liệu trước, Python sẽ tự động nhận diện giúp bạn.</p>
-            
-            <h2>Khai báo biến</h2>
-            <pre><code>ten = "Lâm Xuyên"  # Kiểu chuỗi (String)
-tuoi = 21          # Kiểu số nguyên (Integer)
-diem = 8.5         # Kiểu số thực (Float)
-is_learning = True # Kiểu logic (Boolean)</code></pre>
+        <section id="py-files" class="lesson-section">
+            <h1>6. Xử Lý Tập Tin Văn Bản (File I/O Handling)</h1>
+            <p>Để lưu trữ dữ liệu lâu dài không bị mất khi tắt máy, chương trình Python cần đọc hoặc ghi thông tin xuống các file trên ổ cứng (như tệp .txt, .csv).</p>
 
-            <h2>Cách kiểm tra kiểu dữ liệu</h2>
-            <p>Bạn có thể dùng hàm <code>type()</code> để kiểm tra xem biến đó thuộc kiểu dữ liệu nào:</p>
-            <pre><code>print(type(tuoi))  # Kết quả sẽ trả về: &lt;class 'int'&gt;</code></pre>
-        </section>
+            <h2>Kỹ thuật sử dụng khối lệnh `with open` an toàn</h2>
+            <p>Trong Python, thay vì dùng cách mở file truyền thống rồi phải nhớ đóng lại, lập trình viên chuyên nghiệp luôn dùng từ khóa <code>with</code>. Khi khối lệnh kết thúc, Python sẽ tự động đóng file giải phóng bộ nhớ cho hệ điều hành kể cả khi xảy ra lỗi đột ngột.</p>
 
-        <section id="operators" class="lesson-section">
-            <h1>Bài 3: Các Toán tử cơ bản</h1>
-            <p>Python hỗ trợ đầy đủ các phép toán số học cơ bản tương tự như các máy tính bỏ túi thông thường.</p>
-            
-            <h2>Toán tử số học</h2>
-            <pre><code>a = 10
-b = 3
+            <pre><code><span class="comment"># 1. Ghi dữ liệu vào file (Chế độ 'w' - Write, sẽ ghi đè toàn bộ file)</span>
+with open("report.txt", "w", encoding="utf-8") as file:
+    file.write("Dòng dữ liệu thứ nhất.\n")
+    file.write("Dòng dữ liệu thứ hai.\n")
 
-print(a + b)  # Phép cộng -> 13
-print(a - b)  # Phép trừ -> 7
-print(a * b)  # Phép nhân -> 30
-print(a / b)  # Phép chia lấy cả phần thập phân -> 3.333333
-print(a // b) # Phép chia lấy phần nguyên -> 3
-print(a % b)  # Phép chia lấy phần dư -> 1
-print(a ** b) # Phép lũy thừa (10 mũ 3) -> 1000</code></pre>
-        </section>
+<span class="comment"># 2. Đọc dữ liệu từ file (Chế độ 'r' - Read)</span>
+with open("report.txt", "r", encoding="utf-8") as file:
+    content = file.read() <span class="comment"># Đọc toàn bộ nội dung file đưa vào một biến chuỗi</span>
+    print(content)
 
-        <section id="conditionals" class="lesson-section">
-            <h1>Bài 4: Câu lệnh điều kiện (If - Else)</h1>
-            <p>Câu lệnh điều kiện giúp chương trình của bạn có khả năng "tư duy" và đưa ra các quyết định xử lý khác nhau dựa trên từng trường hợp cụ thể.</p>
-            
-            <div class="note-box">
-                <strong>Quy tắc quan trọng:</strong> Python sử dụng <strong>khoảng thụt lề (Indentation - thường là 4 dấu cách hoặc 1 phím Tab)</strong> để xác định khối lệnh. Nếu thụt lề sai, chương trình sẽ báo lỗi ngay lập tức.
-            </div>
-
-            <h2>Ví dụ cấu trúc If - Elif - Else</h2>
-            <pre><code>diem = 7.5
-
-if diem >= 8.0:
-    print("Học lực: Giỏi")
-elif diem >= 6.5:
-    print("Học lực: Khá")
-else:
-    print("Học lực: Trung bình/Yếu")</code></pre>
-        </section>
-
-        <section id="loops" class="lesson-section">
-            <h1>Bài 5: Vòng lặp (Loops)</h1>
-            <p>Vòng lặp được sử dụng khi bạn muốn lặp đi lặp lại một hành động hoặc một khối lệnh nào đó nhiều lần để tối ưu hóa công sức viết code.</p>
-            
-            <h2>1. Vòng lặp For</h2>
-            <p>Thường dùng khi bạn đã biết rõ số lần lặp cụ thể hoặc muốn duyệt qua một danh sách dữ liệu.</p>
-            <pre><code># Chạy vòng lặp từ 0 đến 4 (5 lần)
-for i in range(5):
-    print("Lần lặp thứ:", i)</code></pre>
-
-            <h2>2. Vòng lặp While</h2>
-            <p>Chạy liên tục chừng nào điều kiện kiểm tra bên dưới vẫn còn đúng (True).</p>
-            <pre><code>dem = 1
-while dem <= 3:
-    print("Số hiện tại là:", dem)
-    dem = dem + 1 # Tăng biến đếm để tránh vòng lặp vô hạn</code></pre>
-        </section>
-
-        <section id="functions" class="lesson-section">
-            <h1>Bài 6: Hàm trong Python (Functions)</h1>
-            <p>Hàm là một khối lệnh được gom nhóm lại với nhau để thực hiện một tác vụ cụ thể. Hàm giúp bạn tái sử dụng code nhiều lần mà không cần phải viết lại từ đầu.</p>
-            
-            <h2>Cách định nghĩa và gọi hàm</h2>
-            <p>Sử dụng từ khóa <code>def</code> để bắt đầu khai báo một hàm mới:</p>
-            <pre><code># Định nghĩa hàm tính tổng có nhận vào 2 tham số
-def tinh_tong(a, b):
-    ket_qua = a + b
-    return ket_qua # Trả về giá trị sau khi tính xong
-
-# Gọi hàm và sử dụng kết quả
-ket_qua_1 = tinh_tong(5, 7)
-print("Tổng hai số là:", ket_qua_1) # Kết quả xuất ra: 12</code></pre>
-            
-            <div class="note-box">
-                🎉 <strong>Chúc mừng!</strong> Bạn đã hoàn thành các khái niệm nền tảng cốt lõi nhất của Python. Bước tiếp theo, hãy thử tự viết các đoạn mã ngắn áp dụng các kiến thức này vào công việc thực tế hàng ngày nhé!
-            </div>
+<span class="comment"># 3. Đọc file theo từng dòng đưa vào một List bằng hàm readlines()</span>
+with open("report.txt", "r", encoding="utf-8") as file:
+    lines = file.readlines()
+    for line in lines:
+        print("Đọc từng dòng:", line.strip())</code></pre>
         </section>
 
     </main>
 
     <script>
         function showLesson(lessonId) {
-            // 1. Ẩn tất cả các bài học đang có
             const sections = document.querySelectorAll('.lesson-section');
             sections.forEach(section => section.classList.remove('active'));
 
-            // 2. Hiện bài học được click chọn
             const targetSection = document.getElementById(lessonId);
             if (targetSection) {
                 targetSection.classList.add('active');
             }
 
-            // 3. Đổi trạng thái hiển thị "active" trên thanh menu bên trái
             const links = document.querySelectorAll('.menu-list li a');
             links.forEach(link => link.classList.remove('active'));
             
-            // Tìm đúng thẻ chứa sự kiện để thêm class active
             event.currentTarget.classList.add('active');
-
-            // 4. Cuộn màn hình nội dung về lại đầu trang
             document.querySelector('.content-container').scrollTop = 0;
         }
     </script>
