@@ -6,10 +6,6 @@
     <title>Tài Chính - 12 Tháng </title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
-    <!-- Thư viện hỗ trợ xuất file Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-
     <style>
         :root {
             --primary: #3f83f8;
@@ -434,7 +430,6 @@
         .calendar-day:hover { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.45); transform: translateY(-1px); }
         .calendar-day .solar { font-size: 12px; font-weight: 700; color: var(--dark); }
         .calendar-day .lunar { font-size: 9px; color: #16a34a; margin-top: 1px; font-weight: 500; }
-        .calendar-day .holiday-tag { font-size: 7px; color: var(--danger); font-weight: 700; margin-top: 1px; white-space: nowrap; overflow: hidden; max-width: 100%; }
         .calendar-day.empty { background: transparent; border: none; cursor: default; }
         .calendar-day.active-input-day { background: #fef08a; border-color: var(--warning); } 
         .calendar-day.current-today { background: #dcfce7 !important; border-color: var(--success) !important; }
@@ -452,53 +447,6 @@
         .calendar-note-actions button { border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: 700; }
         .calendar-note-actions .save-note-btn { background: var(--primary); color: white; }
         .calendar-note-actions .close-note-btn { background: #f1f5f9; color: var(--text-main); }
-
-        /* Định dạng danh sách lịch sử nhỏ gọn */
-        .history-box { 
-            background: var(--surface); 
-            border: 1px solid rgba(203, 213, 225, 0.85); 
-            border-radius: 20px; 
-            padding: 16px; 
-            box-shadow: 0 10px 30px rgba(31, 41, 55, 0.05);
-            margin-top: 16px;
-        }
-        .history-title { 
-            font-size: 13px; 
-            font-weight: 700; 
-            color: var(--dark); 
-            margin-bottom: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        .history-list { list-style: none; padding: 0; margin: 0; }
-        .history-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 8px 0; border-bottom: 1px solid rgba(226, 232, 240, 0.6); 
-            gap: 10px;
-            font-size: 12px; 
-        }
-        .history-item:last-child { border-bottom: none; }
-        .history-info { display: flex; flex-direction: column; gap: 2px; }
-        .history-date { font-size: 10px; color: var(--text-sub); }
-        .history-cat { font-weight: 500; color: var(--dark); }
-        .history-amount { font-weight: 700; white-space: nowrap; }
-        .history-amount.expense { color: var(--danger); }
-        .history-amount.income { color: var(--success); }
-        .btn-export-excel {
-            background: none;
-            border: none;
-            color: var(--primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-        .btn-export-excel:hover { background: rgba(63, 131, 248, 0.1); }
 
         /* LUNAR CALENDAR STYLES */
         .lunar-calendar-wrapper { 
@@ -841,21 +789,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Bảng lịch sử giao dịch vừa nhập -->
-                    <div class="history-box">
-                        <div class="history-title">
-                            <div style="display:flex; align-items:center; gap:6px; flex:1;">
-                                <span class="material-icons-round" style="color:var(--primary); font-size:18px;">history</span> Giao dịch vừa nhập
-                            </div>
-                            <button class="btn-export-excel" onclick="exportTransactionsToExcel()">
-                                <span class="material-icons-round" style="font-size:16px; margin-right:4px;">file_download</span> Xuất Excel
-                            </button>
-                        </div>
-                        <ul class="history-list" id="history-list-content">
-                            <li class="history-item" style="color:var(--text-sub); justify-content:center;">Đang tải dữ liệu...</li>
-                        </ul>
-                    </div>
                 </div>
 
             </div>
@@ -898,7 +831,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, serverTimestamp, enableIndexedDbPersistence, getDocs, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     const firebaseConfig = {
       apiKey: "AIzaSyAipEyRdgKPSAYqq8vMi6HFlmttDp8E2q4",
       authDomain: "webcosplaycuatoi.firebaseapp.com",
@@ -963,168 +896,7 @@
     };
 
     // Database dữ liệu thực tế mẫu
-    let financialDatabase = {
-        "2026": {
-            "1": {
-                1:  { expense: { giaitri: 2070000, muasam: 170000 }, income: { mb: 2382000 } },
-                2:  { expense: { anuong: 15000 } },
-                3:  { expense: { anuong: 8000 } },
-                4:  { expense: { anuong: 15000 } },
-                5:  { expense: { anuong: 15000 } },
-                6:  { expense: { anuong: 15000 } },
-                7:  { expense: { anuong: 15000 } },
-                8:  { expense: { anuong: 15000 } },
-                9:  { expense: { anuong: 213000, giaitri: 390000, muasam: 290000 } },
-                10: { expense: { anuong: 15000, dichuyen: 150000, muasam: 38000 }, income: { mb: 12665000, shinhan: 1260000 } },
-                11: { expense: { giaitri: 448000 }, income: { tienmat: 50000 } },
-                12: {},
-                13: { expense: { muasam: 3958000 } },
-                14: {},
-                15: { expense: { anuong: 10000 } },
-                16: { expense: { dichuyen: 2050000, tietkiem: 6000000 } },
-                17: {},
-                18: { expense: { anuong: 97000 }, income: { tienmat: 558000 } },
-                19: { expense: { anuong: 15000, giaitri: 62000 } },
-                20: { expense: { anuong: 15000, giaitri: 520000 } },
-                21: { expense: { anuong: 15000, giaitri: 185000 }, income: { tienmat: 59000 } },
-                22: { expense: { anuong: 15000 } },
-                23: { expense: { anuong: 15000 } },
-                24: { expense: { anuong: 15000 } },
-                25: { expense: { anuong: 15000 } },
-                26: { expense: { anuong: 10000 } },
-                27: { expense: { anuong: 10000 } },
-                28: { expense: { anuong: 10000 } },
-                29: { expense: { anuong: 10000 } },
-                30: { expense: { anuong: 10000, giaitri: 88000 } },
-                31: {}
-            },
-            "2": {
-                1:  { income: { mb: 310000, shinhan: 100000 } },
-                2:  { expense: { anuong: 10000 } },
-                3:  { expense: { anuong: 10000 } },
-                4:  { expense: { anuong: 10000 } },
-                5:  { expense: { anuong: 46000, giaitri: 164000, muasam: 2550000 }, income: { mb: 6250000 } },
-                6:  { expense: { anuong: 233000, giaitri: 106000 } },
-                7:  { expense: { dichuyen: 150000, giaitri: 700000 } },
-                8:  { expense: { anuong: 486000, muasam: 49000 } },
-                9:  { expense: { anuong: 10000, dichuyen: 70000, giaitri: 590000 } },
-                10: { expense: { anuong: 10000, giaitri: 558000 }, income: { shinhan: 12814000 } },
-                11: { expense: { anuong: 20000, dichuyen: 187000, giaitri: 500000 } },
-                12: { expense: { anuong: 150000, giaitri: 936000 } },
-                13: { expense: { giaitri: 2000000, muasam: 449000, tietkiem: 5000000 } },
-                14: { expense: { anuong: 269000, dichuyen: 10000, muasam: 1050000 } },
-                15: { expense: { anuong: 30000 } },
-                16: { expense: { muasam: 120000 }, income: { mb: 1600000 } },
-                17: { expense: { anuong: 150000, dichuyen: 500000 } },
-                18: {},
-                19: { expense: { anuong: 42000 } },
-                20: { expense: { anuong: 240000 } },
-                21: { expense: { dichuyen: 100000, giaitri: 100000, muasam: 126000 } },
-                22: { expense: { giaitri: 50000 } },
-                23: { expense: { anuong: 27000 } },
-                24: { expense: { anuong: 30000, dichuyen: 1600000, muasam: 151000 } },
-                25: { expense: { anuong: 36000 } },
-                26: { expense: { anuong: 35000, muasam: 125000 } },
-                27: { expense: { anuong: 99000, muasam: 50000, giaitri: 113000 } },
-                28: { expense: { anuong: 235000, giaitri: 50000, muasam: 147000 } }
-            },
-            "3": {
-                1:  { expense: { muasam: 50000 } },
-                2:  { expense: { anuong: 45000, dichuyen: 128000 } },
-                3:  { expense: { anuong: 15000 } },
-                5:  { expense: { anuong: 65000 } },
-                6:  { expense: { muasam: 121000 } },
-                8:  { expense: { anuong: 10000, giaitri: 42000 } },
-                9:  { expense: { anuong: 21000, giaitri: 40000, muasam: 69000 } },
-                10: { expense: { anuong: 30000, dichuyen: 215000, giaitri: 1163000 } },
-                11: { expense: { anuong: 30000, dichuyen: 3150000, giaitri: 64000, muasam: 45000 }, income: { shinhan: 14478000 } },
-                12: { expense: { anuong: 36000, muasam: 229000, tietkiem: 5000000 }, income: { tienmat: 595000 } },
-                13: { expense: { giaitri: 247000, muasam: 556000 } },
-                14: { expense: { anuong: 50000, dichuyen: 266000 } },
-                15: { expense: { anuong: 45000, giaitri: 622000 } },
-                16: { expense: { anuong: 54000, dichuyen: 48000 } },
-                17: { expense: { anuong: 15000, giaitri: 95000 } },
-                18: { expense: { anuong: 50000, muasam: 149000 } },
-                19: { expense: { anuong: 15000, giaitri: 600000 } },
-                20: { expense: { anuong: 15000, muasam: 214000 } },
-                21: { expense: { anuong: 15000, giaitri: 95000, muasam: 368000 } },
-                22: { expense: { anuong: 75000 } },
-                23: { expense: { anuong: 10000 } },
-                24: { expense: { anuong: 20000, muasam: 142000 } },
-                25: { expense: { anuong: 32000, dichuyen: 60000, muasam: 18000 } },
-                26: { expense: { anuong: 10000 } },
-                27: { expense: { anuong: 20000 } },
-                28: { expense: { anuong: 24000 } },
-                29: { expense: { anuong: 49000, giaitri: 42000 } },
-                30: { expense: { anuong: 55000 } },
-                31: { expense: { anuong: 20000 } }
-            },
-            "4": {
-                1:  { expense: { anuong: 15000, giaitri: 42000 }, income: { mb: 257000, tienmat: 138000 } },
-                2:  { expense: { anuong: 15000 } },
-                3:  { expense: { dichuyen: 50000, giaitri: 20000 } },
-                4:  { expense: { anuong: 60000, giaitri: 48000 } },
-                5:  { expense: { anuong: 10000, giaitri: 88000 } },
-                6:  { expense: { anuong: 10000 } },
-                7:  { expense: { anuong: 10000 } },
-                8:  { expense: { anuong: 10000 } },
-                9:  { expense: { anuong: 17000 } },
-                10: { expense: { anuong: 85000, dichuyen: 150000, giaitri: 190000, muasam: 310000 } },
-                11: { expense: { anuong: 150000, dichuyen: 60000, giaitri: 200000, muasam: 223000 }, income: { shinhan: 14993000 } },
-                12: { expense: { giaitri: 1242000, muasam: 238000 } },
-                13: { expense: { dichuyen: 2200000, muasam: 89000, tietkiem: 6900000 } },
-                14: { expense: { anuong: 15000, muasam: 340000 } },
-                15: { expense: { anuong: 17000, giaitri: 800000 } },
-                16: { expense: { dichuyen: 80000 } },
-                17: { expense: { anuong: 180000, muasam: 112000 } },
-                18: { expense: { dichuyen: 70000, muasam: 153000 } },
-                19: { expense: { anuong: 43000, muasam: 243000 } },
-                20: { expense: { giaitri: 20000, muasam: 50000 } },
-                21: { expense: { anuong: 27000, muasam: 169000 } },
-                22: { expense: { anuong: 23000, muasam: 111000 } },
-                23: { expense: { anuong: 52000 } },
-                25: { expense: { anuong: 7000 } },
-                26: { expense: { anuong: 90000 } },
-                27: { expense: { anuong: 15000 } },
-                28: { expense: { anuong: 47000, dichuyen: 85000 } },
-                29: { expense: { anuong: 87000, muasam: 38000 }, income: { mb: 300000 } },
-                30: {}
-            },
-            "5": {
-                1:  { expense: { anuong: 15000 }, income: { tienmat: 382000 } },
-                2:  {},
-                3:  { expense: { anuong: 40000 } },
-                4:  {},
-                5:  { expense: { anuong: 15000, dichuyen: 60000 } },
-                6:  {},
-                7:  { expense: { anuong: 29000 } },
-                8:  { expense: { giaitri: 200000, tietkiem: 300000 }, income: { shinhan: 13202000 } },
-                9:  { expense: { dichuyen: 140000 } },
-                10: { expense: { muasam: 1336000 } },
-                11: { expense: { anuong: 43000, muasam: 610000 } },
-                12: { expense: { anuong: 103000, dichuyen: 2150000, tietkiem: 6000000 } },
-                13: { expense: { anuong: 258000, muasam: 134000 } },
-                14: { expense: { anuong: 15000 } },
-                15: { expense: { anuong: 62000, dichuyen: 158000, giaitri: 43000, muasam: 58000 } },
-                16: { expense: { anuong: 15000, dichuyen: 60000 } },
-                17: { expense: { muasam: 50000 } },
-                18: { expense: { muasam: 121000 } },
-                19: { expense: { muasam: 47000 } },
-                20: { expense: { anuong: 85000, dichuyen: 85000, muasam: 31000 } },
-                21: {},
-                22: { expense: { muasam: 305000 } },
-                23: {},
-                24: {},
-                25: { expense: { anuong: 135000, dichuyen: 226000, muasam: 44000 } },
-                26: {},
-                27: {},
-                28: { expense: { anuong: 50000, dichuyen: 50000, muasam: 28000 } },
-                29: { expense: { muasam: 50000 } },
-                30: {},
-                31: {}
-            },
-        }
-    };
+    let financialDatabase = {};
 
     let globalTargets = { anuong: 700000, dichuyen: 3000000, giaitri: 500000, muasam: 2000000, tietkiem: 6000000 };
     let calendarNotes = {};
@@ -1241,16 +1013,10 @@
             const lunar = solarToLunar(day, month, year);
             const lunarDisplay = lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day;
 
-            // Kiểm tra ngày lễ
-            const lKey = `${lunar.day}-${lunar.month}`;
-            const sKey = `${day}-${month}`;
-            const holidayName = lunarHolidays[lKey] || solarHolidays[sKey] || "";
-
             html += `
                 <div class="calendar-day${todayClass}" id="cal-day-${day}" onclick="selectCalendarDay(${day})" oncontextmenu="noteCalendarDay(event, ${day})" title="Nhấn chuột phải để ghi chú">
                     <span class="solar">${day}</span>
                     <span class="lunar">${lunarDisplay}</span>
-                    ${holidayName ? `<span class="holiday-tag">${holidayName}</span>` : ''}
                     ${noteMarker}
                 </div>
             `;
@@ -1371,8 +1137,7 @@
                 so_tien: finalAmount,
                 loai: categoryLabels[category],
                 categoryID: category, 
-                type: currentFormMode, // 'expense' hoặc 'income'
-                createdAt: serverTimestamp() // Thêm dấu thời gian để sắp xếp lịch sử chính xác
+                type: currentFormMode // 'expense' hoặc 'income'
             });
         } catch (e) {
             console.error("Lỗi khi thêm document vào giao_dich: ", e);
@@ -1385,7 +1150,7 @@
         alert('✓ Ghi sổ giao dịch thành công!');
     }
 
-    async function modifyCell(day, type, category) {
+    function modifyCell(day, type, category) {
         const year = document.getElementById('select-year').value;
         const month = document.getElementById('select-month').value;
         let userInput = prompt("Nhập số tiền mới (hàng nghìn đ) hoặc gõ 0 để Xóa:");
@@ -1393,50 +1158,20 @@
         let val = parseFloat(userInput);
         if (isNaN(val) || val < 0) return;
 
-        const finalAmount = val * 1000;
-        const dateStr = `${year}-${month.padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-
-        // 1. Đồng bộ với collection giao_dich (để xuất Excel chính xác)
-        try {
-            const q = query(
-                collection(db, "giao_dich"), 
-                where("ngay", "==", dateStr), 
-                where("categoryID", "==", category),
-                where("type", "==", type)
-            );
-            const querySnapshot = await getDocs(q);
-            const deletePromises = [];
-            querySnapshot.forEach((document) => {
-                deletePromises.push(deleteDoc(doc(db, "giao_dich", document.id)));
-            });
-            await Promise.all(deletePromises);
-
-            if (val > 0) {
-                await addDoc(collection(db, "giao_dich"), {
-                    ngay: dateStr,
-                    so_tien: finalAmount,
-                    loai: categoryLabels[category],
-                    categoryID: category, 
-                    type: type,
-                    createdAt: serverTimestamp()
-                });
-            }
-        } catch (e) {
-            console.error("Lỗi đồng bộ giao_dich: ", e);
+        if (!financialDatabase[year] || !financialDatabase[year][month] || !financialDatabase[year][month][day] || !financialDatabase[year][month][day][type]) {
+            return;
         }
-
-        // 2. Cập nhật financialDatabase hiển thị trên bảng
-        if (!financialDatabase[year]) financialDatabase[year] = {};
-        if (!financialDatabase[year][month]) financialDatabase[year][month] = {};
-        if (!financialDatabase[year][month][day]) financialDatabase[year][month][day] = { expense: {}, income: {} };
-        if (!financialDatabase[year][month][day][type]) financialDatabase[year][month][day][type] = {};
 
         if (val === 0) {
             delete financialDatabase[year][month][day][type][category];
-            if (Object.keys(financialDatabase[year][month][day][type]).length === 0) delete financialDatabase[year][month][day][type];
-            if (Object.keys(financialDatabase[year][month][day]).length === 0) delete financialDatabase[year][month][day];
+            if (Object.keys(financialDatabase[year][month][day][type]).length === 0) {
+                delete financialDatabase[year][month][day][type];
+            }
+            if (Object.keys(financialDatabase[year][month][day]).length === 0) {
+                delete financialDatabase[year][month][day];
+            }
         } else {
-            financialDatabase[year][month][day][type][category] = finalAmount;
+            financialDatabase[year][month][day][type][category] = val * 1000;
         }
         saveToFirebase();
     }
@@ -1559,76 +1294,87 @@
         document.getElementById(`btn-${pageId}`).classList.add('active');
     }
 
-    // CHỈNH SỬA: Dữ liệu âm lịch chuẩn cho năm 2026 (Dựa trên lịch Vạn Niên Việt Nam)
+    // LUNAR CALENDAR CONVERSION
+    // More accurate lunar calendar lookup for 2026
     const lunarCalendarData2026 = {
-        '1':  { start_solar: 19, lunar_month: 12, prev_lunar_days: 30 }, // 19/1 là 1/12 Âm (Ất Tỵ)
-        '2':  { start_solar: 17, lunar_month: 1,  prev_lunar_days: 29 }, // 17/2 là 1/1 Âm (Tết Bính Ngọ)
-        '3':  { start_solar: 19, lunar_month: 2,  prev_lunar_days: 30 }, // 19/3 là 1/2 Âm
-        '4':  { start_solar: 17, lunar_month: 3,  prev_lunar_days: 29 }, // 17/4 là 1/3 Âm
-        '5':  { start_solar: 17, lunar_month: 4,  prev_lunar_days: 30 }, // 17/5 là 1/4 Âm
-        '6':  { start_solar: 15, lunar_month: 5,  prev_lunar_days: 29 }, // 15/6 là 1/5 Âm
-        '7':  { start_solar: 14, lunar_month: 6,  prev_lunar_days: 29 }, // 14/7 là 1/6 Âm
-        '8':  { start_solar: 13, lunar_month: 7,  prev_lunar_days: 30 }, // 13/8 là 1/7 Âm
-        '9':  { start_solar: 11, lunar_month: 8,  prev_lunar_days: 29 }, // 11/9 là 1/8 Âm
-        '10': { start_solar: 11, lunar_month: 9,  prev_lunar_days: 30 }, // 11/10 là 1/9 Âm
-        '11': { start_solar: 9,  lunar_month: 10, prev_lunar_days: 29 }, // 9/11 là 1/10 Âm
-        '12': { start_solar: 9,  lunar_month: 11, prev_lunar_days: 30 }  // 9/12 là 1/11 Âm
+        '1': { start_day: 20, start_lunar: 25, days: 30 }, // Jan 20 = 25/12 Âm
+        '2': { start_day: 19, start_lunar: 1, days: 29 },   // Feb 19 = 1/1 Âm
+        '3': { start_day: 20, start_lunar: 1, days: 30 },   // Mar 20 = 1/2 Âm
+        '4': { start_day: 19, start_lunar: 1, days: 30 },   // Apr 19 = 1/3 Âm
+        '5': { start_day: 19, start_lunar: 1, days: 29 },   // May 19 = 1/4 Âm
+        '6': { start_day: 18, start_lunar: 1, days: 30 },   // Jun 18 = 1/5 Âm
+        '7': { start_day: 18, start_lunar: 1, days: 29 },   // Jul 18 = 1/6 Âm
+        '8': { start_day: 17, start_lunar: 1, days: 30 },   // Aug 17 = 1/7 Âm
+        '9': { start_day: 16, start_lunar: 1, days: 29 },   // Sep 16 = 1/8 Âm
+        '10': { start_day: 15, start_lunar: 1, days: 30 },  // Oct 15 = 1/9 Âm
+        '11': { start_day: 14, start_lunar: 1, days: 29 },  // Nov 14 = 1/10 Âm
+        '12': { start_day: 14, start_lunar: 1, days: 30 }   // Dec 14 = 1/11 Âm
     };
 
     function solarToLunar(day, month, year) {
         if (year.toString() === '2026' && lunarCalendarData2026[month]) {
-            const mData = lunarCalendarData2026[month];
-            if (day < mData.start_solar) {
-                // Ngày dương nằm ở cuối tháng âm trước đó
-                const lunarDay = mData.prev_lunar_days + (day - mData.start_solar) + 1;
-                const lunarMonth = mData.lunar_month === 1 ? 12 : mData.lunar_month - 1;
+            const monthData = lunarCalendarData2026[month];
+            const dayDiff = day - monthData.start_day;
+            
+            if (dayDiff < 0) {
+                // Day is before lunar month start, use previous month
+                const prevMonth = month === 1 ? 12 : parseInt(month) - 1;
+                const prevMonthData = lunarCalendarData2026[prevMonth];
+                const lunarDay = prevMonthData.days + dayDiff + 1;
+                const lunarMonth = prevMonth;
                 return { day: lunarDay, month: lunarMonth, year: year };
             } else {
-                // Ngày dương nằm trong tháng âm hiện tại
-                const lunarDay = day - mData.start_solar + 1;
-                return { day: lunarDay, month: mData.lunar_month, year: year };
+                const lunarDay = dayDiff + monthData.start_lunar;
+                let lunarMonth = month;
+                let lunarYear = year;
+                
+                if (lunarDay > monthData.days) {
+                    const nextMonth = parseInt(month) + 1;
+                    if (nextMonth <= 12) {
+                        return solarToLunar(day + 1, month + 1, year);
+                    }
+                }
+                
+                return { day: lunarDay, month: parseInt(lunarMonth), year: lunarYear };
             }
         }
-        return { day: day, month: month, year: year }; // Trả về ngày dương nếu không phải 2026
-    }
-    // Hàm xuất toàn bộ lịch sử giao dịch ra Excel
-    async function exportTransactionsToExcel() {
-        try {
-            showSyncStatus(); // Hiển thị thông báo đang xử lý
-            const q = query(collection(db, "giao_dich"), orderBy("ngay", "desc"));
-            const querySnapshot = await getDocs(q);
-            
-            const data = [];
-            querySnapshot.forEach((doc) => {
-                const item = doc.data();
-                data.push({
-                    "Ngày": item.ngay,
-                    "Danh mục": item.loai,
-                    "Loại": item.type === 'expense' ? 'Chi tiêu' : 'Thu nhập',
-                    "Số tiền (đ)": item.so_tien
-                });
-            });
-
-            if (data.length === 0) {
-                alert("Không có dữ liệu để xuất!");
-                return;
-            }
-
-            const worksheet = XLSX.utils.json_to_sheet(data);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "LichSuGiaoDich");
-            XLSX.writeFile(workbook, `Bao_Cao_Chi_Tieu_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showSyncStatus(); 
-        } catch (e) {
-            console.error("Lỗi xuất Excel: ", e);
-            alert("Có lỗi xảy ra khi xuất file!");
-        } finally {
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
+        
+        // Fallback algorithm for other years
+        const lunarMonths = [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29];
+        let dayOfYear = 0;
+        for (let m = 1; m < month; m++) {
+            dayOfYear += daysInMonth(m, year);
         }
+        dayOfYear += day;
+        
+        const yearStart = new Date(year, 0, 1);
+        const lunarYearStart = new Date(year, 1, 10); // Approximate lunar new year
+        
+        let lunarDay = 1 + Math.floor((new Date(year, month - 1, day) - lunarYearStart) / (24 * 3600 * 1000));
+        let lunarMonth = 1;
+        let lunarYear = year;
+        
+        while (lunarDay > lunarMonths[lunarMonth - 1]) {
+            lunarDay -= lunarMonths[lunarMonth - 1];
+            lunarMonth++;
+            if (lunarMonth > 12) {
+                lunarMonth = 1;
+                lunarYear++;
+            }
+        }
+        
+        if (lunarDay <= 0) {
+            lunarMonth--;
+            if (lunarMonth <= 0) {
+                lunarMonth = 12;
+                lunarYear--;
+            }
+            lunarDay += lunarMonths[lunarMonth - 1];
+        }
+        
+        return { day: Math.max(1, lunarDay), month: lunarMonth, year: lunarYear };
     }
 
-    window.exportTransactionsToExcel = exportTransactionsToExcel;
     // Expose functions to window so HTML event handlers (onclick, etc.) work with type="module"
     window.scrollToPage = scrollToPage;
     window.renderAllData = renderAllData;
@@ -1686,39 +1432,16 @@
         console.error("Lỗi khi lắng nghe Firestore: ", error);
     });
 
-    // Cập nhật bảng lịch sử giao dịch nhỏ gọn từ Cloud
-    const recentTxQuery = query(collection(db, "giao_dich"), orderBy("createdAt", "desc"), limit(5));
+    // Log kiểm tra các giao dịch gần nhất từ Cloud
+    const recentTxQuery = query(collection(db, "giao_dich"), orderBy("ngay", "desc"), limit(5));
     onSnapshot(recentTxQuery, (snapshot) => {
-        const historyList = document.getElementById('history-list-content');
-        if (!historyList) return;
-        
-        if (snapshot.empty) {
-            historyList.innerHTML = '<li class="history-item" style="color:var(--text-sub); justify-content:center;">Chưa có giao dịch gần đây</li>';
-            return;
+        if (!snapshot.empty) {
+            console.log("--- 5 giao dịch gần nhất từ Cloud ---");
+            snapshot.forEach((doc) => {
+                const item = doc.data();
+                console.log(`[${item.ngay}] ${item.loai}: ${item.so_tien.toLocaleString()} đ`);
+            });
         }
-
-        let html = "";
-        snapshot.forEach((doc) => {
-            const item = doc.data();
-            const isExpense = item.type === 'expense';
-            const prefix = isExpense ? '-' : '+';
-            const amountClass = isExpense ? 'expense' : 'income';
-            
-            // Định dạng ngày hiển thị ngắn gọn DD/MM
-            const dateParts = item.ngay.split('-');
-            const displayDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : item.ngay;
-
-            html += `
-                <li class="history-item">
-                    <div class="history-info">
-                        <span class="history-cat">${item.loai}</span>
-                        <span class="history-date">${displayDate}</span>
-                    </div>
-                    <span class="history-amount ${amountClass}">${prefix}${item.so_tien.toLocaleString()} đ</span>
-                </li>
-            `;
-        });
-        historyList.innerHTML = html;
     });
 
 </script>
