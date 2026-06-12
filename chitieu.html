@@ -434,6 +434,7 @@
         .calendar-day:hover { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.45); transform: translateY(-1px); }
         .calendar-day .solar { font-size: 12px; font-weight: 700; color: var(--dark); }
         .calendar-day .lunar { font-size: 9px; color: #16a34a; margin-top: 1px; font-weight: 500; }
+        .calendar-day .holiday-tag { font-size: 7px; color: var(--danger); font-weight: 700; margin-top: 1px; white-space: nowrap; overflow: hidden; max-width: 100%; }
         .calendar-day.empty { background: transparent; border: none; cursor: default; }
         .calendar-day.active-input-day { background: #fef08a; border-color: var(--warning); } 
         .calendar-day.current-today { background: #dcfce7 !important; border-color: var(--success) !important; }
@@ -1240,10 +1241,16 @@
             const lunar = solarToLunar(day, month, year);
             const lunarDisplay = lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day;
 
+            // Kiểm tra ngày lễ
+            const lKey = `${lunar.day}-${lunar.month}`;
+            const sKey = `${day}-${month}`;
+            const holidayName = lunarHolidays[lKey] || solarHolidays[sKey] || "";
+
             html += `
                 <div class="calendar-day${todayClass}" id="cal-day-${day}" onclick="selectCalendarDay(${day})" oncontextmenu="noteCalendarDay(event, ${day})" title="Nhấn chuột phải để ghi chú">
                     <span class="solar">${day}</span>
                     <span class="lunar">${lunarDisplay}</span>
+                    ${holidayName ? `<span class="holiday-tag">${holidayName}</span>` : ''}
                     ${noteMarker}
                 </div>
             `;
@@ -1552,85 +1559,37 @@
         document.getElementById(`btn-${pageId}`).classList.add('active');
     }
 
-    // LUNAR CALENDAR CONVERSION
-    // More accurate lunar calendar lookup for 2026
+    // CHỈNH SỬA: Dữ liệu âm lịch chuẩn cho năm 2026 (Dựa trên lịch Vạn Niên Việt Nam)
     const lunarCalendarData2026 = {
-        '1': { start_day: 20, start_lunar: 25, days: 30 }, // Jan 20 = 25/12 Âm
-        '2': { start_day: 19, start_lunar: 1, days: 29 },   // Feb 19 = 1/1 Âm
-        '3': { start_day: 20, start_lunar: 1, days: 30 },   // Mar 20 = 1/2 Âm
-        '4': { start_day: 19, start_lunar: 1, days: 30 },   // Apr 19 = 1/3 Âm
-        '5': { start_day: 19, start_lunar: 1, days: 29 },   // May 19 = 1/4 Âm
-        '6': { start_day: 18, start_lunar: 1, days: 30 },   // Jun 18 = 1/5 Âm
-        '7': { start_day: 18, start_lunar: 1, days: 29 },   // Jul 18 = 1/6 Âm
-        '8': { start_day: 17, start_lunar: 1, days: 30 },   // Aug 17 = 1/7 Âm
-        '9': { start_day: 16, start_lunar: 1, days: 29 },   // Sep 16 = 1/8 Âm
-        '10': { start_day: 15, start_lunar: 1, days: 30 },  // Oct 15 = 1/9 Âm
-        '11': { start_day: 14, start_lunar: 1, days: 29 },  // Nov 14 = 1/10 Âm
-        '12': { start_day: 14, start_lunar: 1, days: 30 }   // Dec 14 = 1/11 Âm
+        '1':  { start_solar: 19, lunar_month: 12, prev_lunar_days: 30 }, // 19/1 là 1/12 Âm (Ất Tỵ)
+        '2':  { start_solar: 17, lunar_month: 1,  prev_lunar_days: 29 }, // 17/2 là 1/1 Âm (Tết Bính Ngọ)
+        '3':  { start_solar: 19, lunar_month: 2,  prev_lunar_days: 30 }, // 19/3 là 1/2 Âm
+        '4':  { start_solar: 17, lunar_month: 3,  prev_lunar_days: 29 }, // 17/4 là 1/3 Âm
+        '5':  { start_solar: 17, lunar_month: 4,  prev_lunar_days: 30 }, // 17/5 là 1/4 Âm
+        '6':  { start_solar: 15, lunar_month: 5,  prev_lunar_days: 29 }, // 15/6 là 1/5 Âm
+        '7':  { start_solar: 14, lunar_month: 6,  prev_lunar_days: 29 }, // 14/7 là 1/6 Âm
+        '8':  { start_solar: 13, lunar_month: 7,  prev_lunar_days: 30 }, // 13/8 là 1/7 Âm
+        '9':  { start_solar: 11, lunar_month: 8,  prev_lunar_days: 29 }, // 11/9 là 1/8 Âm
+        '10': { start_solar: 11, lunar_month: 9,  prev_lunar_days: 30 }, // 11/10 là 1/9 Âm
+        '11': { start_solar: 9,  lunar_month: 10, prev_lunar_days: 29 }, // 9/11 là 1/10 Âm
+        '12': { start_solar: 9,  lunar_month: 11, prev_lunar_days: 30 }  // 9/12 là 1/11 Âm
     };
 
     function solarToLunar(day, month, year) {
         if (year.toString() === '2026' && lunarCalendarData2026[month]) {
-            const monthData = lunarCalendarData2026[month];
-            const dayDiff = day - monthData.start_day;
-            
-            if (dayDiff < 0) {
-                // Day is before lunar month start, use previous month
-                const prevMonth = month === 1 ? 12 : parseInt(month) - 1;
-                const prevMonthData = lunarCalendarData2026[prevMonth];
-                const lunarDay = prevMonthData.days + dayDiff + 1;
-                const lunarMonth = prevMonth;
+            const mData = lunarCalendarData2026[month];
+            if (day < mData.start_solar) {
+                // Ngày dương nằm ở cuối tháng âm trước đó
+                const lunarDay = mData.prev_lunar_days + (day - mData.start_solar) + 1;
+                const lunarMonth = mData.lunar_month === 1 ? 12 : mData.lunar_month - 1;
                 return { day: lunarDay, month: lunarMonth, year: year };
             } else {
-                const lunarDay = dayDiff + monthData.start_lunar;
-                let lunarMonth = month;
-                let lunarYear = year;
-                
-                if (lunarDay > monthData.days) {
-                    const nextMonth = parseInt(month) + 1;
-                    if (nextMonth <= 12) {
-                        return solarToLunar(day + 1, month + 1, year);
-                    }
-                }
-                
-                return { day: lunarDay, month: parseInt(lunarMonth), year: lunarYear };
+                // Ngày dương nằm trong tháng âm hiện tại
+                const lunarDay = day - mData.start_solar + 1;
+                return { day: lunarDay, month: mData.lunar_month, year: year };
             }
         }
-        
-        // Fallback algorithm for other years
-        const lunarMonths = [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29];
-        let dayOfYear = 0;
-        for (let m = 1; m < month; m++) {
-            dayOfYear += daysInMonth(m, year);
-        }
-        dayOfYear += day;
-        
-        const yearStart = new Date(year, 0, 1);
-        const lunarYearStart = new Date(year, 1, 10); // Approximate lunar new year
-        
-        let lunarDay = 1 + Math.floor((new Date(year, month - 1, day) - lunarYearStart) / (24 * 3600 * 1000));
-        let lunarMonth = 1;
-        let lunarYear = year;
-        
-        while (lunarDay > lunarMonths[lunarMonth - 1]) {
-            lunarDay -= lunarMonths[lunarMonth - 1];
-            lunarMonth++;
-            if (lunarMonth > 12) {
-                lunarMonth = 1;
-                lunarYear++;
-            }
-        }
-        
-        if (lunarDay <= 0) {
-            lunarMonth--;
-            if (lunarMonth <= 0) {
-                lunarMonth = 12;
-                lunarYear--;
-            }
-            lunarDay += lunarMonths[lunarMonth - 1];
-        }
-        
-        return { day: Math.max(1, lunarDay), month: lunarMonth, year: lunarYear };
+        return { day: day, month: month, year: year }; // Trả về ngày dương nếu không phải 2026
     }
     // Hàm xuất toàn bộ lịch sử giao dịch ra Excel
     async function exportTransactionsToExcel() {
