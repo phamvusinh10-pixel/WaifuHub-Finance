@@ -7,6 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
+    <!-- Thư viện hỗ trợ xuất file Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
     <style>
         :root {
             --primary: #3f83f8;
@@ -449,6 +452,53 @@
         .calendar-note-actions .save-note-btn { background: var(--primary); color: white; }
         .calendar-note-actions .close-note-btn { background: #f1f5f9; color: var(--text-main); }
 
+        /* Định dạng danh sách lịch sử nhỏ gọn */
+        .history-box { 
+            background: var(--surface); 
+            border: 1px solid rgba(203, 213, 225, 0.85); 
+            border-radius: 20px; 
+            padding: 16px; 
+            box-shadow: 0 10px 30px rgba(31, 41, 55, 0.05);
+            margin-top: 16px;
+        }
+        .history-title { 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--dark); 
+            margin-bottom: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+        .history-list { list-style: none; padding: 0; margin: 0; }
+        .history-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 8px 0; border-bottom: 1px solid rgba(226, 232, 240, 0.6); 
+            gap: 10px;
+            font-size: 12px; 
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-info { display: flex; flex-direction: column; gap: 2px; }
+        .history-date { font-size: 10px; color: var(--text-sub); }
+        .history-cat { font-weight: 500; color: var(--dark); }
+        .history-amount { font-weight: 700; white-space: nowrap; }
+        .history-amount.expense { color: var(--danger); }
+        .history-amount.income { color: var(--success); }
+        .btn-export-excel {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .btn-export-excel:hover { background: rgba(63, 131, 248, 0.1); }
+
         /* LUNAR CALENDAR STYLES */
         .lunar-calendar-wrapper { 
             overflow-x: auto; border-radius: 22px; border: 1px solid rgba(139, 92, 246, 0.3);
@@ -790,6 +840,21 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Bảng lịch sử giao dịch vừa nhập -->
+                    <div class="history-box">
+                        <div class="history-title">
+                            <div style="display:flex; align-items:center; gap:6px; flex:1;">
+                                <span class="material-icons-round" style="color:var(--primary); font-size:18px;">history</span> Giao dịch vừa nhập
+                            </div>
+                            <button class="btn-export-excel" onclick="exportTransactionsToExcel()">
+                                <span class="material-icons-round" style="font-size:16px; margin-right:4px;">file_download</span> Xuất Excel
+                            </button>
+                        </div>
+                        <ul class="history-list" id="history-list-content">
+                            <li class="history-item" style="color:var(--text-sub); justify-content:center;">Đang tải dữ liệu...</li>
+                        </ul>
+                    </div>
                 </div>
 
             </div>
@@ -832,7 +897,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, limit, serverTimestamp, enableIndexedDbPersistence, getDocs, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     const firebaseConfig = {
       apiKey: "AIzaSyAipEyRdgKPSAYqq8vMi6HFlmttDp8E2q4",
       authDomain: "webcosplaycuatoi.firebaseapp.com",
@@ -1299,7 +1364,8 @@
                 so_tien: finalAmount,
                 loai: categoryLabels[category],
                 categoryID: category, 
-                type: currentFormMode // 'expense' hoặc 'income'
+                type: currentFormMode, // 'expense' hoặc 'income'
+                createdAt: serverTimestamp() // Thêm dấu thời gian để sắp xếp lịch sử chính xác
             });
         } catch (e) {
             console.error("Lỗi khi thêm document vào giao_dich: ", e);
@@ -1312,7 +1378,7 @@
         alert('✓ Ghi sổ giao dịch thành công!');
     }
 
-    function modifyCell(day, type, category) {
+    async function modifyCell(day, type, category) {
         const year = document.getElementById('select-year').value;
         const month = document.getElementById('select-month').value;
         let userInput = prompt("Nhập số tiền mới (hàng nghìn đ) hoặc gõ 0 để Xóa:");
@@ -1320,20 +1386,50 @@
         let val = parseFloat(userInput);
         if (isNaN(val) || val < 0) return;
 
-        if (!financialDatabase[year] || !financialDatabase[year][month] || !financialDatabase[year][month][day] || !financialDatabase[year][month][day][type]) {
-            return;
+        const finalAmount = val * 1000;
+        const dateStr = `${year}-${month.padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
+        // 1. Đồng bộ với collection giao_dich (để xuất Excel chính xác)
+        try {
+            const q = query(
+                collection(db, "giao_dich"), 
+                where("ngay", "==", dateStr), 
+                where("categoryID", "==", category),
+                where("type", "==", type)
+            );
+            const querySnapshot = await getDocs(q);
+            const deletePromises = [];
+            querySnapshot.forEach((document) => {
+                deletePromises.push(deleteDoc(doc(db, "giao_dich", document.id)));
+            });
+            await Promise.all(deletePromises);
+
+            if (val > 0) {
+                await addDoc(collection(db, "giao_dich"), {
+                    ngay: dateStr,
+                    so_tien: finalAmount,
+                    loai: categoryLabels[category],
+                    categoryID: category, 
+                    type: type,
+                    createdAt: serverTimestamp()
+                });
+            }
+        } catch (e) {
+            console.error("Lỗi đồng bộ giao_dich: ", e);
         }
+
+        // 2. Cập nhật financialDatabase hiển thị trên bảng
+        if (!financialDatabase[year]) financialDatabase[year] = {};
+        if (!financialDatabase[year][month]) financialDatabase[year][month] = {};
+        if (!financialDatabase[year][month][day]) financialDatabase[year][month][day] = { expense: {}, income: {} };
+        if (!financialDatabase[year][month][day][type]) financialDatabase[year][month][day][type] = {};
 
         if (val === 0) {
             delete financialDatabase[year][month][day][type][category];
-            if (Object.keys(financialDatabase[year][month][day][type]).length === 0) {
-                delete financialDatabase[year][month][day][type];
-            }
-            if (Object.keys(financialDatabase[year][month][day]).length === 0) {
-                delete financialDatabase[year][month][day];
-            }
+            if (Object.keys(financialDatabase[year][month][day][type]).length === 0) delete financialDatabase[year][month][day][type];
+            if (Object.keys(financialDatabase[year][month][day]).length === 0) delete financialDatabase[year][month][day];
         } else {
-            financialDatabase[year][month][day][type][category] = val * 1000;
+            financialDatabase[year][month][day][type][category] = finalAmount;
         }
         saveToFirebase();
     }
@@ -1536,7 +1632,44 @@
         
         return { day: Math.max(1, lunarDay), month: lunarMonth, year: lunarYear };
     }
+    // Hàm xuất toàn bộ lịch sử giao dịch ra Excel
+    async function exportTransactionsToExcel() {
+        try {
+            showSyncStatus(); // Hiển thị thông báo đang xử lý
+            const q = query(collection(db, "giao_dich"), orderBy("ngay", "desc"));
+            const querySnapshot = await getDocs(q);
+            
+            const data = [];
+            querySnapshot.forEach((doc) => {
+                const item = doc.data();
+                data.push({
+                    "Ngày": item.ngay,
+                    "Danh mục": item.loai,
+                    "Loại": item.type === 'expense' ? 'Chi tiêu' : 'Thu nhập',
+                    "Số tiền (đ)": item.so_tien
+                });
+            });
 
+            if (data.length === 0) {
+                alert("Không có dữ liệu để xuất!");
+                return;
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "LichSuGiaoDich");
+            XLSX.writeFile(workbook, `Bao_Cao_Chi_Tieu_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showSyncStatus(); 
+        } catch (e) {
+            console.error("Lỗi xuất Excel: ", e);
+            alert("Có lỗi xảy ra khi xuất file!");
+        } finally {
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
+    }
+
+    window.exportTransactionsToExcel = exportTransactionsToExcel;
     // Expose functions to window so HTML event handlers (onclick, etc.) work with type="module"
     window.scrollToPage = scrollToPage;
     window.renderAllData = renderAllData;
@@ -1594,16 +1727,39 @@
         console.error("Lỗi khi lắng nghe Firestore: ", error);
     });
 
-    // Log kiểm tra các giao dịch gần nhất từ Cloud
-    const recentTxQuery = query(collection(db, "giao_dich"), orderBy("ngay", "desc"), limit(5));
+    // Cập nhật bảng lịch sử giao dịch nhỏ gọn từ Cloud
+    const recentTxQuery = query(collection(db, "giao_dich"), orderBy("createdAt", "desc"), limit(5));
     onSnapshot(recentTxQuery, (snapshot) => {
-        if (!snapshot.empty) {
-            console.log("--- 5 giao dịch gần nhất từ Cloud ---");
-            snapshot.forEach((doc) => {
-                const item = doc.data();
-                console.log(`[${item.ngay}] ${item.loai}: ${item.so_tien.toLocaleString()} đ`);
-            });
+        const historyList = document.getElementById('history-list-content');
+        if (!historyList) return;
+        
+        if (snapshot.empty) {
+            historyList.innerHTML = '<li class="history-item" style="color:var(--text-sub); justify-content:center;">Chưa có giao dịch gần đây</li>';
+            return;
         }
+
+        let html = "";
+        snapshot.forEach((doc) => {
+            const item = doc.data();
+            const isExpense = item.type === 'expense';
+            const prefix = isExpense ? '-' : '+';
+            const amountClass = isExpense ? 'expense' : 'income';
+            
+            // Định dạng ngày hiển thị ngắn gọn DD/MM
+            const dateParts = item.ngay.split('-');
+            const displayDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : item.ngay;
+
+            html += `
+                <li class="history-item">
+                    <div class="history-info">
+                        <span class="history-cat">${item.loai}</span>
+                        <span class="history-date">${displayDate}</span>
+                    </div>
+                    <span class="history-amount ${amountClass}">${prefix}${item.so_tien.toLocaleString()} đ</span>
+                </li>
+            `;
+        });
+        historyList.innerHTML = html;
     });
 
 </script>
