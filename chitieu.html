@@ -777,6 +777,14 @@
                             <button class="calendar-nav-btn" onclick="navigateMonth(1)">▶</button>
                         </div>
                         <div class="calendar-grid" id="calendar-grid-body"></div>
+                        <div id="daily-history-container" style="margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 12px; display: none;">
+                            <div class="target-section-title" style="font-size: 13px; margin-bottom: 8px;">
+                                <span class="material-icons-round" style="font-size: 18px; color: var(--primary);">history</span> Giao dịch ngày <span id="history-date-label"></span>
+                            </div>
+                            <div id="daily-history-list" style="display: flex; flex-direction: column; gap: 6px;">
+                                <!-- Dữ liệu lịch sử sẽ hiện ở đây -->
+                            </div>
+                        </div>
                         <div id="calendar-note-popup" class="calendar-note-popup">
                             <div class="calendar-note-popup-header">
                                 <span id="note-popup-title">Ghi chú</span>
@@ -1038,6 +1046,61 @@
         document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active-input-day'));
         const targetEl = document.getElementById(`cal-day-${inputDay}`);
         if (targetEl) targetEl.classList.add('active-input-day');
+
+        renderDailyHistory(inputDay);
+    }
+
+    function renderDailyHistory(day) {
+        const year = document.getElementById('select-year').value;
+        const month = document.getElementById('select-month').value;
+        const historyContainer = document.getElementById('daily-history-container');
+        const historyList = document.getElementById('daily-history-list');
+        const historyLabel = document.getElementById('history-date-label');
+        
+        if (!historyContainer || !historyList) return;
+
+        const dayData = (financialDatabase[year] && financialDatabase[year][month] && financialDatabase[year][month][day]) 
+                        ? financialDatabase[year][month][day] : null;
+
+        if (!dayData || (!dayData.expense && !dayData.income) || (Object.keys(dayData.expense || {}).length === 0 && Object.keys(dayData.income || {}).length === 0)) {
+            historyContainer.style.display = 'none';
+            return;
+        }
+
+        historyContainer.style.display = 'block';
+        historyLabel.innerText = `${day}/${month}/${year}`;
+        
+        let html = '';
+        
+        // Hiển thị Thu nhập
+        if (dayData.income) {
+            Object.entries(dayData.income).forEach(([cat, amt]) => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(34, 197, 94, 0.08); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1);">
+                        <span style="color: #166534; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                            <span class="material-icons-round" style="font-size: 14px;">add_circle</span> ${categoryLabels[cat] || cat}
+                        </span>
+                        <span style="color: #15803d; font-size: 13px; font-weight: 700;">+${amt.toLocaleString()} đ</span>
+                    </div>
+                `;
+            });
+        }
+        
+        // Hiển thị Chi tiêu
+        if (dayData.expense) {
+            Object.entries(dayData.expense).forEach(([cat, amt]) => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(239, 68, 68, 0.05); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.1);">
+                        <span style="color: #991b1b; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                            <span class="material-icons-round" style="font-size: 14px;">remove_circle</span> ${categoryLabels[cat] || cat}
+                        </span>
+                        <span style="color: #b91c1c; font-size: 13px; font-weight: 700;">-${amt.toLocaleString()} đ</span>
+                    </div>
+                `;
+            });
+        }
+        
+        historyList.innerHTML = html;
     }
 
     function noteCalendarDay(event, day) {
