@@ -1773,7 +1773,7 @@
                 currentImagesArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 updateTopLikedImages();
                 updateDashboardStats();
-                loadDailyTransactions();
+                // loadDailyTransactions(); // Removed - element was deleted
             }
             
             // Xử lý tìm kiếm từ URL ?id=...
