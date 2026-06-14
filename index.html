@@ -1,4 +1,4 @@
-﻿
+
 <!-- Ghi nhớ lệnh deploy: cd /d E:\web && firebase deploy -->
 <!DOCTYPE html>
 <html lang="vi">
@@ -295,37 +295,6 @@
             text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
         }
         .neon-pink-text { color: #ff007f !important; text-shadow: 0 0 8px rgba(255, 0, 127, 0.5) !important; }
-
-        /* --- LỊCH SỬ GIAO DỊCH / HOẠT ĐỘNG --- */
-        .history-box {
-            margin-top: 20px;
-            background: rgba(10, 7, 25, 0.4);
-            border-radius: 18px;
-            padding: 15px;
-            border: 1px solid rgba(0, 255, 255, 0.15);
-            text-align: left;
-        }
-        .history-title {
-            font-size: 11px;
-            color: #00ffff;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
-            padding-bottom: 8px;
-        }
-        .history-item {
-            font-size: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
 
         .hero-banner {
             flex: 1;
@@ -1446,7 +1415,6 @@
                     <span class="stat-mini-value neon-pink-text" id="todayImagesStat">+0</span>
                 </div>
             </div>
-
             <div style="margin-top: 12px; display: flex; gap: 8px;">
                 <button onclick="backupDatabase()" class="selection-btn" style="flex: 1; font-size: 9px; padding: 4px 10px; opacity: 0.6; border-style: dashed;" title="Tải toàn bộ dữ liệu về máy phòng trường hợp sự cố">
                     <i class="fas fa-download"></i> SAO LƯU (JSON)
@@ -1773,7 +1741,6 @@
                 currentImagesArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 updateTopLikedImages();
                 updateDashboardStats();
-                // loadDailyTransactions(); // Removed - element was deleted
             }
             
             // Xử lý tìm kiếm từ URL ?id=...
@@ -1818,24 +1785,6 @@
             
             // Render lại để cập nhật class .selected và trạng thái checkbox
             refreshView();
-        }
-
-        // Hàm hiển thị lịch sử giao dịch mẫu
-        function loadDailyTransactions() {
-            const container = document.getElementById('dailyTransactionHistory');
-            // Dữ liệu mẫu - Bạn có thể thay thế bằng logic fetch từ Firestore
-            const mockData = [
-                { time: '08:30', desc: 'Ăn sáng', amount: '-30.000đ', color: '#ff007f' },
-                { time: '12:15', desc: 'Ăn trưa', amount: '-55.000đ', color: '#ff007f' },
-                { time: '15:00', desc: 'Nạp thẻ', amount: '+100.000đ', color: '#00ffff' }
-            ];
-            
-            container.innerHTML = mockData.map(item => `
-                <div class="history-item">
-                    <span style="color: rgba(255,255,255,0.6);">${item.time} - ${item.desc}</span>
-                    <span style="color: ${item.color}; font-weight: bold;">${item.amount}</span>
-                </div>
-            `).join('') || '<div style="color: rgba(255,255,255,0.4); font-size: 11px; text-align: center;">Không có giao dịch nào</div>';
         }
 
         // Hàm hiển thị danh sách ảnh ra màn hình
