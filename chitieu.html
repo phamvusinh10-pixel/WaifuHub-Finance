@@ -669,8 +669,12 @@
             </div>
             <div class="form-group">
                 <label for="tx-amount">Số tiền nhập tắt (hàng nghìn đ)</label>
-                <input type="number" id="tx-amount" class="input-ctrl" placeholder="Nhập 50 ứng với 50.000 đ" min="0" oninput="updateAmountPreview()">
+                <input type="number" id="tx-amount" class="input-ctrl" placeholder="Nhập 50 ứng với 50.000 đ" min="0" oninput="updateAmountPreview()" onkeydown="if(event.key === 'Enter') { addTransaction(); event.preventDefault(); }">
                 <span id="amount-preview" class="amount-preview"></span>
+            </div>
+            <div class="form-group">
+                <label for="tx-note">Ghi chú</label>
+                <input type="text" id="tx-note" class="input-ctrl" placeholder="VD: Mua ở tiệm đầu ngõ, ăn sáng với bạn...">
             </div>
             <button class="btn-submit-tx" onclick="addTransaction()">
                 <span class="material-icons-round">done</span> Ghi sổ giao dịch
@@ -988,6 +992,7 @@
         document.getElementById('tx-day').value = today.getDate();
         document.getElementById('tx-amount').value = '';
         document.getElementById('amount-preview').innerText = '';
+        document.getElementById('tx-note').value = '';
         document.getElementById('tx-category').value = categories[currentFormMode][0].value;
         highlightCalendarDay();
     }
@@ -1205,6 +1210,7 @@
         const day = parseInt(document.getElementById('tx-day').value);
         const category = document.getElementById('tx-category').value;
         const inputAmount = parseFloat(document.getElementById('tx-amount').value);
+        const note = document.getElementById('tx-note').value.trim();
 
         if (!inputAmount || inputAmount <= 0) { alert('Số tiền không hợp lệ!'); return; }
         const finalAmount = inputAmount * 1000;
@@ -1223,7 +1229,8 @@
                 so_tien: finalAmount,
                 loai: categoryLabels[category],
                 categoryID: category, 
-                type: currentFormMode // 'expense' hoặc 'income'
+                type: currentFormMode, // 'expense' hoặc 'income'
+                ghi_chu: note
             });
         } catch (e) {
             console.error("Lỗi khi thêm document vào giao_dich: ", e);
@@ -1231,6 +1238,7 @@
 
         // Xóa form sau khi ghi thành công
         document.getElementById('tx-amount').value = "";
+        document.getElementById('tx-note').value = "";
         document.getElementById('amount-preview').innerText = "";
         saveToFirebase();
         alert('✓ Ghi sổ giao dịch thành công!');
