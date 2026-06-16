@@ -674,7 +674,7 @@
             </div>
             <div class="form-group">
                 <label for="tx-note">Ghi chú</label>
-                <input type="text" id="tx-note" class="input-ctrl" placeholder="VD: Mua ở tiệm đầu ngõ, ăn sáng với bạn...">
+                <input type="text" id="tx-note" class="input-ctrl" placeholder="VD: Ăn sáng, đổ xăng, lương tháng...">
             </div>
             <button class="btn-submit-tx" onclick="addTransaction()">
                 <span class="material-icons-round">done</span> Ghi sổ giao dịch
@@ -1024,7 +1024,8 @@
             const noteMarker = noteText ? '<span class="note-marker"></span>' : '';
 
             const lunar = solarToLunar(day, month, year);
-            const lunarDisplay = lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day;
+            let lunarDisplay = lunar.day === 1 ? `${lunar.day}/${lunar.month}` : lunar.day;
+            if (lunar.isLeap) lunarDisplay += 'n';
 
             html += `
                 <div class="calendar-day${todayClass}" id="cal-day-${day}" onclick="selectCalendarDay(${day})" oncontextmenu="noteCalendarDay(event, ${day})" title="Nhấn chuột phải để ghi chú">
@@ -1067,36 +1068,51 @@
         let html = '';
         let hasData = false;
 
-        // Duyệt qua 3 ngày gần nhất tính từ ngày được chọn
         for (let i = 0; i < 3; i++) {
             let d = day - i;
             let m = parseInt(month);
             let y = parseInt(year);
 
-            // Xử lý chuyển tháng/năm nếu lùi ngày quá đầu tháng
             if (d < 1) {
-                m--;
-                if (m < 1) {
-                    m = 12;
-                    y--;
-                }
+                m--; if (m < 1) { m = 12; y--; }
                 const prevMonthDays = daysInMonth(m, y);
                 d = prevMonthDays + d;
             }
 
             const dayData = (financialDatabase[y] && financialDatabase[y][m] && financialDatabase[y][m][d]) 
                             ? financialDatabase[y][m][d] : null;
-
-            if (dayData && ((dayData.expense && Object.keys(dayData.expense).length > 0) || (dayData.income && Object.keys(dayData.income).length > 0))) {
+            
+            // Ưu tiên hiển thị từ mảng logs (dữ liệu mới có chứa ghi chú chi tiết)
+            if (dayData && dayData.logs && dayData.logs.length > 0) {
                 hasData = true;
-                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-sub); margin-top: 10px; margin-bottom: 5px; padding-left: 5px; border-left: 3px solid var(--primary);">Ngày ${d}/${m}/${y}</div>`;
-                
-                // Hiển thị Thu nhập
+                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-sub); margin-top: 12px; margin-bottom: 6px; padding-left: 8px; border-left: 3px solid var(--primary);">Ngày ${d}/${m}/${y}</div>`;
+                dayData.logs.forEach(log => {
+                    const isInc = log.type === 'income';
+                    const color = isInc ? '#166534' : '#991b1b';
+                    const bg = isInc ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.05)';
+                    
+                    html += `
+                        <div style="padding: 8px 10px; background: ${bg}; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: ${color}; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-icons-round" style="font-size: 15px;">${isInc ? 'add_circle' : 'remove_circle'}</span> ${categoryLabels[log.category] || log.category}
+                                </span>
+                                <span style="color: ${isInc ? '#15803d' : '#b91c1c'}; font-size: 13px; font-weight: 700;">${isInc ? '+' : '-'}${log.amount.toLocaleString()} đ</span>
+                            </div>
+                            ${log.note ? `<div style="font-size: 11px; color: var(--text-sub); margin-top: 4px; font-style: italic; padding-left: 19px;">"${log.note}"</div>` : ''}
+                        </div>
+                    `;
+                });
+            } 
+            // Fallback cho dữ liệu cũ (chưa có ghi chú)
+            else if (dayData && ((dayData.expense && Object.keys(dayData.expense).length > 0) || (dayData.income && Object.keys(dayData.income).length > 0))) {
+                hasData = true;
+                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-sub); margin-top: 12px; margin-bottom: 6px; padding-left: 8px; border-left: 3px solid var(--primary);">Ngày ${d}/${m}/${y}</div>`;
                 if (dayData.income) {
                     Object.entries(dayData.income).forEach(([cat, amt]) => {
                         html += `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(34, 197, 94, 0.08); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1); margin-bottom: 4px;">
-                                <span style="color: #166534; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(239, 68, 68, 0.05); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.1); margin-bottom: 4px;">
+                                <span style="color: #991b1b; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
                                     <span class="material-icons-round" style="font-size: 14px;">add_circle</span> ${categoryLabels[cat] || cat}
                                 </span>
                                 <span style="color: #15803d; font-size: 13px; font-weight: 700;">+${amt.toLocaleString()} đ</span>
@@ -1104,8 +1120,6 @@
                         `;
                     });
                 }
-                
-                // Hiển thị Chi tiêu
                 if (dayData.expense) {
                     Object.entries(dayData.expense).forEach(([cat, amt]) => {
                         html += `
@@ -1210,7 +1224,6 @@
         const day = parseInt(document.getElementById('tx-day').value);
         const category = document.getElementById('tx-category').value;
         const inputAmount = parseFloat(document.getElementById('tx-amount').value);
-        const note = document.getElementById('tx-note').value.trim();
 
         if (!inputAmount || inputAmount <= 0) { alert('Số tiền không hợp lệ!'); return; }
         const finalAmount = inputAmount * 1000;
@@ -1222,6 +1235,16 @@
 
         financialDatabase[year][month][day][currentFormMode][category] = (financialDatabase[year][month][day][currentFormMode][category] || 0) + finalAmount;
         
+        // Lưu vào mảng logs để giữ lại ghi chú cho lịch sử chi tiết
+        if (!financialDatabase[year][month][day].logs) financialDatabase[year][month][day].logs = [];
+        financialDatabase[year][month][day].logs.push({
+            type: currentFormMode,
+            category: category,
+            amount: finalAmount,
+            note: note,
+            time: new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})
+        });
+
         // Lưu giao dịch chi tiết vào collection "giao_dich" như bạn yêu cầu
         try {
             await addDoc(collection(db, "giao_dich"), {
@@ -1229,8 +1252,7 @@
                 so_tien: finalAmount,
                 loai: categoryLabels[category],
                 categoryID: category, 
-                type: currentFormMode, // 'expense' hoặc 'income'
-                ghi_chu: note
+                type: currentFormMode // 'expense' hoặc 'income'
             });
         } catch (e) {
             console.error("Lỗi khi thêm document vào giao_dich: ", e);
@@ -1238,7 +1260,6 @@
 
         // Xóa form sau khi ghi thành công
         document.getElementById('tx-amount').value = "";
-        document.getElementById('tx-note').value = "";
         document.getElementById('amount-preview').innerText = "";
         saveToFirebase();
         alert('✓ Ghi sổ giao dịch thành công!');
@@ -1263,6 +1284,11 @@
             }
             if (Object.keys(financialDatabase[year][month][day]).length === 0) {
                 delete financialDatabase[year][month][day];
+            }
+            
+            // Đồng bộ xóa trong logs
+            if (financialDatabase[year] && financialDatabase[year][month] && financialDatabase[year][month][day] && financialDatabase[year][month][day].logs) {
+                financialDatabase[year][month][day].logs = financialDatabase[year][month][day].logs.filter(log => !(log.type === type && log.category === category));
             }
         } else {
             financialDatabase[year][month][day][type][category] = val * 1000;
@@ -1390,47 +1416,81 @@
 
     // LUNAR CALENDAR CONVERSION
     // More accurate lunar calendar lookup for 2026
-    const lunarCalendarData2026 = {
-        '1': { start_day: 20, start_lunar: 25, days: 30 }, // Jan 20 = 25/12 Âm
-        '2': { start_day: 19, start_lunar: 1, days: 29 },   // Feb 19 = 1/1 Âm
-        '3': { start_day: 20, start_lunar: 1, days: 30 },   // Mar 20 = 1/2 Âm
-        '4': { start_day: 19, start_lunar: 1, days: 30 },   // Apr 19 = 1/3 Âm
-        '5': { start_day: 19, start_lunar: 1, days: 29 },   // May 19 = 1/4 Âm
-        '6': { start_day: 18, start_lunar: 1, days: 30 },   // Jun 18 = 1/5 Âm
-        '7': { start_day: 18, start_lunar: 1, days: 29 },   // Jul 18 = 1/6 Âm
-        '8': { start_day: 17, start_lunar: 1, days: 30 },   // Aug 17 = 1/7 Âm
-        '9': { start_day: 16, start_lunar: 1, days: 29 },   // Sep 16 = 1/8 Âm
-        '10': { start_day: 15, start_lunar: 1, days: 30 },  // Oct 15 = 1/9 Âm
-        '11': { start_day: 14, start_lunar: 1, days: 29 },  // Nov 14 = 1/10 Âm
-        '12': { start_day: 14, start_lunar: 1, days: 30 }   // Dec 14 = 1/11 Âm
+    const lunarCalendarData = {
+        '2026': {
+            '0':  { start_day: 20, lunar_month: 11 },
+            '1':  { start_day: 19, lunar_month: 12 },
+            '2':  { start_day: 17, lunar_month: 1  },
+            '3':  { start_day: 19, lunar_month: 2  },
+            '4':  { start_day: 17, lunar_month: 3  },
+            '5':  { start_day: 16, lunar_month: 4  },
+            '6':  { start_day: 15, lunar_month: 5  },
+            '7':  { start_day: 14, lunar_month: 6  },
+            '8':  { start_day: 13, lunar_month: 7  },
+            '9':  { start_day: 11, lunar_month: 8  },
+            '10': { start_day: 11, lunar_month: 9  },
+            '11': { start_day: 9,  lunar_month: 10 },
+            '12': { start_day: 9,  lunar_month: 11 }
+        },
+        '2027': {
+            '0':  { start_day: 9,  lunar_month: 11 },
+            '1':  { start_day: 8,  lunar_month: 12 },
+            '2':  { start_day: 6,  lunar_month: 1  }, // Tết Đinh Mùi
+            '3':  { start_day: 8,  lunar_month: 2  },
+            '4':  { start_day: 6,  lunar_month: 3  },
+            '5':  { start_day: 6,  lunar_month: 4  },
+            '6':  { start_day: 5,  lunar_month: 5  },
+            '7':  { start_day: 4,  lunar_month: 6  },
+            '8':  { start_day: 2,  lunar_month: 6, isLeap: true }, // Nhuận tháng 6
+            '9':  { start_day: 1,  lunar_month: 7  },
+            '10': { start_day: 30, lunar_month: 9  },
+            '11': { start_day: 29, lunar_month: 10 },
+            '12': { start_day: 28, lunar_month: 12 }
+        },
+        '2028': {
+            '0':  { start_day: 28, lunar_month: 12 },
+            '1':  { start_day: 26, lunar_month: 1  }, // Tết Mậu Thân
+            '2':  { start_day: 25, lunar_month: 2  },
+            '3':  { start_day: 26, lunar_month: 3  },
+            '4':  { start_day: 24, lunar_month: 4  },
+            '5':  { start_day: 24, lunar_month: 5  },
+            '6':  { start_day: 23, lunar_month: 6  },
+            '7':  { start_day: 22, lunar_month: 7  },
+            '8':  { start_day: 21, lunar_month: 8  },
+            '9':  { start_day: 19, lunar_month: 9  },
+            '10': { start_day: 18, lunar_month: 10 },
+            '11': { start_day: 17, lunar_month: 11 },
+            '12': { start_day: 16, lunar_month: 12 }
+        }
     };
 
     function solarToLunar(day, month, year) {
-        if (year.toString() === '2026' && lunarCalendarData2026[month]) {
-            const monthData = lunarCalendarData2026[month];
-            const dayDiff = day - monthData.start_day;
-            
-            if (dayDiff < 0) {
-                // Day is before lunar month start, use previous month
-                const prevMonth = month === 1 ? 12 : parseInt(month) - 1;
-                const prevMonthData = lunarCalendarData2026[prevMonth];
-                const lunarDay = prevMonthData.days + dayDiff + 1;
-                const lunarMonth = prevMonth;
-                return { day: lunarDay, month: lunarMonth, year: year };
-            } else {
-                const lunarDay = dayDiff + monthData.start_lunar;
-                let lunarMonth = month;
-                let lunarYear = year;
-                
-                if (lunarDay > monthData.days) {
-                    const nextMonth = parseInt(month) + 1;
-                    if (nextMonth <= 12) {
-                        return solarToLunar(day + 1, month + 1, year);
-                    }
-                }
-                
-                return { day: lunarDay, month: parseInt(lunarMonth), year: lunarYear };
+        const m = parseInt(month);
+        const y = parseInt(year);
+        
+        if (lunarCalendarData[y] && lunarCalendarData[y][m]) {
+            const current = lunarCalendarData[y][m];
+            if (day < current.start_day) {
+                const prevData = (m === 1 && lunarCalendarData[y]['0']) ? lunarCalendarData[y]['0'] : lunarCalendarData[y][m - 1];
+                const prevSolarMonth = m === 1 ? 12 : m - 1;
+                const prevSolarYear = m === 1 ? y - 1 : y;
+                const daysInPrevSolar = daysInMonth(prevSolarMonth, prevSolarYear);
+
+                if (!prevData) return { day: 0, month: 0, year: y }; 
+
+                return { 
+                    day: (daysInPrevSolar - prevData.start_day + 1) + day, 
+                    month: prevData.lunar_month, 
+                    year: prevSolarYear,
+                    isLeap: prevData.isLeap || false
+                };
             }
+            return { 
+                day: day - current.start_day + 1, 
+                month: current.lunar_month, 
+                year: y,
+                isLeap: current.isLeap || false
+            };
         }
         
         // Fallback algorithm for other years
