@@ -1230,6 +1230,7 @@
         const day = parseInt(document.getElementById('tx-day').value);
         const category = document.getElementById('tx-category').value;
         const inputAmount = parseFloat(document.getElementById('tx-amount').value);
+        const note = document.getElementById('tx-note').value.trim();
 
         if (!inputAmount || inputAmount <= 0) { alert('Số tiền không hợp lệ!'); return; }
         const finalAmount = inputAmount * 1000;
@@ -1359,16 +1360,17 @@
             <td>${colTotals.mb.toLocaleString()} đ</td><td>${colTotals.shinhan.toLocaleString()} đ</td><td>${colTotals.tienmat.toLocaleString()} đ</td>
         `;
 
-        document.getElementById('tgt-anuong').querySelector('.target-editable').innerText = `${globalTargets.anuong.toLocaleString()} đ`;
-        document.getElementById('tgt-dichuyen').querySelector('.target-editable').innerText = `${globalTargets.dichuyen.toLocaleString()} đ`;
-        document.getElementById('tgt-nhacua').querySelector('.target-editable').innerText = `${globalTargets.nhacua.toLocaleString()} đ`;
-        document.getElementById('tgt-giaitri').querySelector('.target-editable').innerText = `${globalTargets.giaitri.toLocaleString()} đ`;
-        document.getElementById('tgt-muasam').querySelector('.target-editable').innerText = `${globalTargets.muasam.toLocaleString()} đ`;
-        document.getElementById('tgt-tietkiem').querySelector('.target-editable').innerText = `${globalTargets.tietkiem.toLocaleString()} đ`;
+        // Đảm bảo có giá trị mặc định 0 để tránh lỗi toLocaleString() khi dữ liệu cũ thiếu trường mới
+        document.getElementById('tgt-anuong').querySelector('.target-editable').innerText = `${(globalTargets.anuong || 0).toLocaleString()} đ`;
+        document.getElementById('tgt-dichuyen').querySelector('.target-editable').innerText = `${(globalTargets.dichuyen || 0).toLocaleString()} đ`;
+        document.getElementById('tgt-nhacua').querySelector('.target-editable').innerText = `${(globalTargets.nhacua || 0).toLocaleString()} đ`;
+        document.getElementById('tgt-giaitri').querySelector('.target-editable').innerText = `${(globalTargets.giaitri || 0).toLocaleString()} đ`;
+        document.getElementById('tgt-muasam').querySelector('.target-editable').innerText = `${(globalTargets.muasam || 0).toLocaleString()} đ`;
+        document.getElementById('tgt-tietkiem').querySelector('.target-editable').innerText = `${(globalTargets.tietkiem || 0).toLocaleString()} đ`;
 
         ['anuong', 'dichuyen', 'nhacua', 'giaitri', 'muasam', 'tietkiem'].forEach(key => {
             const spent = colTotals[key];
-            const target = globalTargets[key];
+            const target = globalTargets[key] || 0;
             const percent = target === 0 ? 0 : Math.min(100, Math.round((spent / target) * 100));
             const cell = document.getElementById(`tgt-${key}`);
             if (!cell) return;
@@ -1387,12 +1389,12 @@
         renderTargetProgressCards(colTotals);
 
         const exceedMap = {
-            anuong: colTotals.anuong > globalTargets.anuong,
-            dichuyen: colTotals.dichuyen > globalTargets.dichuyen,
-            nhacua: colTotals.nhacua > globalTargets.nhacua,
-            giaitri: colTotals.giaitri > globalTargets.giaitri,
-            muasam: colTotals.muasam > globalTargets.muasam,
-            tietkiem: colTotals.tietkiem > globalTargets.tietkiem
+            anuong: colTotals.anuong > (globalTargets.anuong || 0),
+            dichuyen: colTotals.dichuyen > (globalTargets.dichuyen || 0),
+            nhacua: colTotals.nhacua > (globalTargets.nhacua || 0),
+            giaitri: colTotals.giaitri > (globalTargets.giaitri || 0),
+            muasam: colTotals.muasam > (globalTargets.muasam || 0),
+            tietkiem: colTotals.tietkiem > (globalTargets.tietkiem || 0)
         };
 
         Object.keys(exceedMap).forEach(key => {
@@ -1588,6 +1590,8 @@
             
             if (cloudData.financialDatabase) financialDatabase = cloudData.financialDatabase;
             if (cloudData.globalTargets) globalTargets = cloudData.globalTargets;
+            // Tự động bổ sung mục tiêu "Nhà cửa" nếu dữ liệu đám mây chưa có hạng mục này
+            if (globalTargets && globalTargets.nhacua === undefined) globalTargets.nhacua = 0;
             if (cloudData.calendarNotes) calendarNotes = cloudData.calendarNotes;
         }
         
