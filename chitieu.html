@@ -494,7 +494,7 @@
         table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: right; font-size: 13px; table-layout: fixed; background: transparent; }
         
         .col-date { width: 65px; text-align: center; }
-        .col-anuong { width: 90px; } .col-dichuyen { width: 145px; } .col-giaitri { width: 85px; } .col-muasam { width: 100px; } .col-tietkiem { width: 105px; }
+        .col-anuong { width: 90px; } .col-dichuyen { width: 90px; } .col-nhacua { width: 110px; } .col-giaitri { width: 85px; } .col-muasam { width: 100px; } .col-tietkiem { width: 105px; }
         .col-total { width: 105px; } .col-mb { width: 85px; } .col-shinhan { width: 120px; } .col-tienmat { width: 95px; }
 
         thead tr th { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(203, 213, 225, 0.9); border-right: 1px solid rgba(203, 213, 225, 0.9); padding: 10px 6px; text-align: center; font-weight: 700; background: rgba(248, 250, 252, 0.96); backdrop-filter: blur(10px); }
@@ -739,10 +739,16 @@
                                         <td><span class="progress-percent" id="prog-anuong">0%</span></td>
                                     </tr>
                                     <tr>
-                                        <td class="label-cell">Di chuyển, nhà</td>
+                                        <td class="label-cell">Di chuyển</td>
                                         <td id="tgt-dichuyen" class="target-cell"><span class="target-editable" contenteditable="true" spellcheck="false" onblur="updateTargetValue('dichuyen', this)" onkeydown="handleTargetKey(event, 'dichuyen')">0 đ</span><span class="progress-text">0 / 0 đ</span></td>
                                         <td id="spnt-dichuyen">0 đ</td>
                                         <td><span class="progress-percent" id="prog-dichuyen">0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-cell">Nhà cửa</td>
+                                        <td id="tgt-nhacua" class="target-cell"><span class="target-editable" contenteditable="true" spellcheck="false" onblur="updateTargetValue('nhacua', this)" onkeydown="handleTargetKey(event, 'nhacua')">0 đ</span><span class="progress-text">0 / 0 đ</span></td>
+                                        <td id="spnt-nhacua">0 đ</td>
+                                        <td><span class="progress-percent" id="prog-nhacua">0%</span></td>
                                     </tr>
                                     <tr>
                                         <td class="label-cell">Giải trí</td>
@@ -815,17 +821,17 @@
             <div class="table-responsive">
                 <table id="excel-table">
                     <colgroup>
-                        <col class="col-date"><col class="col-anuong"><col class="col-dichuyen"><col class="col-giaitri"><col class="col-muasam"><col class="col-tietkiem"><col class="col-total"><col class="col-mb"><col class="col-shinhan"><col class="col-tienmat">
+                        <col class="col-date"><col class="col-anuong"><col class="col-dichuyen"><col class="col-nhacua"><col class="col-giaitri"><col class="col-muasam"><col class="col-tietkiem"><col class="col-total"><col class="col-mb"><col class="col-shinhan"><col class="col-tienmat">
                     </colgroup>
                     <thead>
                         <tr>
                             <th rowspan="2" style="background-color: #e2e8f0;" id="table-month-label">Tháng 5</th>
-                            <th colspan="5" class="header-main-expense">Chi Tiêu</th>
+                            <th colspan="6" class="header-main-expense">Chi Tiêu</th>
                             <th rowspan="2" style="background-color: #fef08a; color: #854d0e;">Tổng Chi</th>
                             <th colspan="3" class="header-main-income">Thu Nhập</th>
                         </tr>
                         <tr>
-                            <th class="header-sub">Ăn uống</th><th class="header-sub">Di chuyển, nhà cửa</th><th class="header-sub">Giải trí</th><th class="header-sub">Mua sắm</th><th class="header-sub">Tiết kiệm</th><th class="header-sub">MB</th><th class="header-sub">Shinhan</th><th class="header-sub">Tiền mặt</th>
+                            <th class="header-sub">Ăn uống</th><th class="header-sub">Di chuyển</th><th class="header-sub">Nhà cửa</th><th class="header-sub">Giải trí</th><th class="header-sub">Mua sắm</th><th class="header-sub">Tiết kiệm</th><th class="header-sub">MB</th><th class="header-sub">Shinhan</th><th class="header-sub">Tiền mặt</th>
                         </tr>
                     </thead>
                     <tbody id="table-body"></tbody>
@@ -894,7 +900,7 @@
 
     const categories = {
         expense: [
-            { value: 'anuong', label: 'Ăn uống' }, { value: 'dichuyen', label: 'Di chuyển, nhà cửa' },
+            { value: 'anuong', label: 'Ăn uống' }, { value: 'dichuyen', label: 'Di chuyển' }, { value: 'nhacua', label: 'Nhà cửa' },
             { value: 'giaitri', label: 'Giải trí' }, { value: 'muasam', label: 'Mua sắm' }, { value: 'tietkiem', label: 'Tiết kiệm' }
         ],
         income: [
@@ -903,14 +909,14 @@
     };
 
     const categoryLabels = {
-        anuong: 'Ăn uống', dichuyen: 'Di chuyển, nhà cửa', giaitri: 'Giải trí', muasam: 'Mua sắm', tietkiem: 'Tiết kiệm',
+        anuong: 'Ăn uống', dichuyen: 'Di chuyển', nhacua: 'Nhà cửa', giaitri: 'Giải trí', muasam: 'Mua sắm', tietkiem: 'Tiết kiệm',
         mb: 'Ngân hàng MB', shinhan: 'Ngân hàng Shinhan', tienmat: 'Tiền mặt'
     };
 
     // Database dữ liệu thực tế mẫu
     let financialDatabase = {};
 
-    let globalTargets = { anuong: 700000, dichuyen: 3000000, giaitri: 500000, muasam: 2000000, tietkiem: 6000000 };
+    let globalTargets = { anuong: 700000, dichuyen: 1000000, nhacua: 2000000, giaitri: 500000, muasam: 2000000, tietkiem: 6000000 };
     let calendarNotes = {};
     function getProgressColor(percent) {
         if (percent <= 50) return '#22c55e';
@@ -945,7 +951,7 @@
     function renderTargetProgressCards(colTotals) {
         const listEl = document.getElementById('target-card-list');
         if (!listEl) return;
-        const keys = ['anuong', 'dichuyen', 'giaitri', 'muasam', 'tietkiem'];
+        const keys = ['anuong', 'dichuyen', 'nhacua', 'giaitri', 'muasam', 'tietkiem'];
         listEl.innerHTML = keys.map(key => {
             const spent = colTotals[key];
             const target = globalTargets[key];
@@ -1307,7 +1313,7 @@
         renderMiniCalendar(month, year);
 
         const currentMonthData = (financialDatabase[year] && financialDatabase[year][month]) ? financialDatabase[year][month] : {};
-        let colTotals = { anuong: 0, dichuyen: 0, giaitri: 0, muasam: 0, tietkiem: 0, totalExpense: 0, mb: 0, shinhan: 0, tienmat: 0 };
+        let colTotals = { anuong: 0, dichuyen: 0, nhacua: 0, giaitri: 0, muasam: 0, tietkiem: 0, totalExpense: 0, mb: 0, shinhan: 0, tienmat: 0 };
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = ""; 
 
@@ -1318,8 +1324,9 @@
             const exp = dayData.expense || {};
             const inc = dayData.income || {};
 
-            const dayTotalExpense = (exp.anuong || 0) + (exp.dichuyen || 0) + (exp.giaitri || 0) + (exp.muasam || 0) + (exp.tietkiem || 0);
-            colTotals.anuong += exp.anuong || 0; colTotals.dichuyen += exp.dichuyen || 0; colTotals.giaitri += exp.giaitri || 0; colTotals.muasam += exp.muasam || 0; colTotals.tietkiem += exp.tietkiem || 0;
+            const dayTotalExpense = (exp.anuong || 0) + (exp.dichuyen || 0) + (exp.nhacua || 0) + (exp.giaitri || 0) + (exp.muasam || 0) + (exp.tietkiem || 0);
+            colTotals.anuong += exp.anuong || 0; colTotals.dichuyen += exp.dichuyen || 0; colTotals.nhacua += exp.nhacua || 0;
+            colTotals.giaitri += exp.giaitri || 0; colTotals.muasam += exp.muasam || 0; colTotals.tietkiem += exp.tietkiem || 0;
             colTotals.totalExpense += dayTotalExpense;
             colTotals.mb += inc.mb || 0; colTotals.shinhan += inc.shinhan || 0; colTotals.tienmat += inc.tienmat || 0;
 
@@ -1332,6 +1339,7 @@
                 <td>${day < 10 ? '0'+day : day}</td>
                 ${formatCell(exp.anuong, 'expense', 'anuong')}
                 ${formatCell(exp.dichuyen, 'expense', 'dichuyen')}
+                ${formatCell(exp.nhacua, 'expense', 'nhacua')}
                 ${formatCell(exp.giaitri, 'expense', 'giaitri')}
                 ${formatCell(exp.muasam, 'expense', 'muasam')}
                 ${formatCell(exp.tietkiem, 'expense', 'tietkiem')}
@@ -1346,18 +1354,19 @@
         const totalIncome = colTotals.mb + colTotals.shinhan + colTotals.tienmat;
         document.getElementById('row-totals').innerHTML = `
             <td style="text-align:center;">Tổng cộng</td>
-            <td>${colTotals.anuong.toLocaleString()} đ</td><td>${colTotals.dichuyen.toLocaleString()} đ</td><td>${colTotals.giaitri.toLocaleString()} đ</td><td>${colTotals.muasam.toLocaleString()} đ</td><td>${colTotals.tietkiem.toLocaleString()} đ</td>
+            <td>${colTotals.anuong.toLocaleString()} đ</td><td>${colTotals.dichuyen.toLocaleString()} đ</td><td>${colTotals.nhacua.toLocaleString()} đ</td><td>${colTotals.giaitri.toLocaleString()} đ</td><td>${colTotals.muasam.toLocaleString()} đ</td><td>${colTotals.tietkiem.toLocaleString()} đ</td>
             <td class="divider-col" style="background:#fef9c3;">${colTotals.totalExpense.toLocaleString()} đ</td>
             <td>${colTotals.mb.toLocaleString()} đ</td><td>${colTotals.shinhan.toLocaleString()} đ</td><td>${colTotals.tienmat.toLocaleString()} đ</td>
         `;
 
         document.getElementById('tgt-anuong').querySelector('.target-editable').innerText = `${globalTargets.anuong.toLocaleString()} đ`;
         document.getElementById('tgt-dichuyen').querySelector('.target-editable').innerText = `${globalTargets.dichuyen.toLocaleString()} đ`;
+        document.getElementById('tgt-nhacua').querySelector('.target-editable').innerText = `${globalTargets.nhacua.toLocaleString()} đ`;
         document.getElementById('tgt-giaitri').querySelector('.target-editable').innerText = `${globalTargets.giaitri.toLocaleString()} đ`;
         document.getElementById('tgt-muasam').querySelector('.target-editable').innerText = `${globalTargets.muasam.toLocaleString()} đ`;
         document.getElementById('tgt-tietkiem').querySelector('.target-editable').innerText = `${globalTargets.tietkiem.toLocaleString()} đ`;
 
-        ['anuong', 'dichuyen', 'giaitri', 'muasam', 'tietkiem'].forEach(key => {
+        ['anuong', 'dichuyen', 'nhacua', 'giaitri', 'muasam', 'tietkiem'].forEach(key => {
             const spent = colTotals[key];
             const target = globalTargets[key];
             const percent = target === 0 ? 0 : Math.min(100, Math.round((spent / target) * 100));
@@ -1380,6 +1389,7 @@
         const exceedMap = {
             anuong: colTotals.anuong > globalTargets.anuong,
             dichuyen: colTotals.dichuyen > globalTargets.dichuyen,
+            nhacua: colTotals.nhacua > globalTargets.nhacua,
             giaitri: colTotals.giaitri > globalTargets.giaitri,
             muasam: colTotals.muasam > globalTargets.muasam,
             tietkiem: colTotals.tietkiem > globalTargets.tietkiem
@@ -1398,6 +1408,7 @@
 
         document.getElementById('spnt-anuong').innerText = `${colTotals.anuong.toLocaleString()} đ`;
         document.getElementById('spnt-dichuyen').innerText = `${colTotals.dichuyen.toLocaleString()} đ`;
+        document.getElementById('spnt-nhacua').innerText = `${colTotals.nhacua.toLocaleString()} đ`;
         document.getElementById('spnt-giaitri').innerText = `${colTotals.giaitri.toLocaleString()} đ`;
         document.getElementById('spnt-muasam').innerText = `${colTotals.muasam.toLocaleString()} đ`;
         document.getElementById('spnt-tietkiem').innerText = `${colTotals.tietkiem.toLocaleString()} đ`;
