@@ -1059,47 +1059,70 @@
         
         if (!historyContainer || !historyList) return;
 
-        const dayData = (financialDatabase[year] && financialDatabase[year][month] && financialDatabase[year][month][day]) 
-                        ? financialDatabase[year][month][day] : null;
+        let html = '';
+        let hasData = false;
 
-        if (!dayData || (!dayData.expense && !dayData.income) || (Object.keys(dayData.expense || {}).length === 0 && Object.keys(dayData.income || {}).length === 0)) {
+        // Duyệt qua 3 ngày gần nhất tính từ ngày được chọn
+        for (let i = 0; i < 3; i++) {
+            let d = day - i;
+            let m = parseInt(month);
+            let y = parseInt(year);
+
+            // Xử lý chuyển tháng/năm nếu lùi ngày quá đầu tháng
+            if (d < 1) {
+                m--;
+                if (m < 1) {
+                    m = 12;
+                    y--;
+                }
+                const prevMonthDays = daysInMonth(m, y);
+                d = prevMonthDays + d;
+            }
+
+            const dayData = (financialDatabase[y] && financialDatabase[y][m] && financialDatabase[y][m][d]) 
+                            ? financialDatabase[y][m][d] : null;
+
+            if (dayData && ((dayData.expense && Object.keys(dayData.expense).length > 0) || (dayData.income && Object.keys(dayData.income).length > 0))) {
+                hasData = true;
+                html += `<div style="font-size: 11px; font-weight: bold; color: var(--text-sub); margin-top: 10px; margin-bottom: 5px; padding-left: 5px; border-left: 3px solid var(--primary);">Ngày ${d}/${m}/${y}</div>`;
+                
+                // Hiển thị Thu nhập
+                if (dayData.income) {
+                    Object.entries(dayData.income).forEach(([cat, amt]) => {
+                        html += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(34, 197, 94, 0.08); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1); margin-bottom: 4px;">
+                                <span style="color: #166534; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-icons-round" style="font-size: 14px;">add_circle</span> ${categoryLabels[cat] || cat}
+                                </span>
+                                <span style="color: #15803d; font-size: 13px; font-weight: 700;">+${amt.toLocaleString()} đ</span>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Hiển thị Chi tiêu
+                if (dayData.expense) {
+                    Object.entries(dayData.expense).forEach(([cat, amt]) => {
+                        html += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(239, 68, 68, 0.05); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.1); margin-bottom: 4px;">
+                                <span style="color: #991b1b; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-icons-round" style="font-size: 14px;">remove_circle</span> ${categoryLabels[cat] || cat}
+                                </span>
+                                <span style="color: #b91c1c; font-size: 13px; font-weight: 700;">-${amt.toLocaleString()} đ</span>
+                            </div>
+                        `;
+                    });
+                }
+            }
+        }
+
+        if (!hasData) {
             historyContainer.style.display = 'none';
             return;
         }
 
         historyContainer.style.display = 'block';
-        historyLabel.innerText = `${day}/${month}/${year}`;
-        
-        let html = '';
-        
-        // Hiển thị Thu nhập
-        if (dayData.income) {
-            Object.entries(dayData.income).forEach(([cat, amt]) => {
-                html += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(34, 197, 94, 0.08); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1);">
-                        <span style="color: #166534; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
-                            <span class="material-icons-round" style="font-size: 14px;">add_circle</span> ${categoryLabels[cat] || cat}
-                        </span>
-                        <span style="color: #15803d; font-size: 13px; font-weight: 700;">+${amt.toLocaleString()} đ</span>
-                    </div>
-                `;
-            });
-        }
-        
-        // Hiển thị Chi tiêu
-        if (dayData.expense) {
-            Object.entries(dayData.expense).forEach(([cat, amt]) => {
-                html += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(239, 68, 68, 0.05); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.1);">
-                        <span style="color: #991b1b; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
-                            <span class="material-icons-round" style="font-size: 14px;">remove_circle</span> ${categoryLabels[cat] || cat}
-                        </span>
-                        <span style="color: #b91c1c; font-size: 13px; font-weight: 700;">-${amt.toLocaleString()} đ</span>
-                    </div>
-                `;
-            });
-        }
-        
+        historyLabel.innerText = "3 ngày gần nhất";
         historyList.innerHTML = html;
     }
 
