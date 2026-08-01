@@ -1465,6 +1465,7 @@
         <div class="bulk-actions-panel">
             <input type="text" id="bulkRenameInput" placeholder="Nhập tên mới hàng loạt..." class="bulk-rename-input">
             <button class="btn-bulk-rename" onclick="renameSelected()"><i class="fas fa-edit"></i> ĐỔI TÊN</button>
+                <button class="selection-btn" onclick="downloadSelected()" style="border-color:#00ffff; color:#00ffff; min-width: 140px;"> <i class="fas fa-download"></i> TẢI ẢNH ĐÃ CHỌN</button>
             <button class="selection-btn" style="border-color:#ff007f; color:#ff007f; min-width: 44px; padding: 8px;" onclick="clearSelection()" title="Hủy bỏ"><i class="fas fa-times"></i></button>
         </div>
     </div>
@@ -1617,6 +1618,8 @@
         };
         const CLOUD_NAME = "dzf0r03o7";
         const UPLOAD_PRESET = "ipzgims4";
+        // Giới hạn tải về hàng loạt (an toàn cho trình duyệt):
+        const MAX_DOWNLOADS = 500;
         // ============================================================================
 
         firebase.initializeApp(firebaseConfig);
@@ -2039,6 +2042,37 @@
             }
         }
 
+        // Tải các ảnh đang được chọn (mở từng ảnh trong tab mới để trình duyệt quản lý việc tải xuống)
+        function downloadSelected() {
+            const ids = Array.from(selectedIds);
+            if (ids.length === 0) { showToast('Chưa chọn ảnh nào để tải!', 'error'); return; }
+
+            const limited = ids.slice(0, MAX_DOWNLOADS);
+            if (ids.length > MAX_DOWNLOADS) showToast(`Chỉ tải tối đa ${MAX_DOWNLOADS} ảnh mỗi lần. Đang tải ${limited.length} ảnh.`, 'error');
+
+            // Mở từng link với khoảng delay nhỏ để giảm khả năng bị chặn popup
+            limited.forEach((id, idx) => {
+                const item = currentImagesArray.find(i => i.id === id);
+                if (!item) return;
+                setTimeout(() => {
+                    try {
+                        const a = document.createElement('a');
+                        a.href = item.url;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.download = `${item.title || 'Waifu'}_${item.displayId || 'photo'}.jpg`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    } catch (e) {
+                        try { window.open(item.url, '_blank'); } catch (_) {}
+                    }
+                }, idx * 250); // 250ms gap giữa mỗi tab
+            });
+
+            showToast(`Bắt đầu tải ${limited.length} ảnh. Hãy kiểm tra trình quản lý tải xuống của trình duyệt.`);
+        }
+
         // Hàm xóa ảnh trực tiếp từ giao diện web
         async function deleteImage(key) {
             if (window.confirm('Bạn có muốn chuyển ảnh này vào Thùng rác không?')) {
@@ -2196,22 +2230,22 @@
             document.getElementById('lightboxDeleteBtn').onclick = function() { deleteImage(item.id); };
             
             document.getElementById('lightboxDownloadBtn').onclick = async function() {
-                try {
-                    const response = await fetch(item.url);
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    // Đặt tên file khi tải về bao gồm Tên ảnh và ID để dễ quản lý
-                    link.download = `${item.title || 'Waifu'}_${item.displayId || 'photo'}.jpg`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
-                    showToast('Đang bắt đầu tải xuống...');
-                } catch (err) {
-                    window.open(item.url, '_blank');
-                }
+                    // Thay vì fetch rồi tạo blob (bị tạm dừng khi tab background/khóa màn hình),
+                    // mở trực tiếp URL trong tab mới để trình duyệt/ hệ điều hành quản lý việc tải xuống.
+                    try {
+                        const link = document.createElement('a');
+                        link.href = item.url;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        // Thử đặt thuộc tính download (không bắt buộc trên nhiều host)
+                        link.download = `${item.title || 'Waifu'}_${item.displayId || 'photo'}.jpg`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        showToast('Đang bắt đầu tải xuống...');
+                    } catch (err) {
+                        window.open(item.url, '_blank');
+                    }
             };
         }
 
