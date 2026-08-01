@@ -203,41 +203,41 @@ header h1 {
       <div class="icon-wrapper"><i class="fa-solid fa-microscope"></i></div>
       <span>Test 3</span>
     </a>
-  </div>
+   </div>
+   <script>
+  async function loadRandomCosplayBackground() {
+    try {
+      // Fetch trực tiếp file photocosplay.html cùng thư mục
+      const response = await fetch('photocosplay.html');
+      const htmlText = await response.text();
 
-<script>
-    // Hàm tự động tải trang photocosplay.html và bóc tách các đường dẫn ảnh
-    async function setRandomCosplayBackground() {
-      try {
-        const response = await fetch('photocosplay.html');
-        if (!response.ok) throw new Error('Không thể tải photocosplay.html');
-        
-        const htmlText = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
+      // Đọc các thẻ <img> trong file photocosplay.html
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const imgElements = doc.querySelectorAll('img');
 
-        // Tìm tất cả các thẻ <img> hoặc thẻ có chứa đường dẫn ảnh trong trang photocosplay
-        const imgElements = doc.querySelectorAll('img');
-        let imageSources = Array.from(imgElements)
-          .map(img => img.getAttribute('src'))
-          .filter(src => src && !src.startsWith('data:'));
+      // Lấy danh sách link ảnh
+      const imageSources = Array.from(imgElements)
+        .map(img => img.getAttribute('src'))
+        .filter(src => src && !src.startsWith('data:'));
 
-        // Nếu tìm thấy danh sách ảnh
-        if (imageSources.length > 0) {
-          // Chọn ngẫu nhiên 1 ảnh
-          const randomSrc = imageSources[Math.floor(Math.random() * imageSources.length)];
-          
-          // Đặt làm ảnh nền
-          document.body.style.backgroundImage = `
-            linear-gradient(135deg, rgba(9, 13, 22, 0.85), rgba(26, 16, 48, 0.8)),
-            url('${randomSrc}')
-          `;
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy ảnh nền ngẫu nhiên:", error);
+      if (imageSources.length > 0) {
+        // Lấy ngẫu nhiên 1 ảnh
+        const randomImg = imageSources[Math.floor(Math.random() * imageSources.length)];
+
+        // Đặt làm nền
+        document.body.style.backgroundImage = `
+          linear-gradient(135deg, rgba(9, 13, 22, 0.82), rgba(26, 16, 48, 0.78)),
+          url('${randomImg}')
+        `;
       }
+    } catch (error) {
+      console.error("Lỗi tải ảnh nền:", error);
     }
+  }
 
-    // Chạy hàm ngay khi mở trang
-    setRandomCosplayBackground();
-  </script>
+  loadRandomCosplayBackground();
+</script>
+</script>
+</body>
+</html>
