@@ -7,6 +7,8 @@
   
   <!-- FontAwesome 6 Icon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -155,99 +157,54 @@ header h1 {
   </header>
 
   <div class="portal-grid">
-    <a href="https://facebook.com" target="_blank" rel="noopener" class="card c-fb">
-      <div class="icon-wrapper"><i class="fa-brands fa-facebook-f"></i></div>
+    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Mở Facebook (mở cửa sổ mới)" class="card c-fb">
+      <div class="icon-wrapper"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></div>
       <span>Facebook</span>
     </a>
-    <a href="https://tiktok.com" target="_blank" rel="noopener" class="card c-tiktok">
-      <div class="icon-wrapper"><i class="fa-brands fa-tiktok"></i></div>
+    <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" aria-label="Mở TikTok (mở cửa sổ mới)" class="card c-tiktok">
+      <div class="icon-wrapper"><i class="fa-brands fa-tiktok" aria-hidden="true"></i></div>
       <span>TikTok</span>
     </a>
-    <a href="https://youtube.com" target="_blank" rel="noopener" class="card c-yt">
-      <div class="icon-wrapper"><i class="fa-brands fa-youtube"></i></div>
+    <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="Mở YouTube (mở cửa sổ mới)" class="card c-yt">
+      <div class="icon-wrapper"><i class="fa-brands fa-youtube" aria-hidden="true"></i></div>
       <span>YouTube</span>
     </a>
-    <a href="photocosplay.html" class="card c-photo">
-      <div class="icon-wrapper"><i class="fa-solid fa-camera-retro"></i></div>
+    <a href="photocosplay.html" aria-label="Photo Cosplay" class="card c-photo">
+      <div class="icon-wrapper"><i class="fa-solid fa-camera-retro" aria-hidden="true"></i></div>
       <span>Photo Cosplay</span>
     </a>
-    <a href="chitieu.html" class="card c-wallet">
-      <div class="icon-wrapper"><i class="fa-solid fa-wallet"></i></div>
+    <a href="chitieu.html" aria-label="Chi Tiêu" class="card c-wallet">
+      <div class="icon-wrapper"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div>
       <span>Chi Tiêu</span>
     </a>
-    <a href="game.html" class="card c-game">
-      <div class="icon-wrapper"><i class="fa-solid fa-gamepad"></i></div>
+    <a href="game.html" aria-label="Game" class="card c-game">
+      <div class="icon-wrapper"><i class="fa-solid fa-gamepad" aria-hidden="true"></i></div>
       <span>Game</span>
     </a>
-    <a href="suckhor.html" class="card c-health">
-      <div class="icon-wrapper"><i class="fa-solid fa-heart-pulse"></i></div>
+    <a href="suckhor.html" aria-label="Sức Khỏe" class="card c-health">
+      <div class="icon-wrapper"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></div>
       <span>Sức Khỏe</span>
     </a>
-    <a href="python.html" class="card c-python">
-      <div class="icon-wrapper"><i class="fa-brands fa-python"></i></div>
+    <a href="python.html" aria-label="Python" class="card c-python">
+      <div class="icon-wrapper"><i class="fa-brands fa-python" aria-hidden="true"></i></div>
       <span>Python</span>
     </a>
-    <a href="huongdanweb.html" class="card c-book">
-      <div class="icon-wrapper"><i class="fa-solid fa-book-open"></i></div>
+    <a href="huongdanweb.html" aria-label="Hướng Dẫn Web" class="card c-book">
+      <div class="icon-wrapper"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
       <span>Hướng Dẫn Web</span>
     </a>
-    <a href="test.html" class="card c-test">
-      <div class="icon-wrapper"><i class="fa-solid fa-vial"></i></div>
+    <a href="test.html" aria-label="Test 1" class="card c-test">
+      <div class="icon-wrapper"><i class="fa-solid fa-vial" aria-hidden="true"></i></div>
       <span>Test 1</span>
     </a>
-    <a href="test2.html" class="card c-test">
-      <div class="icon-wrapper"><i class="fa-solid fa-flask"></i></div>
+    <a href="test2.html" aria-label="Test 2" class="card c-test">
+      <div class="icon-wrapper"><i class="fa-solid fa-flask" aria-hidden="true"></i></div>
       <span>Test 2</span>
     </a>
-    <a href="test3.html" class="card c-test">
-      <div class="icon-wrapper"><i class="fa-solid fa-microscope"></i></div>
+    <a href="test3.html" aria-label="Test 3" class="card c-test">
+      <div class="icon-wrapper"><i class="fa-solid fa-microscope" aria-hidden="true"></i></div>
       <span>Test 3</span>
     </a>
-   </div>
-<script>
-  async function loadRandomCosplayBackground() {
-    try {
-      // 1. Tải file photocosplay.html
-      const response = await fetch('photocosplay.html');
-      if (!response.ok) throw new Error('Không tìm thấy file photocosplay.html');
-
-      const htmlText = await response.text();
-
-      // 2. Đọc DOM để tìm tất cả các thẻ <img>
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlText, 'text/html');
-      const imgElements = doc.querySelectorAll('img');
-
-      // 3. Lấy danh sách đường dẫn ảnh
-      const imageSources = Array.from(imgElements)
-        .map(img => img.getAttribute('src'))
-        .filter(src => src && !src.startsWith('data:'));
-
-      console.log("Danh sách ảnh tìm thấy trong photocosplay.html:", imageSources);
-
-      if (imageSources.length > 0) {
-        // 4. Lấy ngẫu nhiên 1 ảnh
-        const randomSrc = imageSources[Math.floor(Math.random() * imageSources.length)];
-
-        // Chuyển đường dẫn tương đối thành đường dẫn tuyệt đối chính xác
-        const fullImageUrl = new URL(randomSrc, window.location.href).href;
-
-        // 5. Đặt làm nền
-        document.body.style.backgroundImage = `
-          linear-gradient(135deg, rgba(9, 13, 22, 0.82), rgba(26, 16, 48, 0.78)),
-          url('${fullImageUrl}')
-        `;
-      } else {
-        console.warn("Không tìm thấy thẻ <img> nào trong file photocosplay.html");
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy ảnh nền:", error);
-    }
-  }
-
-  // Chạy hàm ngay khi mở trang
-  loadRandomCosplayBackground();
-</script>
-</script>
+  </div>
 </body>
 </html>
