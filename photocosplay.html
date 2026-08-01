@@ -1671,8 +1671,8 @@
                         {
                             image: { content: base64 },
                             features: [
-                                { type: 'LABEL_DETECTION', maxResults: 3 },
-                                { type: 'WEB_DETECTION', maxResults: 3 }
+                                { type: 'LABEL_DETECTION', maxResults: 5 },
+                                { type: 'WEB_DETECTION', maxResults: 5 }
                             ]
                         }
                     ]
@@ -1683,16 +1683,56 @@
                     body: JSON.stringify(body)
                 });
                 const data = await response.json();
-                const annotation = data.responses?.[0];
-                const labels = annotation?.labelAnnotations || [];
-                const descriptions = labels.map(item => item.description).filter(Boolean);
-                if (descriptions.length > 0) {
-                    return descriptions.slice(0, 2).join(' ');
-                }
+                const annotation = data.responses?.[0] || {};
+                return buildVisionTitle(annotation);
             } catch (error) {
                 console.warn('AI title detection failed:', error);
             }
             return "";
+        }
+
+        function normalizeTitle(text) {
+            return text
+                .replace(/[^A-Za-z0-9\s]/g, ' ')
+                .replace(/[\s\-_]+/g, ' ')
+                .trim()
+                .replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        function isValidTitle(title) {
+            if (!title || title.length < 3) return false;
+            const words = title.split(' ').filter(Boolean);
+            if (words.length === 0) return false;
+            const longWords = words.filter(w => w.length >= 3);
+            if (longWords.length === 0) return false;
+            const shortWordCount = words.filter(w => w.length <= 1).length;
+            if (shortWordCount > words.length / 2) return false;
+            if (/^[A-Z]{2,}$/.test(title.replace(/\s+/g, ''))) return false;
+            return true;
+        }
+
+        function buildVisionTitle(annotation) {
+            const candidates = [];
+            if (Array.isArray(annotation.bestGuessLabels)) {
+                annotation.bestGuessLabels.forEach(item => {
+                    if (item.label) candidates.push(item.label);
+                });
+            }
+            if (Array.isArray(annotation.webEntities)) {
+                annotation.webEntities.forEach(item => {
+                    if (item.description) candidates.push(item.description);
+                });
+            }
+            if (Array.isArray(annotation.labelAnnotations)) {
+                annotation.labelAnnotations.forEach(item => {
+                    if (item.description) candidates.push(item.description);
+                });
+            }
+            for (const raw of candidates) {
+                const cleaned = normalizeTitle(raw);
+                if (isValidTitle(cleaned)) return cleaned;
+            }
+            return '';
         }
 
         function inferTitleFromFilename(filename) {
@@ -1701,9 +1741,8 @@
                 .replace(/\d+/g, ' ')
                 .trim();
             if (!name) return '';
-            return name.split(/\s+/)
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join(' ');
+            const normalized = normalizeTitle(name);
+            return isValidTitle(normalized) ? normalized : '';
         }
 
         function extractTextFromUrl(url) {
@@ -1720,14 +1759,14 @@
             const titleFromName = inferTitleFromFilename(file.name);
             if (titleFromName) return titleFromName;
             const visionTitle = await getImageTitleFromVision(file);
-            return visionTitle || '';
+            return isValidTitle(visionTitle) ? visionTitle : '';
         }
 
         async function inferOrDetectImageTitleFromUrl(url) {
             const titleFromUrl = extractTextFromUrl(url);
             if (titleFromUrl) return titleFromUrl;
             const visionTitle = await getImageTitleFromVision(url);
-            return visionTitle || '';
+            return isValidTitle(visionTitle) ? visionTitle : '';
         }
 
         let currentImagesArray = []; 
