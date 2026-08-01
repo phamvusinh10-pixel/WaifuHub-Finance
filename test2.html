@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Quên mật khẩu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#121212;color:#f1f1f1;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .box{background:#1e1e1e;padding:28px;border-radius:12px;width:420px;max-width:95vw;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    h2{margin-top:0}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:12px;color:#bdbdbd;margin-bottom:6px}
+    .field input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2c2c2c;background:#141414;color:#f1f1f1}
+    .btn{margin-top:6px;padding:12px 18px;background:#00aaee;border:none;color:#fff;border-radius:10px;cursor:pointer}
+    .btn:hover{background:#0088cc}
+    a{color:#9ad9ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    /* Trường mồi cho password manager */
+    .offscreen{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Quên mật khẩu</h2>
+    <p style="margin-top:-6px;color:#bdbdbd">Nhập đúng thông tin để đặt lại mật khẩu.</p>
+
+    <form id="fpForm" method="POST" action="/forgot_password"
+          autocomplete="off" spellcheck="false">
+      <!-- trường mồi để chặn gợi ý/autofill -->
+      <input class="offscreen" type="text" name="fake_user" autocomplete="username">
+      <input class="offscreen" type="password" name="fake_pass" autocomplete="current-password">
+
+      <div class="field">
+        <label>Tên đăng nhập</label>
+        <input type="text" name="username" id="username"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+               readonly data-ro="1" required>
+      </div>
+      <div class="field">
+        <label>Mã VH</label>
+        <input type="text" name="vh_code"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+               readonly data-ro="1" required>
+      </div>
+      <div class="field">
+        <label>Ngày onboard</label>
+        <input type="date" name="onboard_date"
+               autocomplete="off" required>
+      </div>
+
+      <button type="submit" class="btn">Xác nhận</button>
+      <span style="margin-left:10px"><a href="/login">Hủy</a></span>
+    </form>
+  </div>
+
+  <script>
+    // ES5 – bỏ readonly khi focus để hạn chế autofill/suggestions
+    (function(){
+      function enableOnFocus(el){
+        if(!el) return;
+        el.addEventListener('focus', function(){
+          if (el.hasAttribute('readonly') && el.getAttribute('data-ro') === '1'){
+            setTimeout(function(){ el.removeAttribute('readonly'); }, 0);
+          }
+        });
+      }
+      var sens = document.querySelectorAll('[data-ro="1"]');
+      for (var i=0;i<sens.length;i++) enableOnFocus(sens[i]);
+    })();
+  </script>
+</body>
+</html>

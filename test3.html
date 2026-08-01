@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Đăng nhập - EQP Monitoring</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #f1f1f1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .left-pane, .right-pane {
+      background: #1e1e1e;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .left-pane {
+      flex: 1 1 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .left-pane img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+    .right-pane {
+      flex: 1 1 50%;
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    h2 { margin: 0 0 16px; }
+    .sub {
+      margin: 0 0 24px;
+      color: #bdbdbd;
+      font-size: 14px;
+    }
+    .field { margin-bottom: 14px; }
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #2c2c2c;
+      outline: none;
+      background: #141414;
+      color: #f1f1f1;
+    }
+    .actions {
+      margin-top: 10px;
+      min-height: 60px;
+      position: relative;
+    }
+    .btn {
+      padding: 12px 20px;
+      border-radius: 10px;
+      background: #00aaee;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background .2s ease;
+      position: relative;
+    }
+    .btn:hover { background: #0088cc; }
+    .links {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+    .links a { color: #9ad9ff; text-decoration: none; }
+    .links a:hover { text-decoration: underline; }
+    .error {
+      margin-top: 10px;
+      color: #ff6b6b;
+      font-size: 14px;
+      min-height: 18px;
+    }
+    @media (max-width: 900px) {
+      .wrap { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Ảnh minh họa bên trái -->
+    <div class="left-pane">
+      <img src="/static/images/smartwatch.gif" alt="Smartwatch illustration"
+           onerror="this.src='/static/images/smartwatch.png'">
+    </div>
+
+    <!-- Form đăng nhập -->
+  <div class="right-pane" id="loginPanel">
+    <h2>Đăng nhập</h2>
+    <p class="sub">Truy cập hệ thống EQP Monitoring</p>
+
+    <!-- Flask sẽ xử lý action="/login" -->
+    <form id="loginForm" method="POST" action="/login" autocomplete="off">
+      <div class="field">
+        <input type="text" id="username" name="username" placeholder="Tên đăng nhập" autocomplete="off" required>
+      </div>
+      <div class="field">
+        <input type="password" id="password" name="password" placeholder="Mật khẩu" autocomplete="off" required>
+      </div>
+
+      <div class="actions">
+        <button type="submit" id="loginBtn" class="btn">Login</button>
+      </div>
+
+      <div class="links">
+        <a href="/register">Tạo tài khoản</a>
+        <a href="/forgot_password">Quên mật khẩu?</a>
+      </div>
+
+      <!-- Flask sẽ chèn error message nếu có -->
+      
+        <div id="errorMsg" class="error"></div>
+      
+    </form>
+</div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const btn = document.getElementById('loginBtn');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+
+    function fieldsFilled() {
+      return username.value.trim() && password.value.trim();
+    }
+
+    function resetBtn() {
+      btn.style.position = 'relative';
+      btn.style.left = '';
+      btn.style.top = '';
+    }
+
+    // Nút chạy trốn nếu chưa nhập đủ
+    btn.addEventListener('mouseover', function (e) {
+      if (fieldsFilled()) return;
+
+      const actions = btn.parentElement;
+      const actRect = actions.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+
+      btn.style.position = 'absolute';
+
+      const pad = 5;
+      const maxLeft = actRect.width - btnRect.width - pad;
+      const maxTop  = actRect.height - btnRect.height - pad;
+
+      let randLeft, randTop;
+      do {
+        randLeft = Math.floor(Math.random() * maxLeft);
+        randTop  = Math.floor(Math.random() * maxTop);
+      } while (Math.abs(randLeft - (e.clientX - actRect.left)) < 60 &&
+               Math.abs(randTop - (e.clientY - actRect.top)) < 60);
+
+      btn.style.left = randLeft + 'px';
+      btn.style.top = randTop + 'px';
+    });
+
+    [username, password].forEach(el => {
+      el.addEventListener('input', () => {
+        if (fieldsFilled()) resetBtn();
+      });
+    });
+  </script>
+</body>
+</html>

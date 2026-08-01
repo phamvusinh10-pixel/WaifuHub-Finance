@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Đăng ký tài khoản</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#121212;color:#f1f1f1;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .box{background:#1e1e1e;padding:28px;border-radius:12px;width:560px;max-width:95vw;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    h2{margin-top:0}
+    .row{display:flex;gap:12px}
+    .row .field{flex:1}
+    @media (max-width:640px){.row{flex-direction:column}}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:12px;color:#bdbdbd;margin-bottom:6px}
+    .field input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2c2c2c;background:#141414;color:#f1f1f1}
+    .hint{font-size:12px;color:#8fa3b8;margin-top:6px;line-height:1.45}
+    .helper{font-size:12px;color:#90caf9;min-height:18px;margin-top:6px}
+    .helper.ok{color:#4caf50}
+    .helper.warn{color:#ffb74d}
+    .btn{margin-top:6px;padding:12px 18px;background:#00aaee;border:none;color:#fff;border-radius:10px;cursor:pointer}
+    .btn:hover{background:#0088cc}
+    a{color:#9ad9ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .error{color:#ff6b6b;min-height:18px;margin-top:6px}
+    .success{color:#4caf50;margin-top:10px;min-height:18px}
+    .note{margin:10px 0 16px;padding:10px 12px;border:1px solid #2c3f52;background:#121b24;border-radius:10px;color:#cfe6ff;font-size:13px;line-height:1.5}
+    .offscreen{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Tạo tài khoản</h2>
+    <p style="margin-top:-6px;color:#bdbdbd">Gửi yêu cầu đăng ký. Admin duyệt xong bạn mới đăng nhập được.</p>
+    <div class="note">Chỉ <strong>duyệt</strong> cho người dùng <strong>là Technician / Engineer / Leader</strong> của SW Inspection<strong></strong>.</div>
+
+    
+    <div id="err" class="error"></div>
+
+    <form id="regForm"
+          method="POST"
+          action="/register"
+          onsubmit="return validate();"
+          autocomplete="off" spellcheck="false">
+
+      <input class="offscreen" type="text" name="fake_user" autocomplete="username">
+      <input class="offscreen" type="password" name="fake_pass" autocomplete="current-password">
+
+      <div class="row">
+        <div class="field">
+          <label>Họ và tên</label>
+          <input type="text" name="full_name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+        </div>
+        <div class="field">
+          <label>Chức vụ</label>
+          <input type="text" name="position" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Mã VH</label>
+          <input type="text" name="vh_code" id="vh_code" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="15" oninput=" this.value = this.value.toUpperCase(); if (!this.value.startsWith('VH')) {this.value = 'VH' + this.value.replace(/[^0-9]/g,'');} else {this.value = 'VH' + this.value.slice(2).replace(/[^0-9]/g,'');}" required>
+          <div class="hint">Mỗi mã VH chỉ đăng ký được 1 tài khoản.</div>
+          <div id="vhHelp" class="helper"></div>
+        </div>
+        <div class="field">
+          <label>Ngày onboard</label>
+          <input type="date" name="onboard_date" autocomplete="off" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Ngày sinh</label>
+          <input type="date" name="birth_date" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label>Tên đăng nhập</label>
+          <input type="text" name="username" id="username" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="latin" pattern="[A-Za-z0-9_]+" oninput="this.value=this.value.replace(/[^A-Za-z0-9_]/g,'')" data-ro="1" readonly required>
+          <div class="hint">Có phân biệt chữ hoa/chữ thường</div>
+          <div id="usernameHelp" class="helper"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Mật khẩu</label>
+          <input type="password" id="pw" name="password" autocomplete="off" data-ro="1" readonly required>
+        </div>
+        <div class="field">
+          <label>Nhập lại mật khẩu</label>
+          <input type="password" id="pw2" name="confirm_password" autocomplete="off" data-ro="1" readonly required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn">Gửi đăng ký</button>
+      <span style="margin-left:10px"><a href="/login">Quay lại đăng nhập</a></span>
+    </form>
+  </div>
+
+  <script>
+    function qs(s, r){ return (r||document).querySelector(s); }
+    function removeReadonlyOnFocus(el){
+      if(!el) return;
+      el.addEventListener('focus', function(){
+        if (el.hasAttribute('readonly') && el.getAttribute('data-ro') === '1'){
+          setTimeout(function(){ el.removeAttribute('readonly'); }, 0);
+        }
+      });
+    }
+
+    (function(){
+      var sens = document.querySelectorAll('[data-ro="1"]');
+      for (var i=0;i<sens.length;i++){ removeReadonlyOnFocus(sens[i]); }
+    })();
+
+    var usernameInput = qs('#username');
+    var vhCodeInput = qs('#vh_code');
+    var err = document.getElementById('err');
+    var usernameHelp = document.getElementById('usernameHelp');
+    var vhHelp = document.getElementById('vhHelp');
+    var usernameExists = false;
+    var vhCodeExists = false;
+    var timerUsername = null;
+    var timerVh = null;
+
+    function postUrlEncoded(url, data, cbOk, cbErr){
+      try{
+        var x = new XMLHttpRequest();
+        x.open('POST', url, true);
+        x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        x.onreadystatechange = function(){
+          if (x.readyState === 4){
+            if (x.status >= 200 && x.status < 300){
+              var o=null; try{ o = JSON.parse(x.responseText || '{}'); }catch(e){ o=null; }
+              cbOk && cbOk(o||{});
+            }else{
+              cbErr && cbErr(new Error('HTTP '+x.status));
+            }
+          }
+        };
+        x.send(data);
+      }catch(e){ cbErr && cbErr(e); }
+    }
+
+    function setHelper(el, text, cls){
+      if(!el) return;
+      el.className = 'helper' + (cls ? ' ' + cls : '');
+      el.textContent = text || '';
+    }
+
+    function scheduleCheckUsername(){
+      if (!usernameInput) return;
+      if (timerUsername) clearTimeout(timerUsername);
+      var val = (usernameInput.value||'').replace(/^\s+|\s+$/g,'');
+      if (!val){ usernameExists = false; setHelper(usernameHelp, '', ''); return; }
+      timerUsername = setTimeout(function(){
+        postUrlEncoded('/check_username',
+          'username=' + encodeURIComponent(val),
+          function(data){
+            if (data && data.exists){
+              usernameExists = true;
+              setHelper(usernameHelp, 'Tên đăng nhập này đã tồn tại.', 'warn');
+            }else{
+              usernameExists = false;
+              setHelper(usernameHelp, 'Tên đăng nhập có thể sử dụng.', 'ok');
+            }
+          },
+          function(){ }
+        );
+      }, 350);
+    }
+
+    function scheduleCheckVhCode(){
+      if (!vhCodeInput) return;
+      if (timerVh) clearTimeout(timerVh);
+      var val = (vhCodeInput.value||'').replace(/^\s+|\s+$/g,'');
+      if (!val){ vhCodeExists = false; setHelper(vhHelp, '', ''); return; }
+      timerVh = setTimeout(function(){
+        postUrlEncoded('/check_vh_code',
+          'vh_code=' + encodeURIComponent(val),
+          function(data){
+            if (data && data.exists){
+              vhCodeExists = true;
+              setHelper(vhHelp, 'Mã VH này đã được dùng bởi tài khoản khác.', 'warn');
+            }else{
+              vhCodeExists = false;
+              setHelper(vhHelp, 'Mã VH này chưa bị trùng.', 'ok');
+            }
+          },
+          function(){ }
+        );
+      }, 350);
+    }
+
+    if (usernameInput){
+      usernameInput.addEventListener('input', scheduleCheckUsername);
+      usernameInput.addEventListener('keyup', scheduleCheckUsername);
+      usernameInput.addEventListener('change', scheduleCheckUsername);
+    }
+
+    if (vhCodeInput){
+      vhCodeInput.addEventListener('input', scheduleCheckVhCode);
+      vhCodeInput.addEventListener('keyup', scheduleCheckVhCode);
+      vhCodeInput.addEventListener('change', scheduleCheckVhCode);
+    }
+
+    function validate(){
+      var pw  = (qs('#pw').value||'').replace(/^\s+|\s+$/g,'');
+      var pw2 = (qs('#pw2').value||'').replace(/^\s+|\s+$/g,'');
+      if (usernameExists){
+        err.textContent = '⚠️ Tên đăng nhập đã tồn tại.';
+        return false;
+      }
+      if (vhCodeExists){
+        err.textContent = '⚠️ Mã VH này đã được dùng cho tài khoản khác.';
+        return false;
+      }
+      if (pw.length < 6){
+        err.textContent = 'Mật khẩu tối thiểu 6 ký tự';
+        return false;
+      }
+      if (pw !== pw2){
+        err.textContent = 'Mật khẩu nhập lại không khớp';
+        return false;
+      }
+      err.textContent = '';
+      return true;
+    }
+  </script>
+</body>
+</html>
