@@ -204,38 +204,48 @@ header h1 {
       <span>Test 3</span>
     </a>
    </div>
-   <script>
+<script>
   async function loadRandomCosplayBackground() {
     try {
-      // Fetch trực tiếp file photocosplay.html cùng thư mục
+      // 1. Tải file photocosplay.html
       const response = await fetch('photocosplay.html');
+      if (!response.ok) throw new Error('Không tìm thấy file photocosplay.html');
+
       const htmlText = await response.text();
 
-      // Đọc các thẻ <img> trong file photocosplay.html
+      // 2. Đọc DOM để tìm tất cả các thẻ <img>
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlText, 'text/html');
       const imgElements = doc.querySelectorAll('img');
 
-      // Lấy danh sách link ảnh
+      // 3. Lấy danh sách đường dẫn ảnh
       const imageSources = Array.from(imgElements)
         .map(img => img.getAttribute('src'))
         .filter(src => src && !src.startsWith('data:'));
 
-      if (imageSources.length > 0) {
-        // Lấy ngẫu nhiên 1 ảnh
-        const randomImg = imageSources[Math.floor(Math.random() * imageSources.length)];
+      console.log("Danh sách ảnh tìm thấy trong photocosplay.html:", imageSources);
 
-        // Đặt làm nền
+      if (imageSources.length > 0) {
+        // 4. Lấy ngẫu nhiên 1 ảnh
+        const randomSrc = imageSources[Math.floor(Math.random() * imageSources.length)];
+
+        // Chuyển đường dẫn tương đối thành đường dẫn tuyệt đối chính xác
+        const fullImageUrl = new URL(randomSrc, window.location.href).href;
+
+        // 5. Đặt làm nền
         document.body.style.backgroundImage = `
           linear-gradient(135deg, rgba(9, 13, 22, 0.82), rgba(26, 16, 48, 0.78)),
-          url('${randomImg}')
+          url('${fullImageUrl}')
         `;
+      } else {
+        console.warn("Không tìm thấy thẻ <img> nào trong file photocosplay.html");
       }
     } catch (error) {
-      console.error("Lỗi tải ảnh nền:", error);
+      console.error("Lỗi khi lấy ảnh nền:", error);
     }
   }
 
+  // Chạy hàm ngay khi mở trang
   loadRandomCosplayBackground();
 </script>
 </script>
