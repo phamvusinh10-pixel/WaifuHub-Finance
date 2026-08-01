@@ -1404,6 +1404,9 @@
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
                 <div id="status" style="font-size: 11px;"></div>
+                <div id="scanProgressContainer" style="display: none; margin: 8px 0 0 0; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.08);">
+                    <div id="scanProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #38bdf8, #c084fc, #fb7185); transition: width 0.2s ease;"></div>
+                </div>
             
             <div class="stats-mini-grid">
                 <div class="stat-mini-item">
@@ -2218,21 +2221,31 @@
         async function scanAndTagExistingImages() {
             if (!confirm('Quét toàn bộ ảnh hiện có và thêm tên cho ảnh chưa có tên?')) return;
             statusDiv.innerText = '🔎 Đang quét dữ liệu ảnh...';
+            const scanProgressContainer = document.getElementById('scanProgressContainer');
+            const scanProgressBar = document.getElementById('scanProgressBar');
+            scanProgressContainer.style.display = 'block';
+            scanProgressBar.style.width = '0%';
+
             const snapshot = await database.ref('cosplay_images').once('value');
             const data = snapshot.val();
             if (!data) {
                 showToast('Không tìm thấy ảnh nào trong cơ sở dữ liệu!', 'error');
                 statusDiv.innerText = '';
+                scanProgressContainer.style.display = 'none';
                 return;
             }
 
             const updates = {};
             const keys = Object.keys(data);
             let updatedCount = 0;
-            for (const key of keys) {
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
                 const item = data[key];
                 const currentTitle = (item.title || '').trim();
-                if (currentTitle && currentTitle !== 'Waifu') continue;
+                if (currentTitle && currentTitle !== 'Waifu') {
+                    scanProgressBar.style.width = `${Math.round(((i + 1) / keys.length) * 100)}%`;
+                    continue;
+                }
 
                 const inferred = await inferOrDetectImageTitleFromUrl(item.url);
                 const newTitle = inferred || 'Waifu';
@@ -2240,6 +2253,7 @@
                     updates[`/cosplay_images/${key}/title`] = newTitle;
                     updatedCount++;
                 }
+                scanProgressBar.style.width = `${Math.round(((i + 1) / keys.length) * 100)}%`;
             }
 
             if (Object.keys(updates).length === 0) {
@@ -2249,24 +2263,33 @@
                 showToast(`Đã cập nhật tên cho ${updatedCount} ảnh.`);
             }
             statusDiv.innerText = '';
+            document.getElementById('scanProgressContainer').style.display = 'none';
+            document.getElementById('scanProgressBar').style.width = '0%';
             refreshView();
         }
 
         async function scanAndRetagAllImages() {
             if (!confirm('Cập nhật lại tên cho tất cả ảnh hiện có?')) return;
             statusDiv.innerText = '🔄 Đang cập nhật tên cho toàn bộ ảnh...';
+            const scanProgressContainer = document.getElementById('scanProgressContainer');
+            const scanProgressBar = document.getElementById('scanProgressBar');
+            scanProgressContainer.style.display = 'block';
+            scanProgressBar.style.width = '0%';
+
             const snapshot = await database.ref('cosplay_images').once('value');
             const data = snapshot.val();
             if (!data) {
                 showToast('Không tìm thấy ảnh nào trong cơ sở dữ liệu!', 'error');
                 statusDiv.innerText = '';
+                scanProgressContainer.style.display = 'none';
                 return;
             }
 
             const updates = {};
             const keys = Object.keys(data);
             let updatedCount = 0;
-            for (const key of keys) {
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
                 const item = data[key];
                 const currentTitle = (item.title || '').trim();
                 const inferred = await inferOrDetectImageTitleFromUrl(item.url);
@@ -2275,6 +2298,7 @@
                     updates[`/cosplay_images/${key}/title`] = newTitle;
                     updatedCount++;
                 }
+                scanProgressBar.style.width = `${Math.round(((i + 1) / keys.length) * 100)}%`;
             }
 
             if (Object.keys(updates).length === 0) {
